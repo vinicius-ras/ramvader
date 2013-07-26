@@ -61,7 +61,7 @@ namespace RAMvader
                  * is treated in the Win32Exception catch block. */
                 targetProcess.WaitForExit( 0 );
             }
-            catch ( Win32Exception ex )
+            catch ( Win32Exception )
             {
                 /* Try to retrieve the Process' state again, but this time by
                  * directly opening the Process through its identifier. If this
