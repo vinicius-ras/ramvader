@@ -42,8 +42,8 @@
     <Compile Include="InstanceAlreadyAttachedException.cs" />
     <Compile Include="InstanceNotAttachedException.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RAMvader.cs" />
     <Compile Include="RAMvaderException.cs" />
+    <Compile Include="RAMvaderTarget.cs" />
     <Compile Include="WinAPI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
