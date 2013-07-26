@@ -6,7 +6,7 @@ namespace RAMvader
      * process, but the instance is already attached to another process. Before
      * attaching to a process, the #RAMvader instance must be detached from any
      * other process. */
-    class InstanceAlreadyAttachedException : Exception
+    public class InstanceAlreadyAttachedException : Exception
     {
         /** Constructor.
          * @param oldProcess The process to which the #RAMvader instance is
@@ -14,7 +14,7 @@ namespace RAMvader
         public InstanceAlreadyAttachedException( Process oldProcess )
             : base( string.Format(
                 "{0} instance already attached to process with PID {1}.",
-                typeof( RAMvader ).Name,
+                typeof( RAMvaderTarget ).Name,
                 oldProcess.Id ) )
         {
         }

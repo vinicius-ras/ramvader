@@ -8,7 +8,7 @@ namespace RAMvader
     /** The main working class of the library. Instances of this class are able
      * to "attach" to processes and execute reading and writing operations in their
      * memories. */
-    class RAMvader
+    public class RAMvaderTarget
     {
         #region PROPERTIES
         /** The Process to which this instance is currently attached. */
@@ -26,8 +26,16 @@ namespace RAMvader
 
         #region PUBLIC METHODS
         /** Constructor. */
-        public RAMvader()
+        public RAMvaderTarget()
         {
+        }
+
+
+        /** Destructor. */
+        ~RAMvaderTarget()
+        {
+            if ( m_targetProcessHandle != IntPtr.Zero )
+                detachFromProcess();
         }
 
 
