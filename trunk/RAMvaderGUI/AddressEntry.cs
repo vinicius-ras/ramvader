@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace RAMvaderGUI
 {
     /** Represents an address entry on the application's memory data grid. */
-    class AddressEntry<ValueType>
+    class AddressEntry<ValueType> where ValueType : struct
     {
         #region PUBLIC PROPERTIES
         /** A user-defined identifier for the entry. */
