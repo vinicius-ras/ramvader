@@ -11,14 +11,16 @@ namespace RAMvaderGUI
     /// </summary>
     public partial class EditAddressDialog : Window
     {
-        #region CONSTANTS
+        #region STATIC PROPERTIES
         /** The types of data the application can manipulate. */
-        private static Type [] APP_ALLOWED_TYPES = new Type[] {
+        private static Type [] sm_appAllowedDataTypes = new Type[] {
             typeof( Byte ),
             typeof( Int16 ), typeof( Int32 ), typeof( Int64 ),
             typeof( UInt16 ), typeof( UInt32 ), typeof( UInt64 ),
             typeof( Single ), typeof( Double )
         };
+        /** A string representing a pointer, which points to the position "zero". */
+        private static string sm_zeroPointerString = Converters.IntToHexStringConverter.convertIntPtrToString( IntPtr.Zero );
         #endregion
 
 
@@ -55,9 +57,10 @@ namespace RAMvaderGUI
             InitializeComponent();
 
             // Fill the data types accepted by the application
-            foreach ( Type curType in APP_ALLOWED_TYPES )
+            foreach ( Type curType in sm_appAllowedDataTypes )
                 m_cmbType.Items.Add( curType );
 
+            m_txtAddress.Text = sm_zeroPointerString;
             m_cmbType.SelectedItem = typeof( Int32 );
         }
 
@@ -69,25 +72,13 @@ namespace RAMvaderGUI
         {
             // Get the identifier of the address
             AddressEntry result = new AddressEntry();
+
             result.Description = m_txtDescription.Text;
-
-            // Parse the address value, according to the pointer size of the current platform
-            if ( IntPtr.Size == 8 )
-                result.Address = new IntPtr( Int64.Parse( m_txtAddress.Text, NumberStyles.HexNumber ) );
-            else if ( IntPtr.Size == 4 )
-                result.Address = new IntPtr( Int32.Parse( m_txtAddress.Text, NumberStyles.HexNumber ) );
-#if DEBUG
-            else
-                throw new NotImplementedException( string.Format(
-                    "The application only supports 4 and 8 byte addresses. The {0} structure reported that the current platform address size is {1} bytes!",
-                    typeof( IntPtr ).Name, IntPtr.Size ) );
-#endif
-
-            // Retrieve an object representing the value
-            if ( m_chkFreezeValue.IsChecked == true )
-                result.Value = getValueObject();
-            else
-                result.Value = null;
+            result.ValueType = (Type) m_cmbType.SelectedItem;
+            result.Freeze = ( m_chkFreezeValue.IsChecked == true );
+            result.Address = Converters.IntToHexStringConverter.convertStringToIntPtr( m_txtAddress.Text );
+            result.Value = getValueObject();
+            
             return result;
         }
         #endregion
@@ -118,7 +109,7 @@ namespace RAMvaderGUI
             catch ( Exception ex )
             {
                 if ( ex is FormatException || ex is OverflowException )
-                    m_txtAddress.Text = IntPtr.Zero.ToString( string.Format( "X{0}", IntPtr.Size * 2 ) );
+                    m_txtAddress.Text = sm_zeroPointerString;
                 else
                     throw;
             }
@@ -140,7 +131,6 @@ namespace RAMvaderGUI
                     throw;
             }
         }
-        #endregion
 
         
         /** Called when the user changes the data type selected in the available data types ComboBox. */
@@ -169,5 +159,6 @@ namespace RAMvaderGUI
             }
             m_txtValue.Text = (String) Convert.ChangeType( newValue, typeof( string ), CultureInfo.InvariantCulture );
         }
+        #endregion
     }
 }
