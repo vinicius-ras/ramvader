@@ -51,8 +51,9 @@ namespace RAMvaderGUI
 
 
         #region PUBLIC METHODS
-        /** Constructor. */
-        public EditAddressDialog()
+        /** Constructor.
+         * @param entry The #AddressEntry to be edited, if any. */
+        public EditAddressDialog( AddressEntry entry = null )
         {
             InitializeComponent();
 
@@ -60,8 +61,19 @@ namespace RAMvaderGUI
             foreach ( Type curType in sm_appAllowedDataTypes )
                 m_cmbType.Items.Add( curType );
 
-            m_txtAddress.Text = sm_zeroPointerString;
-            m_cmbType.SelectedItem = typeof( Int32 );
+            if ( entry == null )
+            {
+                m_txtAddress.Text = sm_zeroPointerString;
+                m_cmbType.SelectedItem = typeof( Int32 );
+            }
+            else
+            {
+                m_txtDescription.Text = entry.Description;
+                m_txtAddress.Text = Converters.IntToHexStringConverter.convertIntPtrToString( entry.Address );
+                m_cmbType.SelectedItem = entry.ValueType;
+                m_txtValue.Text = (String) Convert.ChangeType( entry.Value, typeof( String ), CultureInfo.InvariantCulture );
+                m_chkFreezeValue.IsChecked = entry.Freeze;
+            }
         }
 
 
