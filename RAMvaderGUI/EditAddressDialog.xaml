@@ -1,7 +1,7 @@
 ﻿<Window x:Class="RAMvaderGUI.EditAddressDialog"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
-        Title="Edit address" Width="200" SizeToContent="Height" ResizeMode="NoResize">
+        Title="Edit address" Width="200" SizeToContent="Height" ResizeMode="NoResize" WindowStartupLocation="CenterOwner">
     <Grid>
         <!-- Grid row and columns -->
         <Grid.RowDefinitions>
@@ -19,17 +19,17 @@
         </Grid.ColumnDefinitions>
         
         <!-- Dialog controls -->
-        <Label Grid.Row="0" Grid.Column="0" Content="Identifier:" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <TextBox x:Name="m_txtIdentifier" Grid.Row="0" Grid.Column="1" Margin="3" />
+        <Label Grid.Row="0" Grid.Column="0" Content="Description:" HorizontalAlignment="Center" VerticalAlignment="Center" />
+        <TextBox x:Name="m_txtDescription" Grid.Row="0" Grid.Column="1" Margin="3" />
 
         <Label Grid.Row="1" Grid.Column="0" Content="Address:" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <TextBox x:Name="m_txtAddress" Grid.Row="1" Grid.Column="1" Margin="3" />
+        <TextBox x:Name="m_txtAddress" Grid.Row="1" Grid.Column="1" Margin="3" LostFocus="m_txtAddress_LostFocus" />
 
         <Label Grid.Row="2" Grid.Column="0" Content="Type:" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <ComboBox x:Name="m_cmbType" Grid.Row="2" Grid.Column="1" Margin="3" />
+        <ComboBox x:Name="m_cmbType" Grid.Row="2" Grid.Column="1" Margin="3" SelectionChanged="m_cmbType_SelectionChanged" />
 
         <Label Grid.Row="3" Grid.Column="0" Content="Value:" HorizontalAlignment="Center" VerticalAlignment="Center" />
-        <TextBox x:Name="m_txtValue" Grid.Row="3" Grid.Column="1" Margin="3" />
+        <TextBox x:Name="m_txtValue" Grid.Row="3" Grid.Column="1" Margin="3" IsEnabled="{Binding ElementName=m_chkFreezeValue, Path=IsChecked}" Text="0" LostFocus="m_txtValue_LostFocus" />
 
         <CheckBox x:Name="m_chkFreezeValue" Grid.Row="4" Grid.Column="1" Content="Freeze value?" Margin="3" />
 
