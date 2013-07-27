@@ -80,12 +80,25 @@ namespace RAMvaderGUI
 
 
 
-        #region PRIVATE METHODS
-        int contae = 0;
-        /** Called to refresh the table which displays information about the memory of the target process. */
-        private void refreshMemoryTable()
+        #region PRIVATE STATIC METHODS
+        /** Called when the timer responsible for reading and writing the target process' memory gets elapsed. */
+        private static void onMemoryTimerElapsed( object sender, ElapsedEventArgs args )
         {
-            logToConsole( string.Format( "Update memory {0}", ( ++contae ) ) );
+            sm_instance.Dispatcher.Invoke( sm_instance.executeMemoryOperations );
+        }
+        #endregion
+
+
+
+
+
+
+
+
+        #region PRIVATE METHODS
+        /** Executes the operations related to reading from and writing to the target process' memory. */
+        private void executeMemoryOperations()
+        {
             if ( m_targetProcess.getAttachedProcess() == null )
                 return;
         }
@@ -214,14 +227,7 @@ namespace RAMvaderGUI
         /** Called when the user clicks the "Refresh memory" button. */
         private void m_btRefreshMemory_Click( object sender, RoutedEventArgs e )
         {
-            refreshMemoryTable();
-        }
-
-
-        /** Called when the timer responsible for reading and writing the target process' memory gets elapsed. */
-        private static void onMemoryTimerElapsed( object sender, ElapsedEventArgs args )
-        {
-            sm_instance.Dispatcher.Invoke( sm_instance.refreshMemoryTable );
+            executeMemoryOperations();
         }
 
 
