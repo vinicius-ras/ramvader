@@ -1,22 +1,18 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace RAMvaderGUI
 {
     /** Represents an address entry on the application's memory data grid. */
-    class AddressEntry<ValueType> where ValueType : struct
+    public class AddressEntry
     {
         #region PUBLIC PROPERTIES
-        /** A user-defined identifier for the entry. */
-        public string Identifier = string.Empty;
+        /** A user-defined description for the entry. */
+        public string Description = string.Empty;
         /** The address, on the target process, associated to this entry. */
         public IntPtr Address = IntPtr.Zero;
         /** The value associated to this entry. If this value is not-null, the application
          * should use this value to freeze the entry. Else, the entry should not be frozen. */
-        public ValueType? Value = null;
+        public Object Value = null;
         #endregion
     }
 }
