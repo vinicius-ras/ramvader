@@ -246,8 +246,14 @@ namespace RAMvaderGUI
                 AddressEntry newAddress = addrDialog.getResult();
                 m_addressEntries.Add( newAddress );
             }
-            else
-                logToConsole( "Falsey.." );
+        }
+
+
+        /** Called when the user clicks the "Delete Selected Addresses" context menu item (in the memory data grid). */
+        private void m_menuDeleteSelectedAddresses_Click( object sender, RoutedEventArgs e )
+        {
+            for ( int a = m_memoryData.SelectedItems.Count - 1; a >= 0; a-- )
+                m_addressEntries.Remove( (AddressEntry) m_memoryData.SelectedItems[a] );
         }
 
 
@@ -255,6 +261,28 @@ namespace RAMvaderGUI
         private void m_memoryData_ContextMenuOpening( object sender, ContextMenuEventArgs e )
         {
             m_menuDeleteSelectedAddresses.IsEnabled = ( m_memoryData.SelectedItems.Count > 0 );
+        }
+
+
+        /** Catches double-clicks on the DataGrid of the #MainWindow. */
+        private void m_memoryData_MouseDoubleClick( object sender, System.Windows.Input.MouseButtonEventArgs e )
+        {
+            if ( m_memoryData.SelectedItems.Count != 1 )
+                return;
+
+            AddressEntry oldAddressEntry = (AddressEntry) m_memoryData.SelectedItem;
+            int oldAddressEntryPos = m_addressEntries.IndexOf( oldAddressEntry );
+
+            EditAddressDialog addrDialog = new EditAddressDialog( oldAddressEntry );
+            addrDialog.Owner = this;
+
+            if ( addrDialog.ShowDialog() == true )
+            {
+                AddressEntry newAddress = addrDialog.getResult();
+                m_addressEntries.RemoveAt( oldAddressEntryPos );
+                m_addressEntries.Insert( oldAddressEntryPos, newAddress );
+            }
+
         }
         #endregion
     }

@@ -54,11 +54,11 @@
 
             <DataGrid x:Name="m_memoryData" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="4"
                       ContextMenuOpening="m_memoryData_ContextMenuOpening" AutoGenerateColumns="False"
-                      IsReadOnly="True" >
+                      IsReadOnly="True" MouseDoubleClick="m_memoryData_MouseDoubleClick" >
                 <DataGrid.ContextMenu>
                     <ContextMenu>
                         <MenuItem x:Name="m_menuAddAddress" Header="Add address" Click="m_menuAddAddress_Click"/>
-                        <MenuItem x:Name="m_menuDeleteSelectedAddresses" Header="Delete selected addresses"/>
+                        <MenuItem x:Name="m_menuDeleteSelectedAddresses" Header="Delete selected addresses" Click="m_menuDeleteSelectedAddresses_Click"/>
                     </ContextMenu>
                 </DataGrid.ContextMenu>
                 <DataGrid.Columns>
