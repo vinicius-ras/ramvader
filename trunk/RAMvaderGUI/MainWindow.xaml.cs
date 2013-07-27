@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Windows;
-using RAMvader;
 using System.Windows.Controls;
 using System.Timers;
+using System.Collections.ObjectModel;
+using RAMvader;
 
 namespace RAMvaderGUI
 {
@@ -45,6 +46,8 @@ namespace RAMvaderGUI
         private RAMvaderTarget m_targetProcess = new RAMvaderTarget();
         /** The timer used to execute the memory-updating functions. */
         private Timer m_memoryTimer = new Timer();
+        /** The list containing the memory positions that are being edited/watched by the user. */
+        private ObservableCollection<AddressEntry> m_addressEntries = new ObservableCollection<AddressEntry>();
         #endregion
 
 
@@ -106,6 +109,8 @@ namespace RAMvaderGUI
 
             m_memoryTimer.Elapsed += onMemoryTimerElapsed;
             m_memoryTimer.Interval = DEFAULT_MEMORY_TIMER_INTERVAL;
+
+            m_memoryData.ItemsSource = m_addressEntries;
         }
         #endregion
 
@@ -238,7 +243,8 @@ namespace RAMvaderGUI
 
             if ( addrDialog.ShowDialog() == true )
             {
-                logToConsole( "True thing" );
+                AddressEntry newAddress = addrDialog.getResult();
+                m_addressEntries.Add( newAddress );
             }
             else
                 logToConsole( "Falsey.." );

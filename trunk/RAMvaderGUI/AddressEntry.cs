@@ -7,12 +7,34 @@ namespace RAMvaderGUI
     {
         #region PUBLIC PROPERTIES
         /** A user-defined description for the entry. */
-        public string Description = string.Empty;
+        public string Description { get; set; }
         /** The address, on the target process, associated to this entry. */
-        public IntPtr Address = IntPtr.Zero;
-        /** The value associated to this entry. If this value is not-null, the application
-         * should use this value to freeze the entry. Else, the entry should not be frozen. */
-        public Object Value = null;
+        public IntPtr Address { get; set; }
+        /** The type represented by this entry. */
+        public Type ValueType { get; set; }
+        /** A flag indicating if the value should be frozen or not. */
+        public bool Freeze { get; set; }
+        /** The value associated to this entry. */
+        public Object Value { get; set; }
+        #endregion
+
+
+
+
+
+
+
+
+        #region PUBLIC METHODS
+        /** Constructor. */
+        public AddressEntry()
+        {
+            Description = string.Empty;
+            Address = IntPtr.Zero;
+            ValueType = typeof( Int32 );
+            Freeze = false;
+            Value = new Int32();
+        }
         #endregion
     }
 }
