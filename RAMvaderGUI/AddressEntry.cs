@@ -9,15 +9,15 @@ namespace RAMvaderGUI
     {
         #region PRIVATE FIELDS
         /** A user-defined description for the entry. */
-        public string m_description = string.Empty;
+        private string m_description = string.Empty;
         /** The address, on the target process, associated to this entry. */
-        public IntPtr m_address = IntPtr.Zero;
+        private IntPtr m_address = IntPtr.Zero;
         /** The type represented by this entry. */
-        public Type m_valueType = typeof( Int32 );
+        private Type m_valueType = typeof( Int32 );
         /** A flag indicating if the value should be frozen or not. */
-        public bool m_freeze = false;
+        private bool m_freeze = false;
         /** The value associated to this entry. */
-        public Object m_value = new Int32();
+        private Object m_value = new Int32();
         #endregion
 
 
