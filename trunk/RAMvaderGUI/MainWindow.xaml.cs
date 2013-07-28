@@ -130,7 +130,7 @@ namespace RAMvaderGUI
             // Verify if the process has closed
             if ( m_targetProcess.getAttachedProcess().HasExited )
             {
-                m_lstProcesses.Items.RemoveAt( m_lstProcesses.SelectedIndex );
+                m_lstProcesses.Items.Clear();
 
                 detachFromTargetProcess();
                 onAttachmentStateChanged();
