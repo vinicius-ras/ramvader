@@ -96,11 +96,46 @@ namespace RAMvaderGUI
 
 
         #region PRIVATE METHODS
+        /** Detaches our application from the target process. */
+        private void detachFromTargetProcess()
+        {
+            // Detach from target
+            if ( m_targetProcess.detachFromProcess() )
+                logToConsole( "Detached from process with sucess." );
+            else
+                logToConsole( "Detachment has failed! Continuing." );
+        }
+
+
+        /** Should be called after the application attaches to or detaches from a target process to update the GUI. */
+        private void onAttachmentStateChanged()
+        {
+            // Update GUI and start/stop memory timer
+            bool isCurrentlyAttached = ( m_targetProcess.getAttachedProcess() != null );
+            m_lstProcesses.IsEnabled = !isCurrentlyAttached;
+            m_btRefreshProcesses.IsEnabled = !isCurrentlyAttached;
+            m_btAttachToProcess.Content = isCurrentlyAttached ? "Detach" : "Attach";
+
+            m_memoryTimer.Enabled = ( isCurrentlyAttached );
+            m_btRefreshMemory.IsEnabled = ( isCurrentlyAttached && m_chkRefreshMemory.IsChecked != true );
+        }
+
+
         /** Executes the operations related to reading from and writing to the target process' memory. */
         private void executeMemoryOperations()
         {
             if ( m_targetProcess.getAttachedProcess() == null )
                 return;
+
+            // Verify if the process has closed
+            if ( m_targetProcess.getAttachedProcess().HasExited )
+            {
+                m_lstProcesses.Items.RemoveAt( m_lstProcesses.SelectedIndex );
+
+                detachFromTargetProcess();
+                onAttachmentStateChanged();
+                return;
+            }
 
             // Process all target addresses
             foreach ( AddressEntry curEntry in m_addressEntries )
@@ -108,9 +143,115 @@ namespace RAMvaderGUI
                 // Frozen and non-frozen addresses are treated differently
                 if ( curEntry.Freeze )
                 {
+                    // Ovewrite target process' memory
+                    Object entryValue = curEntry.Value;
+                    bool bWriteResult = false;
+
+                    if ( entryValue is Byte )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Byte) entryValue );
+                    else if ( entryValue is Int16 )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Int16) entryValue );
+                    else if ( entryValue is Int32 )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Int32) entryValue );
+                    else if ( entryValue is Int64 )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Int64) entryValue );
+                    else if ( entryValue is UInt16 )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (UInt16) entryValue );
+                    else if ( entryValue is UInt32 )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (UInt32) entryValue );
+                    else if ( entryValue is UInt64 )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (UInt64) entryValue );
+                    else if ( entryValue is Single )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Single) entryValue );
+                    else if ( entryValue is Double )
+                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Double) entryValue );
+                    else
+                        throw new NotSupportedException( string.Format(
+                            "Cannot write to target process: data type \"{0}\" is not supported by the application!",
+                            entryValue.GetType().Name ) );
+
+                    // Check for errors
+                    if ( bWriteResult == false )
+                        logToConsole( string.Format(
+                            "Cannot write entry \"{0}\" to address 0x{1} of target process!",
+                            string.IsNullOrWhiteSpace( curEntry.Description ) ? "<no identifier>" : curEntry.Description,
+                            Converters.IntToHexStringConverter.convertIntPtrToString( curEntry.Address ) ) );
                 }
                 else
                 {
+                    // Read the target process' memory
+                    Object entryValue;
+                    Type entryType = curEntry.ValueType;
+                    bool bReadResult = false;
+
+                    if ( entryType == typeof( Byte ) )
+                    {
+                        Byte buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( Int16 ) )
+                    {
+                        Int16 buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( Int32 ) )
+                    {
+                        Int32 buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( Int64 ) )
+                    {
+                        Int64 buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( UInt16 ) )
+                    {
+                        UInt16 buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( UInt32 ) )
+                    {
+                        UInt32 buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( UInt64 ) )
+                    {
+                        UInt64 buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( Single ) )
+                    {
+                        Single buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else if ( entryType == typeof( Double ) )
+                    {
+                        Double buffer = 0;
+                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        entryValue = buffer;
+                    }
+                    else
+                        throw new NotSupportedException( string.Format(
+                            "Cannot read from target process: data type \"{0}\" is not supported by the application!",
+                            entryType.Name ) );
+
+                    // Check for errors
+                    if ( bReadResult == false )
+                        logToConsole( string.Format(
+                            "Cannot read entry \"{0}\" to address 0x{1} of target process!",
+                            string.IsNullOrWhiteSpace( curEntry.Description ) ? "<no identifier>" : curEntry.Description,
+                            Converters.IntToHexStringConverter.convertIntPtrToString( curEntry.Address ) ) );
+
+                    // Update value
+                    curEntry.Value = entryValue;
                 }
             }
         }
@@ -181,25 +322,13 @@ namespace RAMvaderGUI
                     logToConsole( "Attached to process with success." );
                 else
                     logToConsole( "Failed to attach to target process!" );
-                
+
             }
             else
-            {
-                // Detach from target
-                if ( m_targetProcess.detachFromProcess() )
-                    logToConsole( "Detached from process with sucess." );
-                else
-                    logToConsole( "Detachment has failed! Continuing." );
-            }
+                detachFromTargetProcess();
 
-            // Update GUI and start/stop memory timer
-            bool isCurrentlyAttached = (m_targetProcess.getAttachedProcess() != null);
-            m_lstProcesses.IsEnabled = !isCurrentlyAttached;
-            m_btRefreshProcesses.IsEnabled = !isCurrentlyAttached;
-            m_btAttachToProcess.Content = isCurrentlyAttached ? "Detach" : "Attach";
-
-            m_memoryTimer.Enabled = ( isCurrentlyAttached );
-            m_btRefreshMemory.IsEnabled = ( isCurrentlyAttached && m_chkRefreshMemory.IsChecked != true );
+            // Update GUI
+            onAttachmentStateChanged();
         }
 
 
