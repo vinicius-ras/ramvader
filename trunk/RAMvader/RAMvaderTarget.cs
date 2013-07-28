@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Text;
 
 
 namespace RAMvader
@@ -28,6 +30,36 @@ namespace RAMvader
         /** Constructor. */
         public RAMvaderTarget()
         {
+            #if DEBUG
+                // Check the sizes of the basic types, in debug mode
+                StringBuilder builder = null;
+                BasicTypesSizeChecker [] typesToCheck = new BasicTypesSizeChecker[] {
+                    new BasicTypesSizeChecker( typeof( Byte ),   sizeof( Byte ),   1 ),
+                    new BasicTypesSizeChecker( typeof( Int16 ),  sizeof( Int16 ),  2 ),
+                    new BasicTypesSizeChecker( typeof( Int32 ),  sizeof( Int32 ),  4 ),
+                    new BasicTypesSizeChecker( typeof( Int64 ),  sizeof( Int64 ),  8 ),
+                    new BasicTypesSizeChecker( typeof( UInt16 ), sizeof( UInt16 ), 2 ),
+                    new BasicTypesSizeChecker( typeof( UInt32 ), sizeof( UInt32 ), 4 ),
+                    new BasicTypesSizeChecker( typeof( UInt64 ), sizeof( UInt64 ), 8 ),
+                    new BasicTypesSizeChecker( typeof( Single ), sizeof( Single ), 4 ),
+                    new BasicTypesSizeChecker( typeof( Double ), sizeof( Double ), 8 ),
+                };
+
+                foreach ( BasicTypesSizeChecker curType in typesToCheck )
+                {
+                    if ( curType.isTypeSizeValid() == false )
+                    {
+                        if ( builder == null )
+                            builder = new StringBuilder( "The following types have reported unexpected sizes:" );
+                    
+                        builder.AppendLine();
+                        builder.AppendFormat( curType.getTypeInvalidMessage() );
+                    }
+                }
+
+                if ( builder != null )
+                    throw new PlatformNotSupportedException( builder.ToString() );
+            #endif
         }
 
 
@@ -125,6 +157,338 @@ namespace RAMvader
         {
             return m_process;
         }
+
+
+        /** Writes a Byte Array into the target process' memory. All other writing methods
+         * convert their corresponding input data to a byte sequence and then call this method
+         * to execute the actual writing operation.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, byte [] writeData )
+        {
+            uint expectedWrittenBytes = (uint) writeData.Length;
+            UIntPtr totalBytesWritten;
+
+            bool writeResult = WinAPI.WriteProcessMemory( m_targetProcessHandle, address, writeData,
+                expectedWrittenBytes, out totalBytesWritten );
+
+            return ( writeResult && totalBytesWritten == new UIntPtr( expectedWrittenBytes ) );
+        }
+
+
+        /** Writes a Byte value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, Byte writeData )
+        {
+            byte [] dataBuffer = new byte[1] { writeData };
+            return writeToTarget( address, dataBuffer );
+        }
+
+
+        /** Writes an Int16 value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, Int16 writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Writes an Int32 value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, Int32 writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Writes an Int64 value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, Int64 writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Writes an UInt16 value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, UInt16 writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Writes an UInt32 value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, UInt32 writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Writes an UInt64 value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, UInt64 writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Writes a Single ("float") value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, Single writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Writes a Double value into the target process' memory.
+         * @param address The address on the target process' memory where the data is to be written.
+         * @param writeData The data to be written to the target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool writeToTarget( IntPtr address, Double writeData )
+        {
+            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+        }
+
+
+        /** Reads a sequence of bytes from the target process' memory, filling the given output
+         * array with the read bytes. All other reading methods call this method to read the desired
+         * data from the target process, and convert the returned bytes into the target data type.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The destiny buffer, where the read data will be copied to. The number of
+         *    elements in the passed array determines the number of bytes that will be read from the
+         *    target process.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, byte[] outDestiny )
+        {
+            IntPtr totalBytesRead;
+            int expectedReadBytes = outDestiny.Length;
+            bool readResult = WinAPI.ReadProcessMemory( m_targetProcessHandle, address, outDestiny,
+                expectedReadBytes, out totalBytesRead );
+            return ( readResult && totalBytesRead == new IntPtr( expectedReadBytes ) );
+        }
+
+
+        /** Reads a Byte value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref Byte outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( Byte )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = byteBuff[0];
+            return true;
+        }
+
+
+        /** Reads an Int16 value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref Int16 outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( Int16 )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToInt16( byteBuff, 0 );
+            return true;
+        }
+
+
+        /** Reads an Int32 value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref Int32 outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( Int32 )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToInt32( byteBuff, 0 );
+            return true;
+        }
+
+
+        /** Reads an Int64 value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref Int64 outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( Int64 )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToInt64( byteBuff, 0 );
+            return true;
+        }
+
+
+        /** Reads an UInt16 value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref UInt16 outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( UInt16 )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToUInt16( byteBuff, 0 );
+            return true;
+        }
+
+
+        /** Reads an UInt32 value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref UInt32 outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( UInt32 )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToUInt32( byteBuff, 0 );
+            return true;
+        }
+
+
+        /** Reads an UInt64 value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref UInt64 outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( UInt64 )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToUInt64( byteBuff, 0 );
+            return true;
+        }
+
+
+        /** Reads a Single (float) value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref Single outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( Single )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToSingle( byteBuff, 0 );
+            return true;
+        }
+
+
+        /** Reads a Double value from the target process.
+         * @param address The address on the target process' memory where the data will be read from.
+         * @param outDestiny The result of the reading will be stored in this variable.
+         * @return Returns true in case of success, false in case of failure. */
+        public bool readFromTarget( IntPtr address, ref Double outDestiny )
+        {
+            byte [] byteBuff = new byte[sizeof( Double )];
+            if ( readFromTarget( address, byteBuff ) == false )
+                return false;
+
+            outDestiny = BitConverter.ToDouble( byteBuff, 0 );
+            return true;
+        }
         #endregion
+
+
+
+
+
+
+
+
+        #if DEBUG
+            #region INTERNAL CLASSES
+            /** Utility structure for storing used in debug mode for verifying if the sizes of the basic
+             * types are the same as expected by the library. */
+            private struct BasicTypesSizeChecker
+            {
+                #region PRIVATE PROPERTIES
+                /** The Type that is being checked. */
+                private Type m_type;
+                /** The actual size reported by the compiler for the basic type. */
+                private int m_reportedSize;
+                /** The expected size for the basic type. */
+                private int m_expectedSize;
+                #endregion
+
+
+
+
+
+
+
+
+                #region PUBLIC METHODS
+                /** Constructor.
+                 * @param type The Type that is being tested.
+                 * @param reportedSize The size that has been reported for the given type.
+                 * @param expectedSize The expected size for the given type. */
+                public BasicTypesSizeChecker( Type type, int reportedSize, int expectedSize )
+                {
+                    m_type = type;
+                    m_reportedSize = reportedSize;
+                    m_expectedSize = expectedSize;
+                }
+
+
+                /** Retrieves the name of the type that is being checked.
+                 * @return Returns a string containing the name of the checked type. */
+                public string getTypeName()
+                {
+                    return m_type.Name;
+                }
+
+
+                /** Verifies if the Type size matches the expected size.
+                 * @return Returns true case the expected size matches the reported size. */
+                public bool isTypeSizeValid()
+                {
+                    return ( m_expectedSize == m_reportedSize );
+                }
+
+
+                /** Retrieves the message that indicates that the type size is invalid.
+                 * @return Returns a string containing a message that indicates the type size is invalid. */
+                public string getTypeInvalidMessage()
+                {
+                    return string.Format( "- {0}: expected size {1}, reported size {2}", m_type.Name,
+                        m_expectedSize, m_reportedSize );
+                }
+                #endregion
+            }
+            #endregion
+        #endif
     }
 }

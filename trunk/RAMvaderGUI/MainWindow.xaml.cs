@@ -101,6 +101,18 @@ namespace RAMvaderGUI
         {
             if ( m_targetProcess.getAttachedProcess() == null )
                 return;
+
+            // Process all target addresses
+            foreach ( AddressEntry curEntry in m_addressEntries )
+            {
+                // Frozen and non-frozen addresses are treated differently
+                if ( curEntry.Freeze )
+                {
+                }
+                else
+                {
+                }
+            }
         }
         #endregion
 
