@@ -100,7 +100,7 @@ namespace RAMvaderGUI
         private void detachFromTargetProcess()
         {
             // Detach from target
-            if ( m_targetProcess.detachFromProcess() )
+            if ( m_targetProcess.DetachFromProcess() )
                 logToConsole( "Detached from process with sucess." );
             else
                 logToConsole( "Detachment has failed! Continuing." );
@@ -111,7 +111,7 @@ namespace RAMvaderGUI
         private void onAttachmentStateChanged()
         {
             // Update GUI and start/stop memory timer
-            bool isCurrentlyAttached = ( m_targetProcess.getAttachedProcess() != null );
+            bool isCurrentlyAttached = ( m_targetProcess.GetAttachedProcess() != null );
             m_lstProcesses.IsEnabled = !isCurrentlyAttached;
             m_btRefreshProcesses.IsEnabled = !isCurrentlyAttached;
             m_btAttachToProcess.Content = isCurrentlyAttached ? "Detach" : "Attach";
@@ -124,11 +124,11 @@ namespace RAMvaderGUI
         /** Executes the operations related to reading from and writing to the target process' memory. */
         private void executeMemoryOperations()
         {
-            if ( m_targetProcess.getAttachedProcess() == null )
+            if ( m_targetProcess.GetAttachedProcess() == null )
                 return;
 
             // Verify if the process has closed
-            if ( m_targetProcess.getAttachedProcess().HasExited )
+            if ( m_targetProcess.GetAttachedProcess().HasExited )
             {
                 m_lstProcesses.Items.Clear();
 
@@ -148,23 +148,23 @@ namespace RAMvaderGUI
                     bool bWriteResult = false;
 
                     if ( entryValue is Byte )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Byte) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Byte) entryValue );
                     else if ( entryValue is Int16 )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Int16) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Int16) entryValue );
                     else if ( entryValue is Int32 )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Int32) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Int32) entryValue );
                     else if ( entryValue is Int64 )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Int64) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Int64) entryValue );
                     else if ( entryValue is UInt16 )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (UInt16) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (UInt16) entryValue );
                     else if ( entryValue is UInt32 )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (UInt32) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (UInt32) entryValue );
                     else if ( entryValue is UInt64 )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (UInt64) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (UInt64) entryValue );
                     else if ( entryValue is Single )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Single) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Single) entryValue );
                     else if ( entryValue is Double )
-                        bWriteResult = m_targetProcess.writeToTarget( curEntry.Address, (Double) entryValue );
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Double) entryValue );
                     else
                         throw new NotSupportedException( string.Format(
                             "Cannot write to target process: data type \"{0}\" is not supported by the application!",
@@ -187,55 +187,55 @@ namespace RAMvaderGUI
                     if ( entryType == typeof( Byte ) )
                     {
                         Byte buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( Int16 ) )
                     {
                         Int16 buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( Int32 ) )
                     {
                         Int32 buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( Int64 ) )
                     {
                         Int64 buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( UInt16 ) )
                     {
                         UInt16 buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( UInt32 ) )
                     {
                         UInt32 buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( UInt64 ) )
                     {
                         UInt64 buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( Single ) )
                     {
                         Single buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else if ( entryType == typeof( Double ) )
                     {
                         Double buffer = 0;
-                        bReadResult = m_targetProcess.readFromTarget( curEntry.Address, ref buffer );
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
                         entryValue = buffer;
                     }
                     else
@@ -314,11 +314,11 @@ namespace RAMvaderGUI
         /** Called when the user clicks the "Attach/Detach to/from process" button. */
         private void m_btAttachToProcess_Click( object sender, RoutedEventArgs e )
         {
-            if ( m_targetProcess.getAttachedProcess() == null )
+            if ( m_targetProcess.GetAttachedProcess() == null )
             {
                 // Attach to target process
                 Process selectedProcess = m_processes[m_lstProcesses.SelectedIndex];
-                if ( m_targetProcess.attachToProcess( selectedProcess ) )
+                if ( m_targetProcess.AttachToProcess( selectedProcess ) )
                     logToConsole( "Attached to process with success." );
                 else
                     logToConsole( "Failed to attach to target process!" );

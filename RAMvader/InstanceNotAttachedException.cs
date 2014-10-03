@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace RAMvader
+﻿namespace RAMvader
 {
     /** Exception thrown when the user code tries to detach a #RAMvader instance
      * from its target process, but the #RAMvader instance has not been attached to
