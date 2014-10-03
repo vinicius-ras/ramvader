@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Diagnostics;
+
+
 namespace RAMvader
 {
     /** Exception thrown when the user tries to attach a #RAMvader instance to a

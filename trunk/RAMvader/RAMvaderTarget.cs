@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Text;
@@ -12,11 +11,65 @@ namespace RAMvader
      * memories. */
     public class RAMvaderTarget
     {
-        #region PROPERTIES
+        #region PUBLIC ENUMERATIONS
+        /** Defines the possible endianness options which RAMvader can operate on. */
+        public enum EEndianness
+        {
+            /** A value indicating that RAMvader should operate in the same endianness as the
+             * process that RAMvader is running on. */
+            evEndiannessDefault,
+            /** A value indicating that RAMvader should operate in Little-Endian byte order. */
+            evEndiannessLittle,
+            /** A value indicating that RAMvader should operate in Big-Endian byte order. */
+            evEndiannessBig,
+        }
+        #endregion
+
+
+
+
+
+
+
+
+        #region PRIVATE FIELDS
         /** The Process to which this instance is currently attached. */
         private Process m_process = null;
         /** The low-level Handle to the target process we are attached to. */
         private IntPtr m_targetProcessHandle = IntPtr.Zero;
+        /** The current endianness that the #RAMvaderTarget is operating on. The default is
+         * for RAMvader to assume the target process runs in the same endianness as the process
+         * that is running RAMvader. */
+        private EEndianness m_targetProcessEndianness = EEndianness.evEndiannessDefault;
+        #endregion
+
+
+
+
+
+
+
+
+        #region PRIVATE METHODS
+        /** Reverts the given array of bytes, if the target process' endianness is different
+         * from the endianness used by the process which runs RAMvader.
+         * The target process' endianness can be configured through the #SetTargetEndianness() method.
+         * @param bytesArray The array to be set to the target process' endianness. */
+        private void revertArrayOnEndiannessDifference( byte[] bytesArray )
+        {
+            // Default endianness configuration? No need to to anything.
+            if ( m_targetProcessEndianness == EEndianness.evEndiannessDefault )
+                return;
+
+            // Verify if RAMvader's process runs in a different endianness configuration as compared to
+            // the target process
+            EEndianness ramVaderEndianness = BitConverter.IsLittleEndian ?
+                EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
+
+            // If both processes run on different endianness configurations, reverse bytes order
+            if ( ramVaderEndianness != m_targetProcessEndianness )
+                Array.Reverse( bytesArray );
+        }
         #endregion
 
 
@@ -47,13 +100,13 @@ namespace RAMvader
 
                 foreach ( BasicTypesSizeChecker curType in typesToCheck )
                 {
-                    if ( curType.isTypeSizeValid() == false )
+                    if ( curType.IsTypeSizeValid() == false )
                     {
                         if ( builder == null )
                             builder = new StringBuilder( "The following types have reported unexpected sizes:" );
                     
                         builder.AppendLine();
-                        builder.AppendFormat( curType.getTypeInvalidMessage() );
+                        builder.AppendFormat( curType.GetTypeInvalidMessage() );
                     }
                 }
 
@@ -67,7 +120,27 @@ namespace RAMvader
         ~RAMvaderTarget()
         {
             if ( m_targetProcessHandle != IntPtr.Zero )
-                detachFromProcess();
+                DetachFromProcess();
+        }
+
+
+        /** Makes the #RAMvaderTarget instance assume that the target process is using a specific endianness to store its
+         * values. The default endianness assumed by a #RAMvaderTarget instance is the same endianness as the process that is
+         * running RAMvader.
+         * @param endianness The new endianness to be assumed as the target process' endianness.
+         * @see #GetTargetEndianness() */
+        public void SetTargetEndianness( EEndianness endianness )
+        {
+            m_targetProcessEndianness = endianness;
+        }
+
+
+        /** Retrieves the endianness that the #RAMvaderTarget instance is currently assuming that the target process is using.
+         * @return Returns the (assumed) target process' endianness.
+         * @see #SetTargetEndianness() */
+        public EEndianness GetTargetEndianness()
+        {
+            return m_targetProcessEndianness;
         }
 
 
@@ -75,10 +148,10 @@ namespace RAMvader
          * @param targetProcess The target process.
          * @throws InstanceAlreadyAttachedException Indicates there is a Process
          *    currently attached to that #RAMvader object. You must detach the
-         *    instance from the Process by calling #detachFromProcess() before
+         *    instance from the Process by calling #DetachFromProcess() before
          *    trying to attach to another Process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool attachToProcess( Process targetProcess )
+        public bool AttachToProcess( Process targetProcess )
         {
             // Is this instance already attached to a process?
             if ( m_process != null )
@@ -133,7 +206,7 @@ namespace RAMvader
          * @return Returns true if the instance detached successfully.
          *    Returns false if something went wrong when detaching from the
          *    target process. */
-        public bool detachFromProcess()
+        public bool DetachFromProcess()
         {
             if ( m_process == null )
                 throw new InstanceNotAttachedException();
@@ -153,9 +226,20 @@ namespace RAMvader
          * @return Returns a Process object, indicating the process to which this
          *    instance is attached. If the instance is not attached to any process,
          *    this method returns null. */
-        public Process getAttachedProcess()
+        public Process GetAttachedProcess()
         {
             return m_process;
+        }
+
+
+        /** Verify if the #RAMvaderTarget is currently attached to any Process.
+         * This is just a shorthand method for checking if #GetAttachedProcess() returns
+         * a null value.
+         * @return Returns a flag indicating if the #RAMvaderTarget instance is currently
+         *    attached to any process. */
+        public bool IsAttached()
+        {
+            return ( this.GetAttachedProcess() != null );
         }
 
 
@@ -165,7 +249,7 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, byte [] writeData )
+        public bool WriteToTarget( IntPtr address, byte [] writeData )
         {
             uint expectedWrittenBytes = (uint) writeData.Length;
             UIntPtr totalBytesWritten;
@@ -181,10 +265,10 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, Byte writeData )
+        public bool WriteToTarget( IntPtr address, Byte writeData )
         {
             byte [] dataBuffer = new byte[1] { writeData };
-            return writeToTarget( address, dataBuffer );
+            return WriteToTarget( address, dataBuffer );
         }
 
 
@@ -192,9 +276,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, Int16 writeData )
+        public bool WriteToTarget( IntPtr address, Int16 writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -202,9 +288,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, Int32 writeData )
+        public bool WriteToTarget( IntPtr address, Int32 writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -212,9 +300,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, Int64 writeData )
+        public bool WriteToTarget( IntPtr address, Int64 writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -222,9 +312,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, UInt16 writeData )
+        public bool WriteToTarget( IntPtr address, UInt16 writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -232,9 +324,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, UInt32 writeData )
+        public bool WriteToTarget( IntPtr address, UInt32 writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -242,9 +336,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, UInt64 writeData )
+        public bool WriteToTarget( IntPtr address, UInt64 writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -252,9 +348,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, Single writeData )
+        public bool WriteToTarget( IntPtr address, Single writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -262,9 +360,11 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data is to be written.
          * @param writeData The data to be written to the target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool writeToTarget( IntPtr address, Double writeData )
+        public bool WriteToTarget( IntPtr address, Double writeData )
         {
-            return writeToTarget( address, BitConverter.GetBytes( writeData ) );
+            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
+            revertArrayOnEndiannessDifference( bytesToWrite );
+            return WriteToTarget( address, bytesToWrite );
         }
 
 
@@ -276,7 +376,7 @@ namespace RAMvader
          *    elements in the passed array determines the number of bytes that will be read from the
          *    target process.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, byte[] outDestiny )
+        public bool ReadFromTarget( IntPtr address, byte[] outDestiny )
         {
             IntPtr totalBytesRead;
             int expectedReadBytes = outDestiny.Length;
@@ -290,10 +390,10 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref Byte outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref Byte outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( Byte )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
             outDestiny = byteBuff[0];
@@ -305,12 +405,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref Int16 outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref Int16 outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( Int16 )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToInt16( byteBuff, 0 );
             return true;
         }
@@ -320,12 +421,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref Int32 outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref Int32 outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( Int32 )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToInt32( byteBuff, 0 );
             return true;
         }
@@ -335,12 +437,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref Int64 outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref Int64 outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( Int64 )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToInt64( byteBuff, 0 );
             return true;
         }
@@ -350,12 +453,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref UInt16 outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref UInt16 outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( UInt16 )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToUInt16( byteBuff, 0 );
             return true;
         }
@@ -365,12 +469,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref UInt32 outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref UInt32 outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( UInt32 )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToUInt32( byteBuff, 0 );
             return true;
         }
@@ -380,12 +485,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref UInt64 outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref UInt64 outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( UInt64 )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToUInt64( byteBuff, 0 );
             return true;
         }
@@ -395,12 +501,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref Single outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref Single outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( Single )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToSingle( byteBuff, 0 );
             return true;
         }
@@ -410,12 +517,13 @@ namespace RAMvader
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
          * @return Returns true in case of success, false in case of failure. */
-        public bool readFromTarget( IntPtr address, ref Double outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref Double outDestiny )
         {
             byte [] byteBuff = new byte[sizeof( Double )];
-            if ( readFromTarget( address, byteBuff ) == false )
+            if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
+            revertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToDouble( byteBuff, 0 );
             return true;
         }
@@ -429,7 +537,7 @@ namespace RAMvader
 
 
         #if DEBUG
-            #region INTERNAL CLASSES
+            #region INTERNAL STRUCTURES
             /** Utility structure for storing used in debug mode for verifying if the sizes of the basic
              * types are the same as expected by the library. */
             private struct BasicTypesSizeChecker
@@ -465,7 +573,7 @@ namespace RAMvader
 
                 /** Retrieves the name of the type that is being checked.
                  * @return Returns a string containing the name of the checked type. */
-                public string getTypeName()
+                public string GetTypeName()
                 {
                     return m_type.Name;
                 }
@@ -473,7 +581,7 @@ namespace RAMvader
 
                 /** Verifies if the Type size matches the expected size.
                  * @return Returns true case the expected size matches the reported size. */
-                public bool isTypeSizeValid()
+                public bool IsTypeSizeValid()
                 {
                     return ( m_expectedSize == m_reportedSize );
                 }
@@ -481,7 +589,7 @@ namespace RAMvader
 
                 /** Retrieves the message that indicates that the type size is invalid.
                  * @return Returns a string containing a message that indicates the type size is invalid. */
-                public string getTypeInvalidMessage()
+                public string GetTypeInvalidMessage()
                 {
                     return string.Format( "- {0}: expected size {1}, reported size {2}", m_type.Name,
                         m_expectedSize, m_reportedSize );
