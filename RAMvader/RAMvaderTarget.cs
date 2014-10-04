@@ -50,35 +50,6 @@ namespace RAMvader
 
 
 
-        #region PRIVATE METHODS
-        /** Reverts the given array of bytes, if the target process' endianness is different
-         * from the endianness used by the process which runs RAMvader.
-         * The target process' endianness can be configured through the #SetTargetEndianness() method.
-         * @param bytesArray The array to be set to the target process' endianness. */
-        private void revertArrayOnEndiannessDifference( byte[] bytesArray )
-        {
-            // Default endianness configuration? No need to to anything.
-            if ( m_targetProcessEndianness == EEndianness.evEndiannessDefault )
-                return;
-
-            // Verify if RAMvader's process runs in a different endianness configuration as compared to
-            // the target process
-            EEndianness ramVaderEndianness = BitConverter.IsLittleEndian ?
-                EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
-
-            // If both processes run on different endianness configurations, reverse bytes order
-            if ( ramVaderEndianness != m_targetProcessEndianness )
-                Array.Reverse( bytesArray );
-        }
-        #endregion
-
-
-
-
-
-
-
-
         #region PUBLIC METHODS
         /** Constructor. */
         public RAMvaderTarget()
@@ -141,6 +112,27 @@ namespace RAMvader
         public EEndianness GetTargetEndianness()
         {
             return m_targetProcessEndianness;
+        }
+
+
+        /** Reverts the given array of bytes, if the target process' endianness is different
+         * from the endianness used by the process which runs RAMvader.
+         * The target process' endianness can be configured through the #SetTargetEndianness() method.
+         * @param bytesArray The array to be set to the target process' endianness. */
+        public void RevertArrayOnEndiannessDifference( byte[] bytesArray )
+        {
+            // Default endianness configuration? No need to to anything.
+            if ( m_targetProcessEndianness == EEndianness.evEndiannessDefault )
+                return;
+
+            // Verify if RAMvader's process runs in a different endianness configuration as compared to
+            // the target process
+            EEndianness ramVaderEndianness = BitConverter.IsLittleEndian ?
+                EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
+
+            // If both processes run on different endianness configurations, reverse bytes order
+            if ( ramVaderEndianness != m_targetProcessEndianness )
+                Array.Reverse( bytesArray );
         }
 
 
@@ -279,7 +271,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, Int16 writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -291,7 +283,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, Int32 writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -303,7 +295,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, Int64 writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -315,7 +307,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, UInt16 writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -327,7 +319,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, UInt32 writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -339,7 +331,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, UInt64 writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -351,7 +343,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, Single writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -363,7 +355,7 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, Double writeData )
         {
             byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            revertArrayOnEndiannessDifference( bytesToWrite );
+            RevertArrayOnEndiannessDifference( bytesToWrite );
             return WriteToTarget( address, bytesToWrite );
         }
 
@@ -411,7 +403,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToInt16( byteBuff, 0 );
             return true;
         }
@@ -427,7 +419,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToInt32( byteBuff, 0 );
             return true;
         }
@@ -443,7 +435,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToInt64( byteBuff, 0 );
             return true;
         }
@@ -459,7 +451,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToUInt16( byteBuff, 0 );
             return true;
         }
@@ -475,7 +467,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToUInt32( byteBuff, 0 );
             return true;
         }
@@ -491,7 +483,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToUInt64( byteBuff, 0 );
             return true;
         }
@@ -507,7 +499,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToSingle( byteBuff, 0 );
             return true;
         }
@@ -523,7 +515,7 @@ namespace RAMvader
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
-            revertArrayOnEndiannessDifference( byteBuff );
+            RevertArrayOnEndiannessDifference( byteBuff );
             outDestiny = BitConverter.ToDouble( byteBuff, 0 );
             return true;
         }
