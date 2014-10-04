@@ -8,7 +8,7 @@ namespace RAMvader
      * process, but the instance is already attached to another process. Before
      * attaching to a process, the #RAMvader instance must be detached from any
      * other process. */
-    public class InstanceAlreadyAttachedException : Exception
+    public class InstanceAlreadyAttachedException : RAMvaderException
     {
         /** Constructor.
          * @param oldProcess The process to which the #RAMvader instance is

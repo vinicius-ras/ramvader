@@ -1,6 +1,8 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
+using System.Reflection;
 using System.Text;
 
 
@@ -11,6 +13,29 @@ namespace RAMvader
      * memories. */
     public class RAMvaderTarget
     {
+        #region PRIVATE CONSTANTS
+        /** A set containing all basic data types supported by the RAMvader library. */
+        private static readonly SortedSet<Type> SUPPORTED_DATA_TYPES = new SortedSet<Type>()
+        {
+            typeof( Byte ),
+            typeof( Int16 ),
+            typeof( Int32 ),
+            typeof( Int64 ),
+            typeof( UInt16 ),
+            typeof( UInt32 ),
+            typeof( UInt64 ),
+            typeof( Single ),
+            typeof( Double ),
+        };
+        #endregion
+
+
+
+
+
+
+
+
         #region PUBLIC ENUMERATIONS
         /** Defines the possible endianness options which RAMvader can operate on. */
         public enum EEndianness
@@ -235,6 +260,37 @@ namespace RAMvader
         }
 
 
+        /** Retrives a byte array representing the given numeric value as it would
+         * appear into the target process' memory space (considering its endianness).
+         * @param objVal An Object representing the value to be converted to its
+         *    (endianness correct) bytes array representation. This object should be one
+         *    of the basic data types supported by the RAMvader library.
+         * @return Returns an array of bytes representing the given value as it would
+         *    be stored into the target process' memory, considering the target process'
+         *    endianness configurations. */
+        public byte [] GetValueAsBytesArrayInTargetProcess( Object objVal )
+        {
+            // Is the value a single-byte value?
+            if ( objVal is Byte )
+                return new byte[] { (byte) objVal };
+
+            // If this point is reached, the value is represented by multiple bytes,
+            // and we need to consider the target process' endianness to turn it into
+            // a correct array of bytes.
+            
+            // Call "BitConverter.GetBytes()" through reflection, to convert the object
+            // into its specific bytes representation (using the same endianness as the 
+            // RAMvader library)
+            MethodInfo getBytesMethod = typeof( BitConverter ).GetMethod( "GetBytes", new Type[] { objVal.GetType() } );
+            Object getBytesInvokeResult = getBytesMethod.Invoke( null, new Object[] { objVal } ); ;
+            byte [] bytesArrayInTargetProcess = (byte[]) getBytesInvokeResult;
+
+            // Correct endianness when necessary (transform OUR endianness into the TARGET PROCESS' endianness).
+            RevertArrayOnEndiannessDifference( bytesArrayInTargetProcess );
+            return bytesArrayInTargetProcess;
+        }
+
+
         /** Writes a Byte Array into the target process' memory. All other writing methods
          * convert their corresponding input data to a byte sequence and then call this method
          * to execute the actual writing operation.
@@ -253,110 +309,21 @@ namespace RAMvader
         }
 
 
-        /** Writes a Byte value into the target process' memory.
+        /** Writes a value into the target process' memory.
          * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
+         * @param writeData The data to be written to the target process. This data must be one of the
+         *    basic data types supported by the RAMvader library.
          * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, Byte writeData )
+        public bool WriteToTarget( IntPtr address, Object writeData )
         {
-            byte [] dataBuffer = new byte[1] { writeData };
+            // Does the RAMvader library support the given data type?
+            Type writeDataType = writeData.GetType();
+            if ( SUPPORTED_DATA_TYPES.Contains( writeDataType ) == false )
+                throw new UnsupportedDataType( writeDataType );
+
+            // Perform the writing operation
+            byte [] dataBuffer = GetValueAsBytesArrayInTargetProcess( writeData );
             return WriteToTarget( address, dataBuffer );
-        }
-
-
-        /** Writes an Int16 value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, Int16 writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
-        }
-
-
-        /** Writes an Int32 value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, Int32 writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
-        }
-
-
-        /** Writes an Int64 value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, Int64 writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
-        }
-
-
-        /** Writes an UInt16 value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, UInt16 writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
-        }
-
-
-        /** Writes an UInt32 value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, UInt32 writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
-        }
-
-
-        /** Writes an UInt64 value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, UInt64 writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
-        }
-
-
-        /** Writes a Single ("float") value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, Single writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
-        }
-
-
-        /** Writes a Double value into the target process' memory.
-         * @param address The address on the target process' memory where the data is to be written.
-         * @param writeData The data to be written to the target process.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool WriteToTarget( IntPtr address, Double writeData )
-        {
-            byte [] bytesToWrite = BitConverter.GetBytes( writeData );
-            RevertArrayOnEndiannessDifference( bytesToWrite );
-            return WriteToTarget( address, bytesToWrite );
         }
 
 
