@@ -1,10 +1,11 @@
-﻿using System;
+﻿using RAMvader;
+using System;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
+using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
-using System.Timers;
-using System.Collections.ObjectModel;
-using RAMvader;
+
 
 namespace RAMvaderGUI
 {
@@ -145,30 +146,7 @@ namespace RAMvaderGUI
                 {
                     // Ovewrite target process' memory
                     Object entryValue = curEntry.Value;
-                    bool bWriteResult = false;
-
-                    if ( entryValue is Byte )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Byte) entryValue );
-                    else if ( entryValue is Int16 )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Int16) entryValue );
-                    else if ( entryValue is Int32 )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Int32) entryValue );
-                    else if ( entryValue is Int64 )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Int64) entryValue );
-                    else if ( entryValue is UInt16 )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (UInt16) entryValue );
-                    else if ( entryValue is UInt32 )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (UInt32) entryValue );
-                    else if ( entryValue is UInt64 )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (UInt64) entryValue );
-                    else if ( entryValue is Single )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Single) entryValue );
-                    else if ( entryValue is Double )
-                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, (Double) entryValue );
-                    else
-                        throw new NotSupportedException( string.Format(
-                            "Cannot write to target process: data type \"{0}\" is not supported by the application!",
-                            entryValue.GetType().Name ) );
+                    bool bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, entryValue );
 
                     // Check for errors
                     if ( bWriteResult == false )
