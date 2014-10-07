@@ -14,18 +14,18 @@ namespace RAMvader
     public class RAMvaderTarget
     {
         #region PRIVATE CONSTANTS
-        /** A set containing all basic data types supported by the RAMvader library. */
-        private static readonly SortedSet<Type> SUPPORTED_DATA_TYPES = new SortedSet<Type>()
+        /** A dictionary containing both all basic data types supported by the RAMvader library and their respective sizes. */
+        private static readonly Dictionary<Type, int> SUPPORTED_DATA_TYPES_SIZE = new Dictionary<Type, int>()
         {
-            typeof( Byte ),
-            typeof( Int16 ),
-            typeof( Int32 ),
-            typeof( Int64 ),
-            typeof( UInt16 ),
-            typeof( UInt32 ),
-            typeof( UInt64 ),
-            typeof( Single ),
-            typeof( Double ),
+            { typeof( Byte ), sizeof( Byte ) },
+            { typeof( Int16 ), sizeof( Int16 ) },
+            { typeof( Int32 ), sizeof( Int32 ) },
+            { typeof( Int64 ), sizeof( Int64 ) },
+            { typeof( UInt16 ), sizeof( UInt16 ) },
+            { typeof( UInt32 ), sizeof( UInt32 ) },
+            { typeof( UInt64 ), sizeof( UInt64 ) },
+            { typeof( Single ), sizeof( Single ) },
+            { typeof( Double ), sizeof( Double ) },
         };
         #endregion
 
@@ -99,7 +99,7 @@ namespace RAMvader
                     if ( curType.IsTypeSizeValid() == false )
                     {
                         if ( builder == null )
-                            builder = new StringBuilder( "The following types have reported unexpected sizes:" );
+                            builder = new StringBuilder( string.Format( "[{0}] The following types have reported unexpected sizes:", this.GetType().Name ) );
                     
                         builder.AppendLine();
                         builder.AppendFormat( curType.GetTypeInvalidMessage() );
@@ -107,7 +107,7 @@ namespace RAMvader
                 }
 
                 if ( builder != null )
-                    throw new PlatformNotSupportedException( builder.ToString() );
+                    throw new RAMvaderException( builder.ToString() );
             #endif
         }
 
@@ -318,7 +318,7 @@ namespace RAMvader
         {
             // Does the RAMvader library support the given data type?
             Type writeDataType = writeData.GetType();
-            if ( SUPPORTED_DATA_TYPES.Contains( writeDataType ) == false )
+            if ( SUPPORTED_DATA_TYPES_SIZE.ContainsKey( writeDataType ) == false )
                 throw new UnsupportedDataType( writeDataType );
 
             // Perform the writing operation
@@ -345,145 +345,52 @@ namespace RAMvader
         }
 
 
-        /** Reads a Byte value from the target process.
+        /** Reads a value from the target process' memory.
          * @param address The address on the target process' memory where the data will be read from.
          * @param outDestiny The result of the reading will be stored in this variable.
+         *    The referenced variable's data must be one of the basic data types supported by the RAMvader library.
          * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref Byte outDestiny )
+        public bool ReadFromTarget( IntPtr address, ref Object outDestiny )
         {
-            byte [] byteBuff = new byte[sizeof( Byte )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
+            // Does the RAMvader library support the given data type?
+            Type readDataType = outDestiny.GetType();
+            if ( SUPPORTED_DATA_TYPES_SIZE.ContainsKey( readDataType ) == false )
+                throw new UnsupportedDataType( readDataType );
 
-            outDestiny = byteBuff[0];
-            return true;
-        }
-
-
-        /** Reads an Int16 value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref Int16 outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( Int16 )];
+            // Try to perform the reading operation
+            int destinySizeInBytes = SUPPORTED_DATA_TYPES_SIZE[readDataType];
+            byte [] byteBuff = new byte[destinySizeInBytes];
             if ( ReadFromTarget( address, byteBuff ) == false )
                 return false;
 
             RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToInt16( byteBuff, 0 );
-            return true;
-        }
 
-
-        /** Reads an Int32 value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref Int32 outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( Int32 )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
-
-            RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToInt32( byteBuff, 0 );
-            return true;
-        }
-
-
-        /** Reads an Int64 value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref Int64 outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( Int64 )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
-
-            RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToInt64( byteBuff, 0 );
-            return true;
-        }
-
-
-        /** Reads an UInt16 value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref UInt16 outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( UInt16 )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
-
-            RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToUInt16( byteBuff, 0 );
-            return true;
-        }
-
-
-        /** Reads an UInt32 value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref UInt32 outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( UInt32 )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
-
-            RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToUInt32( byteBuff, 0 );
-            return true;
-        }
-
-
-        /** Reads an UInt64 value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref UInt64 outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( UInt64 )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
-
-            RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToUInt64( byteBuff, 0 );
-            return true;
-        }
-
-
-        /** Reads a Single (float) value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref Single outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( Single )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
-
-            RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToSingle( byteBuff, 0 );
-            return true;
-        }
-
-
-        /** Reads a Double value from the target process.
-         * @param address The address on the target process' memory where the data will be read from.
-         * @param outDestiny The result of the reading will be stored in this variable.
-         * @return Returns true in case of success, false in case of failure. */
-        public bool ReadFromTarget( IntPtr address, ref Double outDestiny )
-        {
-            byte [] byteBuff = new byte[sizeof( Double )];
-            if ( ReadFromTarget( address, byteBuff ) == false )
-                return false;
-
-            RevertArrayOnEndiannessDifference( byteBuff );
-            outDestiny = BitConverter.ToDouble( byteBuff, 0 );
+            // Convert the read bytes to their corresponding format
+            if ( outDestiny is Byte )
+                outDestiny = byteBuff[0];
+            else if ( outDestiny is Int16 )
+                outDestiny = BitConverter.ToInt16( byteBuff, 0 );
+            else if ( outDestiny is Int32 )
+                outDestiny = BitConverter.ToInt32( byteBuff, 0 );
+            else if ( outDestiny is Int64 )
+                outDestiny = BitConverter.ToInt64( byteBuff, 0 );
+            else if ( outDestiny is UInt16 )
+                outDestiny = BitConverter.ToUInt16( byteBuff, 0 );
+            else if ( outDestiny is UInt32 )
+                outDestiny = BitConverter.ToUInt32( byteBuff, 0 );
+            else if ( outDestiny is UInt64 )
+                outDestiny = BitConverter.ToUInt64( byteBuff, 0 );
+            else if ( outDestiny is Single )
+                outDestiny = BitConverter.ToSingle( byteBuff, 0 );
+            else if ( outDestiny is Double )
+                outDestiny = BitConverter.ToDouble( byteBuff, 0 );
+            else
+            {
+                // Code should never really reach this point...
+                // If it does, this means an "else if" statement needs to be written to
+                // treat the data type given by the "readDataType" variable
+                throw new UnsupportedDataType( readDataType );
+            }
             return true;
         }
         #endregion
