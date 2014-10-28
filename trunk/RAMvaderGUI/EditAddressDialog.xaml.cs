@@ -2,6 +2,8 @@
 using System.Globalization;
 using System.Windows;
 using System.Windows.Controls;
+using System.Text;
+using System.Reflection;
 
 
 namespace RAMvaderGUI
@@ -17,7 +19,7 @@ namespace RAMvaderGUI
             typeof( Byte ),
             typeof( Int16 ), typeof( Int32 ), typeof( Int64 ),
             typeof( UInt16 ), typeof( UInt32 ), typeof( UInt64 ),
-            typeof( Single ), typeof( Double )
+            typeof( Single ), typeof( Double ), typeof( IntPtr )
         };
         /** A string representing a pointer, which points to the position "zero". */
         private static string sm_zeroPointerString = Converters.IntToHexStringConverter.convertIntPtrToString( IntPtr.Zero );
@@ -39,8 +41,59 @@ namespace RAMvaderGUI
          * @throws FormatException When the user input is malformed. */
         private Object getValueObject()
         {
+            // Process according to numeric types
             Type userSelectedType = (Type) m_cmbType.SelectedItem;
-            return Convert.ChangeType( m_txtValue.Text, userSelectedType, CultureInfo.InvariantCulture );
+            if ( userSelectedType == typeof( Single ) || userSelectedType == typeof ( Double ) )
+            {
+                // Floating point types
+                return Convert.ChangeType( m_txtValue.Text, userSelectedType, CultureInfo.InvariantCulture );
+            }
+            else if ( userSelectedType == typeof( IntPtr ) )
+            {
+                // Pointers
+                return Converters.IntToHexStringConverter.convertStringToIntPtr( m_txtValue.Text );
+            }
+            else
+            {
+                // Verify if the user has specified an hex number or not
+                string textToParse = m_txtValue.Text.Trim();
+                object [] invokeParams = null;
+                if ( textToParse.StartsWith( "0x", StringComparison.InvariantCultureIgnoreCase ) )
+                {
+                    textToParse = textToParse.Substring( 2 );
+                    invokeParams = new object[] { textToParse, NumberStyles.HexNumber };
+                }
+                else
+                    invokeParams = new object[] { textToParse };
+
+                // Other numeric types
+                return userSelectedType.InvokeMember( "Parse",
+                    BindingFlags.InvokeMethod, null, null, invokeParams );
+            }
+        }
+
+
+        /** Retrieves a string representing an IntPtr, based on the current architecture (32 or 64 bits).
+         * @param pVal The IntPtr value to be transformed into a string.
+         * @return Returns a string representing the givben IntPtr. */
+        private string getIntPtrAsString( IntPtr pVal )
+        {
+            int pointerSize = IntPtr.Size;
+            switch ( pointerSize )
+            {
+                case 4:
+                case 8:
+                    {
+                        StringBuilder builder = new StringBuilder( "0x" );
+                        string valFormat = string.Format( "X{0}", pointerSize * 2 );
+                        builder.Append( pVal.ToString( valFormat ) );
+                        return builder.ToString();
+                    }
+                default:
+                    throw new Exception( string.Format(
+                        "The size of pointers returned by IntPtr.Size is not supported! Returned size: {0}.",
+                        IntPtr.Size ) );
+            }
         }
         #endregion
 
@@ -61,6 +114,7 @@ namespace RAMvaderGUI
             foreach ( Type curType in sm_appAllowedDataTypes )
                 m_cmbType.Items.Add( curType );
 
+            // Populate controls
             if ( entry == null )
             {
                 m_txtAddress.Text = sm_zeroPointerString;
@@ -71,7 +125,10 @@ namespace RAMvaderGUI
                 m_txtDescription.Text = entry.Description;
                 m_txtAddress.Text = Converters.IntToHexStringConverter.convertIntPtrToString( entry.Address );
                 m_cmbType.SelectedItem = entry.ValueType;
-                m_txtValue.Text = (String) Convert.ChangeType( entry.Value, typeof( String ), CultureInfo.InvariantCulture );
+                if ( entry.ValueType != typeof( IntPtr ) )
+                    m_txtValue.Text = (String) Convert.ChangeType( entry.Value, typeof( String ), CultureInfo.InvariantCulture );
+                else
+                    m_txtValue.Text = getIntPtrAsString( (IntPtr) entry.Value );
                 m_chkFreezeValue.IsChecked = entry.Freeze;
             }
         }
@@ -90,6 +147,7 @@ namespace RAMvaderGUI
             result.Freeze = ( m_chkFreezeValue.IsChecked == true );
             result.Address = Converters.IntToHexStringConverter.convertStringToIntPtr( m_txtAddress.Text );
             result.Value = getValueObject();
+            result.DisplayAsHex = m_txtValue.Text.StartsWith( "0x", StringComparison.InvariantCultureIgnoreCase );
             
             return result;
         }
@@ -110,13 +168,14 @@ namespace RAMvaderGUI
             this.Close();
         }
 
+
         /** Called when the "Address" TextBox loses focus. */
         private void m_txtAddress_LostFocus( object sender, RoutedEventArgs e )
         {
             // Verify if this is a valid address
             try
             {
-                long.Parse( m_txtAddress.Text, NumberStyles.HexNumber );
+                Converters.IntToHexStringConverter.convertStringToIntPtr( m_txtAddress.Text );
             }
             catch ( Exception ex )
             {
@@ -156,20 +215,28 @@ namespace RAMvaderGUI
             Type oldType = (Type) e.RemovedItems[0];
             Type newType = (Type) m_cmbType.SelectedValue;
 
-            Object newValue = null;
-            while ( newValue == null )
+            if ( newType == typeof( IntPtr ) )
+                m_txtValue.Text = string.Format( "0x{0}", IntPtr.Zero.ToString( string.Format( "X{0}", IntPtr.Size * 2 ) ) );
+            else if ( oldType == typeof( IntPtr ) )
+                m_txtValue.Text = "0";
+            else
             {
-                Object oldValue = Convert.ChangeType( m_txtValue.Text, oldType, CultureInfo.InvariantCulture );
-                try
+                Object newValue = null;
+                while ( newValue == null )
                 {
-                    newValue = Convert.ChangeType( oldValue, newType, CultureInfo.InvariantCulture );
+                    Object oldValue = Convert.ChangeType( m_txtValue.Text, oldType, CultureInfo.InvariantCulture );
+                    try
+                    {
+                        newValue = Convert.ChangeType( oldValue, newType, CultureInfo.InvariantCulture );
+                    }
+                    catch ( OverflowException )
+                    {
+                        m_txtValue.Text = "0";
+                    }
                 }
-                catch ( OverflowException )
-                {
-                    m_txtValue.Text = "0";
-                }
+
+                m_txtValue.Text = (String) Convert.ChangeType( newValue, typeof( string ), CultureInfo.InvariantCulture );
             }
-            m_txtValue.Text = (String) Convert.ChangeType( newValue, typeof( string ), CultureInfo.InvariantCulture );
         }
         #endregion
     }

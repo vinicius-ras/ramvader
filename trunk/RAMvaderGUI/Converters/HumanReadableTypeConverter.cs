@@ -8,7 +8,7 @@ namespace RAMvaderGUI.Converters
     [ValueConversion( typeof( Type ), typeof( String ) )]
     /** Converts Type objects from fully-qualified class names to human-readable,
      * more user-friendly names. */
-    class HumanReadableTypeConverter : IValueConverter
+    public class HumanReadableTypeConverter : IValueConverter
     {
         #region STATIC PROPERTIES
         /** Maps Type values to their corresponding (human-readable/user-friendly) String values. */
@@ -23,6 +23,7 @@ namespace RAMvaderGUI.Converters
             { typeof( UInt64 ), "Unsigned QWORD" },
             { typeof( Single ), "FLOAT" },
             { typeof( Double ), "DOUBLE" },
+            { typeof( IntPtr ), string.Format( "{0}-BITS POINTER", IntPtr.Size * 8 ) },
         };
         /** Maps String values back to their corresponding Type values. */
         private static Dictionary<String, Type> sm_stringsToTypes = new Dictionary<string, Type>();

@@ -16,6 +16,9 @@ namespace RAMvaderGUI
         private Type m_valueType = typeof( Int32 );
         /** A flag indicating if the value should be frozen or not. */
         private bool m_freeze = false;
+        /** A flag specifying if this entry should be displayed as an hex value to the
+         * user. This flag is ignored for Single, Double and IntPtr data types. */
+        private bool m_bDisplayAsHex = false;
         /** The value associated to this entry. */
         private Object m_value = new Int32();
         #endregion
@@ -51,6 +54,12 @@ namespace RAMvaderGUI
         {
             get { return m_freeze; }
             set { m_freeze = value; onPropertyChanged(); }
+        }
+        /** A flag indicating if the value should be displayed as an hex value. */
+        public bool DisplayAsHex
+        {
+            get { return m_bDisplayAsHex; }
+            set { m_bDisplayAsHex = value; onPropertyChanged(); }
         }
         /** The value associated to this entry. */
         public Object Value

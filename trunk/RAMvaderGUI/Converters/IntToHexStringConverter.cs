@@ -8,36 +8,44 @@ namespace RAMvaderGUI.Converters
     [ValueConversion( typeof( IntPtr ), typeof( String ) )]
     /** A converter, used for WPF bindings, which transforms IntPtr address values into
      * their representing Hex strings. */
-    class IntToHexStringConverter : IValueConverter
+    public class IntToHexStringConverter : IValueConverter
     {
         #region PUBLIC STATIC METHODS
         /** Converts the given IntPtr to a String object.
-         * @param value The value to be converted.
+         * @param textToParse The value to be converted.
          * @return Returns the converted value, in case of success.
          *    Returns null in case of failure. */
-        public static String convertIntPtrToString( IntPtr value )
+        public static String convertIntPtrToString( IntPtr textToParse )
         {
-            return value.ToString( string.Format( "X{0}", IntPtr.Size * 2 ) );
+            string hexText = textToParse.ToString( string.Format( "X{0}", IntPtr.Size * 2 ) );
+            return string.Format( "0x{0}", hexText );
         }
 
 
         /** Converts the given String to an IntPtr object.
-         * @param value The value to be converted.
+         * @param textToParse The value to be converted.
          * @return Returns the converted value, in case of success.
          *    Returns null in case of failure. */
-        public static IntPtr convertStringToIntPtr( String value )
+        public static IntPtr convertStringToIntPtr( String textToParse )
         {
+            // Verify if the number starts with the hexadecimal specifier ("0x")
+            textToParse = textToParse.Trim();
+            NumberStyles parsingStyle = NumberStyles.Integer;
+            if ( textToParse.StartsWith( "0x", true, CultureInfo.InvariantCulture ) )
+            {
+                textToParse = textToParse.Substring( 2 );
+                parsingStyle = NumberStyles.HexNumber;
+            }
+
+            // Parse the text
             if ( IntPtr.Size == 8 )
-                return new IntPtr( Int64.Parse( value, NumberStyles.HexNumber ) );
+                return new IntPtr( Int64.Parse( textToParse, parsingStyle ) );
             else if ( IntPtr.Size == 4 )
-                return new IntPtr( Int32.Parse( value, NumberStyles.HexNumber ) );
-#if DEBUG
+                return new IntPtr( Int32.Parse( textToParse, parsingStyle ) );
+            
             throw new NotImplementedException( string.Format(
                 "The application only supports 4 and 8 byte addresses. The {0} structure reported that the current platform address size is {1} bytes!",
                 typeof( IntPtr ).Name, IntPtr.Size ) );
-#else
-            return IntPtr.Zero;
-#endif
         }
         #endregion
 

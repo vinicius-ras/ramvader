@@ -1,6 +1,7 @@
 ﻿using RAMvader;
 using System;
 using System.Collections.ObjectModel;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Timers;
 using System.Windows;
@@ -19,6 +20,20 @@ namespace RAMvaderGUI
         private const int MAX_CONSOLE_ENTRIES = 100;
         /** The default interval for the application's reading and writing timer. */
         private const int DEFAULT_MEMORY_TIMER_INTERVAL = 500;
+        /** Defines the test values which are used for testing writing operations on RAMvaderTestTarget. */
+        private readonly Dictionary<Type, Object> WRITE_TEST_VALUES = new Dictionary<Type, object>()
+        {
+            { typeof( Byte ), (Byte) 100 },
+            { typeof( Int16 ), (Int16) 101 },
+            { typeof( Int32 ), (Int32) 102 },
+            { typeof( Int64 ), (Int64) 103 },
+            { typeof( UInt16 ), (UInt16) 104 },
+            { typeof( UInt32 ), (UInt32) 105 },
+            { typeof( UInt64 ), (UInt64) 106 },
+            { typeof( Single ), (Single) 107.107f },
+            { typeof( Double ), (Double) 108.108 },
+            { typeof( IntPtr ), new IntPtr( (int)0x11223344 ) },
+        };
         #endregion
 
 
@@ -139,94 +154,100 @@ namespace RAMvaderGUI
             }
 
             // Process all target addresses
-            foreach ( AddressEntry curEntry in m_addressEntries )
+            int totalEntries = m_addressEntries.Count;
+            for ( int entryIndex = 0; entryIndex < totalEntries; entryIndex++ )
             {
+                AddressEntry curEntry = m_addressEntries[entryIndex];
+                string curEntryName = string.IsNullOrWhiteSpace( curEntry.Description ) ? "<no identifier>" : curEntry.Description;
+
                 // Frozen and non-frozen addresses are treated differently
                 if ( curEntry.Freeze )
                 {
                     // Ovewrite target process' memory
                     Object entryValue = curEntry.Value;
-                    bool bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, entryValue );
+                    bool bWriteResult = false;
+                    
+                    try
+                    {
+                        bWriteResult = m_targetProcess.WriteToTarget( curEntry.Address, entryValue );
+                    }
+                    catch ( PointerDataLostException ex )
+                    {
+                        logToConsole( string.Format(
+                            "Cannot freeze entry \"{0}\": pointer write operation failed due to a DATA LOST exception! Details follow below.",
+                            curEntryName ) );
+                        logToConsole( string.Format(
+                            "[FAIL DESCRIPTION] {0}",
+                            ex.Message ) );
+                    }
+                    catch ( UnsupportedPointerSizeException )
+                    {
+                        logToConsole( string.Format(
+                            "Cannot freeze entry \"{0}\": RAMvader is running in 32-bits mode and the target process is assumed to be running in 64-bits mode! Pointers can NOT be read/written in this situation.",
+                            curEntryName ) );
+                        bWriteResult = false;
+                    }
 
                     // Check for errors
                     if ( bWriteResult == false )
                         logToConsole( string.Format(
                             "Cannot write entry \"{0}\" to address 0x{1} of target process!",
-                            string.IsNullOrWhiteSpace( curEntry.Description ) ? "<no identifier>" : curEntry.Description,
+                            curEntryName,
                             Converters.IntToHexStringConverter.convertIntPtrToString( curEntry.Address ) ) );
                 }
                 else
                 {
                     // Read the target process' memory
-                    Object entryValue;
+                    Object entryValue, buffer;
                     Type entryType = curEntry.ValueType;
                     bool bReadResult = false;
 
+
                     if ( entryType == typeof( Byte ) )
-                    {
-                        Byte buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new Byte();
                     else if ( entryType == typeof( Int16 ) )
-                    {
-                        Int16 buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new Int16();
                     else if ( entryType == typeof( Int32 ) )
-                    {
-                        Int32 buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new Int32();
                     else if ( entryType == typeof( Int64 ) )
-                    {
-                        Int64 buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new Int64();
                     else if ( entryType == typeof( UInt16 ) )
-                    {
-                        UInt16 buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new UInt16();
                     else if ( entryType == typeof( UInt32 ) )
-                    {
-                        UInt32 buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new UInt32();
                     else if ( entryType == typeof( UInt64 ) )
-                    {
-                        UInt64 buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new UInt64();
                     else if ( entryType == typeof( Single ) )
-                    {
-                        Single buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new Single();
                     else if ( entryType == typeof( Double ) )
-                    {
-                        Double buffer = 0;
-                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
-                        entryValue = buffer;
-                    }
+                        buffer = new Double();
+                    else if ( entryType == typeof( IntPtr ) )
+                        buffer = new IntPtr();
                     else
                         throw new NotSupportedException( string.Format(
-                            "Cannot read from target process: data type \"{0}\" is not supported by the application!",
-                            entryType.Name ) );
+                            "Cannot read from target process: data type \"{0}\" (for address entry named \"{1}\") is not supported by the application!",
+                            entryType.Name, curEntryName ) );
+
+                    try
+                    {
+                        bReadResult = m_targetProcess.ReadFromTarget( curEntry.Address, ref buffer );
+                    }
+                    catch ( UnsupportedPointerSizeException )
+                    {
+                        logToConsole( string.Format(
+                            "Cannot read entry \"{0}\" from target process: RAMvader is running in 32-bits mode and the target process is assumed to be running in 64-bits mode! Pointers can NOT be read/written in this situation.",
+                            curEntryName ) );
+                        bReadResult = false;
+                    }
+                    entryValue = buffer;
 
                     // Check for errors
                     if ( bReadResult == false )
+                    {
                         logToConsole( string.Format(
                             "Cannot read entry \"{0}\" to address 0x{1} of target process!",
-                            string.IsNullOrWhiteSpace( curEntry.Description ) ? "<no identifier>" : curEntry.Description,
-                            Converters.IntToHexStringConverter.convertIntPtrToString( curEntry.Address ) ) );
+                            curEntryName, Converters.IntToHexStringConverter.convertIntPtrToString( curEntry.Address ) ) );
+                    }
 
                     // Update value
                     curEntry.Value = entryValue;
@@ -255,6 +276,21 @@ namespace RAMvaderGUI
             m_memoryTimer.Interval = DEFAULT_MEMORY_TIMER_INTERVAL;
 
             m_memoryData.ItemsSource = m_addressEntries;
+
+            // Fill the list of endianness values and pointer sizes
+            foreach ( RAMvaderTarget.EEndianness curEndianness in Enum.GetValues( typeof( RAMvaderTarget.EEndianness ) ) )
+                m_cmbTargetEndianness.Items.Add( curEndianness );
+            m_cmbTargetEndianness.SelectedItem = RAMvaderTarget.EEndianness.evEndiannessDefault;
+
+            foreach ( RAMvaderTarget.EPointerSize curPtrSize in Enum.GetValues( typeof( RAMvaderTarget.EPointerSize ) ) )
+                m_cmbTargetPointerSize.Items.Add( curPtrSize );
+            m_cmbTargetPointerSize.SelectedItem = RAMvaderTarget.EPointerSize.evPointerSizeDefault;
+
+            // This application will always use "safe truncation" error handling for pointers
+            m_targetProcess.SetTargetPointerSizeErrorHandling( RAMvaderTarget.EDifferentPointerSizeError.evSafeTruncation );
+
+            // Tell the user about the host process' pointer size
+            logToConsole( string.Format( "Process running RAMvader is using {0}-bit pointers.", IntPtr.Size * 8 ) );
         }
         #endregion
 
@@ -382,6 +418,63 @@ namespace RAMvaderGUI
         }
 
 
+        /** Called when the user clicks the "Add RAMvaderTestTarget addresses" context menu item (in the memory data grid). */
+        private void m_menuAddTestAddresses_Click( object sender, RoutedEventArgs e )
+        {
+            RAMvaderTestTargetAddAddressesDialog addrDialog = new RAMvaderTestTargetAddAddressesDialog();
+            addrDialog.Owner = this;
+
+            if ( addrDialog.ShowDialog() == true )
+            {
+                // Add all results
+                foreach ( AddressEntry curAddrEntry in addrDialog.getResults() )
+                    m_addressEntries.Add( curAddrEntry );
+            }
+        }
+
+
+        /** Called when the user clicks the "Write test values" context menu item (in the memory data grid). */
+        private void m_menuFreezeOnTestValues_Click( object sender, RoutedEventArgs e )
+        {
+            // Verify if the set of registered addresses corresponds to the expected set
+            if ( m_addressEntries.Count != WRITE_TEST_VALUES.Count )
+            {
+                MessageBox.Show( string.Format(
+                    "Cannot write test values: there are {0} registered addresses, while there should be {1} registered addresses.",
+                    m_addressEntries.Count, WRITE_TEST_VALUES.Count ) );
+                return;
+            }
+
+            Dictionary<Type,Object>.Enumerator writeTestValuesEnumerator = WRITE_TEST_VALUES.GetEnumerator();
+            for ( int a = 0; a < m_addressEntries.Count; a++ )
+            {
+                // NOTE: according to MSDN's documentation, "Initially, the enumerator is
+                // positioned before the first element in the collection. At this position,
+                // the Current property is undefined. Therefore, you must call the MoveNext
+                // method to advance the enumerator to the first element of the collection
+                // before reading the value of Current."
+                writeTestValuesEnumerator.MoveNext();
+
+                // Check if this object has the right type
+                AddressEntry curAddrEntry = m_addressEntries[a];
+                Type expectedAddrEntryType = writeTestValuesEnumerator.Current.Key;
+                if ( curAddrEntry.ValueType != expectedAddrEntryType )
+                {
+                    MessageBox.Show( string.Format(
+                        "Address identified by \"{0}\", registered at index {1} (zero-based index) of the addresses list is of type {2}, while it was expected to be of type {3}!\n\nNOTICE: the first {1} elements registered on the list have been modified.",
+                        m_addressEntries[a].Description, a, curAddrEntry.ValueType.Name,
+                        expectedAddrEntryType.Name ) );
+                    return;
+                }
+
+                // Update write value and enable freezing
+                Object curWriteTestValue = writeTestValuesEnumerator.Current.Value;
+                m_addressEntries[a].Value = curWriteTestValue;
+                m_addressEntries[a].Freeze = true;
+            }
+        }
+
+
         /** Called when the context menu for the "Memory Data Grid" is opening. */
         private void m_memoryData_ContextMenuOpening( object sender, ContextMenuEventArgs e )
         {
@@ -408,6 +501,39 @@ namespace RAMvaderGUI
                 m_addressEntries.Insert( oldAddressEntryPos, newAddress );
             }
 
+        }
+
+
+        private void m_cmbTargetEndianness_SelectionChanged( object sender, SelectionChangedEventArgs e )
+        {
+            // Update target process' endianness configuration
+            RAMvaderTarget.EEndianness selectedEndianness = (RAMvaderTarget.EEndianness) m_cmbTargetEndianness.SelectedValue;
+            m_targetProcess.SetTargetEndianness( selectedEndianness );
+
+            // If there was a previous selection in this combo box (that is, if this
+            // method was not called because of the normal initialization of the
+            // application's main window), tell the user that the endianness changed.
+            if ( e.RemovedItems.Count != 0 )
+                logToConsole( string.Format(
+                    "Endianness for the target process is now assumed to be: \"{0}\".",
+                    selectedEndianness.ToString() ) );
+        }
+
+
+        private void m_cmbTargetPointerSize_SelectionChanged( object sender, SelectionChangedEventArgs e )
+        {
+            // Update target process' pointer size configuration
+            RAMvaderTarget.EPointerSize selectedPointerSize = (RAMvaderTarget.EPointerSize) m_cmbTargetPointerSize.SelectedValue;
+            m_targetProcess.SetTargetPointerSize( selectedPointerSize );
+
+
+            // If there was a previous selection in this combo box (that is, if this
+            // method was not called because of the normal initialization of the
+            // application's main window), tell the user that the endianness changed.
+            if ( e.RemovedItems.Count != 0 )
+                logToConsole( string.Format(
+                    "Pointer size for the target process is now assumed to be: \"{0}\".",
+                    selectedPointerSize.ToString() ) );
         }
         #endregion
     }
