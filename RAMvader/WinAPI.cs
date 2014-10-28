@@ -104,7 +104,7 @@ namespace RAMvader
         /** Kernel32: WriteProcessMemory function. */
         [DllImport( "kernel32.dll", SetLastError = true )]
         public static extern bool WriteProcessMemory( IntPtr hProcess, IntPtr lpBaseAddress, byte[] lpBuffer,
-            uint nSize, out UIntPtr lpNumberOfBytesWritten );
+            int nSize, out IntPtr lpNumberOfBytesWritten );
 
 
         /** Kernel32: ReadProcessMemory function. */

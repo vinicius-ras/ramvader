@@ -17,6 +17,20 @@ static unsigned int sg_UInt32;
 static unsigned long long sg_UInt64;
 static float sg_Single;
 static double sg_Double;
+static void *sg_IntPtr;
+
+
+// PREDEFINED TEST VALUES
+static const char TEST_VALUE_BYTE = 10;
+static const short TEST_VALUE_INT16 = 11;
+static const int TEST_VALUE_INT32 = 12;
+static const long long TEST_VALUE_INT64 = 13;
+static const unsigned short TEST_VALUE_UINT16 = 14;
+static const unsigned int TEST_VALUE_UINT32 = 15;
+static const unsigned long long TEST_VALUE_UINT64 = 16;
+static const float TEST_VALUE_SINGLE = 17.17f;
+static const double TEST_VALUE_DOUBLE = 18.18;
+static void * const TEST_VALUE_INTPTR = reinterpret_cast<void *>( 0xAABBCCDD );
 
 
 // FUNCTIONS
@@ -34,6 +48,7 @@ bool dbgCheckDataTypeSize( const std::string &typeName, int reportedSize, int ex
 	}
 	return (reportedSize == expectedSize);
 }
+
 
 /** Application's entry point.
  * @param argc The number of arguments for the argv parameter.
@@ -92,22 +107,28 @@ int main( int argc, char *argv[] )
 				<< "              Can be: Byte, Int16, Int32, Int64, UInt16, UInt32," << std::endl
 				<< "                      UInt64, Single, Double." << std::endl
 				<< "   {value}: The new value for the variable." << std::endl
+				<< "setTestValues" << std::endl
+				<< "   Modifies the values of all variables of the application to a" << std::endl
+				<< "   predefined set of test values. This is used for debugging the" << std::endl
+				<< "   reading features of the RAMvader library through the RAMvaderGUI" << std::endl
+				<< "   program more easily." << std::endl
 				<< "exit" << std::endl
 				<< "   Terminates the application." << std::endl;
 		}
 		else if ( cmdArgs[0] == "print" )
 		{
 			std::cout
-				<< "[VARIABLE]   [VALUE]                [ADDRESS] " << std::endl
-				<< "Byte         " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << (int)sg_Byte   << "   0x" << std::setfill( '0' ) << static_cast<void *>( &sg_Byte ) << std::endl
-				<< "Int16        " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Int16       << "   0x" << std::setfill( '0' ) << &sg_Int16  << std::endl
-				<< "Int32        " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Int32       << "   0x" << std::setfill( '0' ) << &sg_Int32  << std::endl
-				<< "Int64        " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Int64       << "   0x" << std::setfill( '0' ) << &sg_Int64  << std::endl
-				<< "UInt16       " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_UInt16      << "   0x" << std::setfill( '0' ) << &sg_UInt16 << std::endl
-				<< "UInt32       " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_UInt32      << "   0x" << std::setfill( '0' ) << &sg_UInt32 << std::endl
-				<< "UInt64       " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_UInt64      << "   0x" << std::setfill( '0' ) << &sg_UInt64 << std::endl
-				<< "Single       " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Single      << "   0x" << std::setfill( '0' ) << &sg_Single << std::endl
-				<< "Double       " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Double      << "   0x" << std::setfill( '0' ) << &sg_Double << std::endl;
+				<< "[VARIABLE]         [VALUE]                [ADDRESS] " << std::endl
+				<< "Byte               " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << (int)sg_Byte   << "   0x" << std::setfill( '0' ) << static_cast<void *>( &sg_Byte ) << std::endl
+				<< "Int16              " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Int16       << "   0x" << std::setfill( '0' ) << &sg_Int16  << std::endl
+				<< "Int32              " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Int32       << "   0x" << std::setfill( '0' ) << &sg_Int32  << std::endl
+				<< "Int64              " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Int64       << "   0x" << std::setfill( '0' ) << &sg_Int64  << std::endl
+				<< "UInt16             " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_UInt16      << "   0x" << std::setfill( '0' ) << &sg_UInt16 << std::endl
+				<< "UInt32             " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_UInt32      << "   0x" << std::setfill( '0' ) << &sg_UInt32 << std::endl
+				<< "UInt64             " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_UInt64      << "   0x" << std::setfill( '0' ) << &sg_UInt64 << std::endl
+				<< "Single             " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Single      << "   0x" << std::setfill( '0' ) << &sg_Single << std::endl
+				<< "Double             " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_Double      << "   0x" << std::setfill( '0' ) << &sg_Double << std::endl
+				<< "IntPtr (" << ( sizeof(void *) * 8 ) << "-bits)   " << std::setfill( ' ' ) << std::setw( 20 ) << std::left << sg_IntPtr      << "   0x" << std::setfill( '0' ) << &sg_IntPtr << std::endl;
 		}
 		else if ( cmdArgs[0] == "set" )
 		{
@@ -122,7 +143,7 @@ int main( int argc, char *argv[] )
 
 			bool bIsByte = false, bIsInt16 = false, bIsInt32 = false, bIsInt64 = false,
 				bIsUInt16 = false, bIsUInt32 = false, bIsUInt64 = false,
-				bIsSingle = false, bIsDouble = false;
+				bIsSingle = false, bIsDouble = false, bIsIntPtr = false;
 
 			if ( varName == "Byte" )
 				bIsByte = true;
@@ -142,6 +163,8 @@ int main( int argc, char *argv[] )
 				bIsSingle = true;
 			else if ( varName == "Double" )
 				bIsDouble = true;
+			else if ( varName == "IntPtr" )
+				bIsIntPtr = true;
 			else
 			{
 				std::cerr << "Incorrect variable name!" << std::endl;
@@ -196,6 +219,13 @@ int main( int argc, char *argv[] )
 						sg_Double = static_cast<double>( val );
 				}
 			}
+			else if ( bIsIntPtr )
+			{
+				unsigned long long val;
+				valueExtractor >> std::hex >> val;
+				if ( bFailedToRead == false )
+					sg_IntPtr = reinterpret_cast<void *>( val );
+			}
 
 			// Print errors
 			if ( bFailedToRead )
@@ -203,6 +233,21 @@ int main( int argc, char *argv[] )
 				std::cout << "Could not read the value \"" << cmdArgs[2] << "\" and cast it to type \"" << cmdArgs[1] << "\"." << std::endl;
 				continue;
 			}
+		}
+		else if ( cmdArgs[0] == "setTestValues" )
+		{
+			sg_Byte = TEST_VALUE_BYTE;
+			sg_Int16 = TEST_VALUE_INT16;
+			sg_Int32 = TEST_VALUE_INT32;
+			sg_Int64 = TEST_VALUE_INT64;
+			sg_UInt16 = TEST_VALUE_UINT16;
+			sg_UInt32 = TEST_VALUE_UINT32;
+			sg_UInt64 = TEST_VALUE_UINT64;
+			sg_Single = TEST_VALUE_SINGLE;
+			sg_Double = TEST_VALUE_DOUBLE;
+			sg_IntPtr = TEST_VALUE_INTPTR;
+
+			std::cout << "Test values have been set on program's variables." << std::endl;
 		}
 		else if ( cmdArgs[0] == "exit" )
 			bAppEnded = true;
