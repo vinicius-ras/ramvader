@@ -432,9 +432,10 @@ namespace RAMvader
                 }
                 else
                 {
-                    ptrInTargetProcess = ( curProcessPtrSize == EPointerSize.evPointerSize32
-                        ? (Int32) ( (IntPtr) objVal ).ToInt32()
-                        : (Int64) ( (IntPtr) objVal ).ToInt64() );
+                    if ( curProcessPtrSize == EPointerSize.evPointerSize32 )
+                        ptrInTargetProcess = (Int32) ( (IntPtr) objVal ).ToInt32();
+                    else
+                        ptrInTargetProcess = (Int64) ( (IntPtr) objVal ).ToInt64();
                 }
 
                 // Return the pointer's bytes
