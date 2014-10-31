@@ -203,6 +203,18 @@ namespace RAMvader
         }
 
 
+        /** Retrieves the actual endianness that the #RAMvaderTarget instance is currently assuming that the target process is using.
+         * This method converts the #EEndianness.evEndiannessDefault value into either #EEndianness.evEndiannessBig or #EEndianness.evEndiannessLittle.
+         * @return Returns the (assumed) target process' endianness.
+         * @see #SetTargetEndianness() */
+        public EEndianness GetActualTargetEndianness()
+        {
+            if ( m_targetProcessEndianness == EEndianness.evEndiannessDefault )
+                return BitConverter.IsLittleEndian ? EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
+            return m_targetProcessEndianness;
+        }
+
+
         /** Makes the #RAMvaderTarget instance assume that the target process is using a specific pointer size (32 or 64 bits)
          * configuration. The default pointer size assumed by a #RAMvaderTarget instance is the same pointer size as the process
          * that is running RAMvader.
@@ -219,6 +231,18 @@ namespace RAMvader
          * @see #SetTargetPointerSize() */
         public EPointerSize GetTargetPointerSize()
         {
+            return m_targetPointerSize;
+        }
+
+
+        /** Retrieves the actual pointer size that the #RAMvaderTarget instance is currently assuming that the target process is using.
+         * This method converts the #EPointerSize.evPointerSizeDefault value into either #EPointerSize.evPointerSize32 or #EPointerSize.evPointerSize64.
+         * @return Returns the (assumed) target process' pointer size.
+         * @see #SetTargetPointerSize() */
+        public EPointerSize GetActualTargetPointerSize()
+        {
+            if ( m_targetPointerSize == EPointerSize.evPointerSizeDefault )
+                return GetRAMvaderPointerSize();
             return m_targetPointerSize;
         }
 
@@ -386,9 +410,7 @@ namespace RAMvader
             {
                 // Handle the cases where the size of pointers in the processes are different
                 EPointerSize curProcessPtrSize = GetRAMvaderPointerSize();
-                EPointerSize targetProcessPtrSize = m_targetPointerSize;
-                if ( targetProcessPtrSize == EPointerSize.evPointerSizeDefault )
-                    targetProcessPtrSize = curProcessPtrSize;
+                EPointerSize targetProcessPtrSize = GetActualTargetPointerSize();
 
                 Object ptrInTargetProcess = null;
                 if ( curProcessPtrSize != targetProcessPtrSize )
@@ -527,9 +549,7 @@ namespace RAMvader
         {
             // Determine the size for pointers into the target process
             EPointerSize curProcessPtrSize = RAMvaderTarget.GetRAMvaderPointerSize();
-            EPointerSize targetProcessPtrSize = m_targetPointerSize;
-            if ( targetProcessPtrSize == EPointerSize.evPointerSizeDefault )
-                targetProcessPtrSize = curProcessPtrSize;
+            EPointerSize targetProcessPtrSize = GetActualTargetPointerSize();
 
             // Does the RAMvader library support the given data type?
             Type readDataType = outDestiny.GetType();
