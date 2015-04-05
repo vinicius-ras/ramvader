@@ -1,0 +1,699 @@
+﻿using RAMvader;
+using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using System.Reflection;
+using System.Text;
+
+
+namespace RAMvader.CodeInjection
+{
+    /** Implements the logic behind the injection of code caves and variables into a
+     * target process' memory space.
+     * @tparam TCodeCave An enumerated type which specifies the identifiers for code caves.
+     *    Each enumerator belonging to this enumeration should have the #CodeCaveDefinitionAttribute attribute.
+     * @tparam TVariable An enumerated type which specifies the identifiers for variables to be injected at the target process.
+     *    Each enumerator belonging to this enumeration should have the #VariableDefinitionAttribute attribute. */
+    public class Injector<TCodeCave, TVariable>
+    {
+        #region PRIVATE CONSTANTS
+        /** Keeps both the supported types of variables that can be injected into the
+         * target process' memory space and their corresponding sizes, given in number
+         * of bytes. */
+        private static readonly Dictionary<Type, int> SUPPORTED_VARIABLE_TYPES_SIZE = new Dictionary<Type, int>()
+        {
+            { typeof( Byte ), sizeof( Byte ) },
+            { typeof( Int16 ), sizeof( Int16 ) },
+            { typeof( Int32 ), sizeof( Int32 ) },
+            { typeof( Int64 ), sizeof( Int64 ) },
+            { typeof( UInt16 ), sizeof( UInt16 ) },
+            { typeof( UInt32 ), sizeof( UInt32 ) },
+            { typeof( UInt64 ), sizeof( UInt64 ) },
+            { typeof( Single ), sizeof( Single ) },
+            { typeof( Double ), sizeof( Double ) },
+
+            // IntPtr type is also supported, but it is treated as a special type because its size might vary depending on the target
+            // process' platform (32 or 64 bits)
+        };
+        #endregion
+
+
+
+
+
+        #region PUBLIC CONSTANTS
+        /** The byte value for the NOP opcode. */
+        public const byte OPCODE_NOP = 0x90;
+        /** The byte value for the INT3 opcode. */
+        public const byte OPCODE_INT3 = 0xCC;
+        /** Represents the byte value for the (near) CALL opcode. */
+        public const byte OPCODE_CALL = 0xE8;
+        /** The size of a (near) CALL instruction, given in bytes. */
+        public const int INSTRUCTION_SIZE_CALL = 5;
+        #endregion
+
+
+
+
+
+
+        #region PRIVATE FIELDS
+        /** The object used to attach to the target process, so that the
+         * #Injector can perform I/O operations into the target process' memory. */
+        private RAMvaderTarget m_targetProcess;
+        /** Keeps the base address of the memory which was allocated for the target
+         * process. */
+        private IntPtr m_baseInjectionAddress = IntPtr.Zero;
+        /** A flag specifying if the #Injector has allocated memory in the target process for
+         * injecting its data. When the #Injector allocates memory in the target process, it is
+         * responsible for freing it whenever necessary. */
+        private bool m_bHasAllocatedMemory = false;
+        /** The sequence of bytes which separate two consecutive code caves. */
+        private byte [] m_codeCavesSeparator =
+        {
+            OPCODE_NOP, OPCODE_NOP, OPCODE_NOP, OPCODE_NOP,
+            OPCODE_NOP, OPCODE_NOP, OPCODE_NOP, OPCODE_NOP,
+        };
+        /** The sequence of bytes which separate the code caves region from the variables region. */
+        private byte [] m_variablesSectionSeparator =
+        {
+            OPCODE_INT3, OPCODE_INT3, OPCODE_INT3, OPCODE_INT3,
+            OPCODE_INT3, OPCODE_INT3, OPCODE_INT3, OPCODE_INT3,
+        };
+        #endregion
+
+
+
+
+
+        #region PRIVATE STATIC METHODS
+        /** Retrieves an array of attributes associated to the given enumerator.
+         * @tparam TAttrib The type of the Attribute to be retrieved.
+         * @param enumeratorValue The value indicating the enumerator whose Attributes are to be
+         *    retrieved.
+         * @return Returns an array of attributes of the TAttrib type for the given enumerator
+         *    value. */
+        private static TAttrib[] GetEnumAttributes<TAttrib>( Object enumeratorValue )
+            where TAttrib : Attribute
+        {
+            // Ensure that the provided value is an enumerator
+            Type enumeratorType = enumeratorValue.GetType();
+            if ( enumeratorType.IsEnum == false )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot retrieve {1}s of type \"{2}\" from the provided enumerator value: the provided object is NOT an enumerator value!",
+                    GetInjectorNameWithTemplateParameters(), typeof( Attribute ).Name,
+                    typeof( TAttrib ).Name ) );
+            }
+
+            // Retrieve the enumerator's info
+            MemberInfo [] memberInfo = enumeratorType.GetMember( enumeratorValue.ToString() );
+            if ( memberInfo.Length != 1 )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot retrieve {1}s of type \"{2}\" from the provided enumerator value: multiple {3} objects have been found for the given value!",
+                    GetInjectorNameWithTemplateParameters(), typeof( Attribute ).Name,
+                    typeof( TAttrib ).Name, typeof( MemberInfo ).Name ) );
+            }
+
+            // Retrieve the associated attributes
+            TAttrib [] attribs = (TAttrib[]) memberInfo[0].GetCustomAttributes( typeof( TAttrib ), true );
+            return attribs;
+        }
+
+
+        /** Retrieves an attribute associated to the given enumerator.
+         * @tparam TAttrib The type of the Attribute to be retrieved.
+         * @param enumeratorValue The value indicating the enumerator whose Attribute is to be
+         *    retrieved.
+         * @param bThrowException A flag indicating if an exception should be thrown when the attribute
+         *    is not found. If that flag is set to false, the method simply returns a null value when the
+         *    attribute can't be retrieved.
+         * @return Returns an array of attributes of the TAttrib type for the given enumerator
+         *    value. */
+        private static TAttrib GetEnumAttribute<TAttrib>( Object enumeratorValue, bool bThrowException )
+            where TAttrib : Attribute
+        {
+            // Retrieve the array containing all the attributes of the given type
+            TAttrib [] attribs = GetEnumAttributes<TAttrib>( enumeratorValue );
+
+            // DEBUG: Make sure at most ONE attribute can be found by this method.
+            #if DEBUG
+                if ( attribs.Length > 1 )
+                {
+                    throw new InjectorException( string.Format(
+                        "[{0}] Cannot retrieve {1} of type \"{2}\" from the provided enumerator value: multiple {2} have been found for the given value, while this method is supposed to fetch only ONE {1} of the given type!",
+                        GetInjectorNameWithTemplateParameters(), typeof( Attribute ).Name,
+                        typeof( TAttrib ).Name ) );
+                }
+            #endif
+
+            // Return the found attribute (if any)
+            if ( attribs.Length == 0 )
+            {
+                if ( bThrowException )
+                {
+                    throw new InjectorException( string.Format(
+                        "[{0}] Cannot retrieve {1} attribute from the enumerator identified by \"{2}\"!",
+                        GetInjectorNameWithTemplateParameters(), typeof( TAttrib ).Name,
+                        enumeratorValue.ToString() ) );
+                }
+                return null;
+            }
+            return attribs[0];
+        }
+
+
+        /*** Utility method for retrieving a human-readable name for the #Injector class, including the name of
+         * its generic parameters.
+         * @return Returns a string containing the name of the #Injector class and its generic parameters. */
+        private static string GetInjectorNameWithTemplateParameters()
+        {
+            Type injectorType = typeof( Injector<TCodeCave, TVariable> );
+            Type [] genericArguments = injectorType.GetGenericArguments();
+            int totalGenericArguments = genericArguments.Length;
+
+            StringBuilder builder = new StringBuilder( injectorType.Name.Remove( injectorType.Name.IndexOf('`') ) );
+            builder.Append( '<' );
+            for ( int a = 0; a < totalGenericArguments; a++ )
+            {
+                if ( a > 0 )
+                    builder.Append( ", " );
+                builder.Append( genericArguments[a].Name );
+            }
+            builder.Append( '>' );
+
+            return builder.ToString();
+        }
+        #endregion
+
+
+
+
+
+        #region PUBLIC METHODS
+        /** Constructor. The constructor of the #Injector class checks the code caves and variables for consistency, throwing an exception if
+         * there is any error found.
+         * @throw InjectorException Thrown when there is an inconsistency in the definition of code caves and/or variables. The inconsistency
+         *    is specified in the exception's message. */
+        public Injector()
+        {
+            // Check the template parameters used to create the Injector instance: both must represent enumeration types.
+            if ( typeof( TCodeCave ).IsEnum == false )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Failed to create instance. The type defined for code cave identifiers was \"{1}\", while it MUST be an enumerated type!",
+                    GetInjectorNameWithTemplateParameters(), typeof( TCodeCave ).Name ) );
+            }
+            
+            if ( typeof( TVariable ).IsEnum == false )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Failed to create instance. The type defined for variable identifiers was \"{1}\", while it MUST be an enumerated type!",
+                    GetInjectorNameWithTemplateParameters(), typeof( TVariable ).Name ) );
+            }
+
+            // Check all code cave definitions
+            foreach ( TCodeCave curCodeCave in Enum.GetValues( typeof( TCodeCave ) ) )
+            {
+                CodeCaveDefinitionAttribute caveSpecs = GetEnumAttribute<CodeCaveDefinitionAttribute>( curCodeCave, true );
+                caveSpecs.PerformSafetyChecks<TVariable>();
+            }
+
+            // Check all variables definitions
+            foreach ( TVariable curVariable in Enum.GetValues( typeof( TVariable ) ) )
+            {
+                VariableDefinitionAttribute varSpecs = GetEnumAttribute<VariableDefinitionAttribute>( curVariable, true );
+                Type varType = varSpecs.InitialValue.GetType();
+                if ( SUPPORTED_VARIABLE_TYPES_SIZE.ContainsKey( varType ) == false && varType != typeof( IntPtr ) )
+                {
+                    throw new InjectorException( string.Format(
+                        "[{0}] Failed to create instance. The variable identified by \"{1}\" is of type \"{2}\", and this type of data is NOT supported by the RAMvader library.",
+                        GetInjectorNameWithTemplateParameters(), curVariable.ToString(), varType.Name ) );
+                }
+            }
+        }
+
+
+        /** Initializes or modifies the reference to the object used by the #Injector to perform write operations to the
+         * target process' memory. The #Injector also uses this object to know the endianness and pointer size of the target
+         * process.
+         * @param targetProc The object used for performing memory I/O operations on the target process.
+         * @see #GetTargetProcess() */
+        public void SetTargetProcess( RAMvaderTarget targetProc )
+        {
+            m_targetProcess = targetProc;
+        }
+
+
+        /** Retrieves the current reference to the object used by the #Injector to perform write operations to the
+         * target process' memory. The #Injector also uses this object to know the endianness and pointer size of the target
+         * process.
+         * @return Returns the object used for performing memory I/O operations on the target process.
+         * @see #SetTargetProcess() */
+        public RAMvaderTarget GetTargetProcess()
+        {
+            return m_targetProcess;
+        }
+
+
+        /** Retrieves the size of the pointers used on the target process.
+         * @return Returns the size of the pointers used on the target process, given in bytes. */
+        public int GetTargetProcessPointerSize()
+        {
+            // Target process must've been initialized
+            if ( m_targetProcess == null )
+            {
+                throw new InjectorException( string.Format(
+                    "The {0} class cannot retrieve the pointer size for the target process: target process has not been initialized yet!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            // Try to retrieve the pointer size
+            RAMvaderTarget.EPointerSize targetProcessPointerSize = m_targetProcess.GetActualTargetPointerSize();
+            switch ( targetProcessPointerSize )
+            {
+                case RAMvaderTarget.EPointerSize.evPointerSize32:
+                    return 4;
+                case RAMvaderTarget.EPointerSize.evPointerSize64:
+                    return 8;
+            }
+
+            // Pointer type not supported
+            throw new InjectorException( string.Format(
+                "The {0} class cannot retrieve the size of a pointer of type \"{1}.{2}.{3}\"!",
+                GetInjectorNameWithTemplateParameters(), typeof( RAMvaderTarget ).Name,
+                typeof( RAMvaderTarget.EPointerSize ).Name,
+                targetProcessPointerSize.ToString() ) );
+        }
+
+
+        /** Modifies the sequence of bytes used to separate two consecutive code caves.
+         * @param byteSeq The new sequence of bytes to use as a separator. This can be an empty array, but
+         *    should not be null. */
+        public void SetCodeCavesSeparationBytes( byte[] byteSeq )
+        {
+            m_codeCavesSeparator = byteSeq;
+        }
+
+
+        /** Retrieves the sequence of bytes used to separate two consecutive code caves.
+         * @return Returns the sequence of bytes used to separate two consecutive code caves
+         *    in memory. */
+        public byte[] GetCodeCavesSeparationBytes()
+        {
+            return m_codeCavesSeparator;
+        }
+
+
+        /** Modifies the sequence of bytes used to separate the injected code caves
+         * section from the injected variables section.
+         * @param byteSeq The new sequence of bytes to use as a separator. This can be an empty array, but
+         *    should not be null. */
+        public void SetVariablesSectionSeparationBytes( byte[] byteSeq )
+        {
+            m_variablesSectionSeparator = byteSeq;
+        }
+
+
+        /** Retrieves the sequence of bytes used to separate the injected code caves
+         * section from the injected variables section.
+         * @return Returns the sequence of bytes used to separate two consecutive code caves
+         *    in memory. */
+        public byte[] GetVariablesSectionSeparationBytes()
+        {
+            return m_variablesSectionSeparator;
+        }
+
+
+        /** Retrieves the address where the #Injector has injected its data on the target process.
+         * @return Returns the base address where the injection has been performed.
+         *    If the #Injector didn't perform the injection yet, the return value is IntPtr.Zero.
+         * @see #Inject() */
+        public IntPtr GetBaseInjectionAddress()
+        {
+            return m_baseInjectionAddress;
+        }
+
+
+        /** Retrieves the offset of a given code cave, relative to the base injection
+         * address into the target process' memory space.
+         * @param codeCaveID The identifier of the code cave.
+         * @return Returns the offset of the given code cave. */
+        public int GetCodeCaveOffset( TCodeCave codeCaveID )
+        {
+            int offset = 0;
+            TCodeCave [] codeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
+            for ( int c = 0; c < codeCaves.Length; c++ )
+            {
+                // Has the target code cave been found?
+                if ( codeCaves[c].Equals( codeCaveID ) )
+                    return offset;
+
+                // Retrieve the size of the code cave, in bytes, through its
+                // specification attribute. Add the code cave's size and the
+                // code cave separation bytes count to calculate the next code cave's
+                // offset.
+                CodeCaveDefinitionAttribute codeCaveSpecs = GetEnumAttribute<CodeCaveDefinitionAttribute>( codeCaves[c], true );
+                offset += codeCaveSpecs.GetCodeCaveSize( this );
+                offset += m_codeCavesSeparator.Length;
+            }
+
+            throw new InjectorException( string.Format(
+                "[{0}] Cannot retrieve offset for code cave identified by \"{1}\"!",
+                GetInjectorNameWithTemplateParameters(), codeCaveID.ToString() ) );
+        }
+
+
+        /** Retrieves the address of an injected code cave. This method should only be
+         * called after a base injection address has been defined for the #Injector to
+         * Inject code caves and variables.
+         * @param codeCaveID The identifier of the target code cave.
+         * @return Returns the address of the given code cave, into the target process'
+         *    memory space. */
+        public IntPtr GetInjectedCodeCaveAddress( TCodeCave codeCaveID )
+        {
+            if ( m_baseInjectionAddress == IntPtr.Zero )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot retrieve injected code cave's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
+                    GetInjectorNameWithTemplateParameters(), codeCaveID.ToString() ) );
+            }
+
+            return m_baseInjectionAddress + GetCodeCaveOffset( codeCaveID );
+        }
+
+
+        /** Retrieves the offset of a given variable, relative to the base injection
+         * address into the target process' memory space.
+         * @param varID The identifier of the variable whose offset is to be retrieved.
+         * @return Returns the offset to given variable. */
+        public int GetVariableOffset( TVariable varID )
+        {
+            // Get the offset for the injected variables region in memory...
+            TCodeCave [] codeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
+            TCodeCave lastDefinedCodeCave = codeCaves[codeCaves.Length - 1];
+            CodeCaveDefinitionAttribute lastDefinedCodeCaveSpecs = GetEnumAttribute<CodeCaveDefinitionAttribute>( lastDefinedCodeCave, true );
+
+            int lastDefinedCodeCaveOffset = GetCodeCaveOffset( lastDefinedCodeCave );
+            int lastDefinedCodeCaveSize = lastDefinedCodeCaveSpecs.GetCodeCaveSize( this );
+            int varOffset = lastDefinedCodeCaveOffset + lastDefinedCodeCaveSize + m_variablesSectionSeparator.Length;
+
+            // Calculate the given variable's offset
+            foreach ( TVariable curVar in Enum.GetValues( typeof( TVariable ) ) )
+            {
+                if ( curVar.Equals( varID ) )
+                    return varOffset;
+                varOffset += this.GetVariableSize( curVar );
+            }
+
+            throw new InjectorException( string.Format(
+                "[{0}] Cannot retrieve offset for variable identified by \"{1}\"!",
+                GetInjectorNameWithTemplateParameters(), varID.ToString() ) );
+        }
+
+
+        /** Retrieves the address of an injected variable. This method should only be
+         * called after a base injection address has been defined for the #Injector to
+         * Inject code caves and variables.
+         * @param varID The identifier of the target variable.
+         * @return Returns the address of the given variable, into the target process'
+         *    memory space. */
+        public IntPtr GetInjectedVariableAddress( TVariable varID )
+        {
+            if ( m_baseInjectionAddress == IntPtr.Zero )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot retrieve injected variable's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
+                    GetInjectorNameWithTemplateParameters(), varID.ToString() ) );
+            }
+            return m_baseInjectionAddress + GetVariableOffset( varID );
+        }
+
+
+        /** Retrieves the address of an injected variable, represented as bytes stored in the target process' memory space.
+         * @param varID The identifier of the target variable.
+         * @return Returns the array of bytes representing the address of the injected variable, as it is to be stored into
+         *    the target process' memory space. */
+        public byte [] GetInjectedVariableAddressAsBytes( TVariable varID )
+        {
+            // The target process HAS to be specified, because it is the only one who knows the target process'
+            // pointers size and endianness
+            if ( m_targetProcess == null )
+            {
+                throw new InjectorException( string.Format(
+                    "Cannot retrieve the bytes of a code cave: the {0} object has not been initialized with a {1}!",
+                    GetInjectorNameWithTemplateParameters(), typeof( RAMvaderTarget ).Name ) );
+            }
+
+            // Retrive the address (in the target process' memory space) of the injected variable and then use
+            // the RAMvaderTarget object to retrieve its byte-representation into the target process' memory space
+            IntPtr varAddress = this.GetInjectedVariableAddress( varID );
+            return m_targetProcess.GetValueAsBytesArrayInTargetProcess( varAddress );
+        }
+
+
+        /** Retrieves the size of a given injection variable.
+         * @param varID The identifier of the variable whose size is to be retrieved.
+         * @return Returns the size of the given injection variable, given in bytes. */
+        public int GetVariableSize( TVariable varID )
+        {
+            // Retrieve the type of the injection variable
+            VariableDefinitionAttribute injVarMetadata = GetEnumAttribute<VariableDefinitionAttribute>( varID, true );
+            Type varType = injVarMetadata.InitialValue.GetType();
+
+            // Pointer types have special processing, because the target process might use either 32-bit or 64-bit pointers
+            if ( varType == typeof( IntPtr ) )
+            {
+                // Pointer types need the target process to be initialized
+                if ( m_targetProcess == null )
+                {
+                    throw new InjectorException( string.Format(
+                        "The {0} class cannot retrieve the size of an injection variable of type IntPtr before its target process is initialized!",
+                        GetInjectorNameWithTemplateParameters() ) );
+                }
+
+                return GetTargetProcessPointerSize();
+            }
+            return SUPPORTED_VARIABLE_TYPES_SIZE[varType];
+        }
+
+
+        /** Calculates the total number of required bytes to #Inject the code caves and
+         * variables into the target process' memory space. This calculation takes in
+         * consideration the separation bytes between two consecutive code caves, the separation
+         * between the code caves section and the variables section and the size of each one of
+         * the injection variables.
+         * @return Returns the number of bytes required to Inject into the target process' memory. */
+        public int CalculateRequiredBytesCount()
+        {
+            int totalRequiredBytes = 0;
+
+            // Calculate space required for all code caves
+            TCodeCave [] allCodeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
+            foreach ( TCodeCave curCodeCave in allCodeCaves )
+            {
+                CodeCaveDefinitionAttribute curCodeCaveSpecs = GetEnumAttribute<CodeCaveDefinitionAttribute>( curCodeCave, true );
+                totalRequiredBytes += curCodeCaveSpecs.GetCodeCaveSize( this );
+            }
+
+            // Calculate space required between (consecutive) code caves
+            totalRequiredBytes += ( allCodeCaves.Length - 1 ) * m_codeCavesSeparator.Length;
+
+            // Calculate space required between the code caves section and the
+            // variables section
+            totalRequiredBytes += m_variablesSectionSeparator.Length;
+
+            // Calculate space required for variables
+            TVariable [] allVariables = (TVariable[]) Enum.GetValues( typeof( TVariable ) );
+            foreach ( TVariable curVariable in allVariables )
+                totalRequiredBytes += this.GetVariableSize( curVariable );
+
+            return totalRequiredBytes;
+        }
+
+
+        /** Allocates memory into the target process' memory space and injects the code
+         * caves and variables into that allocated memory.
+         * @see #GetBaseInjectionAddress()
+         * @throw #InjectorException Thrown when any errors occur regarding the injection process.
+         *    The data set for this exception specifies the type of error that caused it to be
+         *    thrown. */
+        public void Inject()
+        {
+            // The target process should've been already defined
+            if ( m_targetProcess == null )
+                throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureRAMvaderTargetNull );
+
+            // Verify if there's an attachment to a target process
+            Process targetProcess = m_targetProcess.GetAttachedProcess();
+            if ( targetProcess == null )
+                throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureNotAttached );
+
+            // Allocate READ+WRITE+EXECUTE memory into the target process' memory space
+            uint totalRequiredSpace = (uint) CalculateRequiredBytesCount();
+            IntPtr baseInjectionAddress = WinAPI.VirtualAllocEx(
+                targetProcess.Handle, IntPtr.Zero, totalRequiredSpace,
+                WinAPI.AllocationType.Reserve | WinAPI.AllocationType.Commit,
+                WinAPI.MemoryProtection.ExecuteReadWrite );
+            if ( baseInjectionAddress == IntPtr.Zero )
+                throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureMemoryAllocation );
+
+            // Now the Injector is responsible for deallocating the allocated memory
+            m_bHasAllocatedMemory = true;
+
+            // Continue with the rest of the injection procedures
+            try
+            {
+                this.Inject( baseInjectionAddress );
+            }
+            catch ( InjectorException )
+            {
+                // Reset the Injector's data and throw the exception up
+                this.ResetAllocatedMemoryData();
+                throw;
+            }
+        }
+
+
+        /** Injects the code caves and variables into the target process' memory space. This overloaded version of
+         * the #Inject() method can be used to Inject the code caves into a specific point of the target process'
+         * memory space. Notice, though, that for the code caves to work correctly, they need to be injected into a
+         * memory region with appropriate permissions. Those are usually READ+WRITE+EXECUTE permissions (READ+WRITE
+         * for injected variables and EXECUTE for allowing the target process to execute the code caves). If you need
+         * to calculate the total number of bytes required by the #Injector to Inject the code caves and variables,
+         * see #CalculateRequiredBytesCount().
+         * @param baseInjectionAddress The address - into the target process' memory
+         *    space - where the #Injector will Inject the code caves and variables.
+         * @see #GetBaseInjectionAddress()
+         * @throw #InjectorException Thrown when any errors occur regarding the injection process.
+         *    The data set for this exception specifies the type of error that caused it to be
+         *    thrown. */
+        public void Inject( IntPtr baseInjectionAddress )
+        {
+            m_baseInjectionAddress = baseInjectionAddress;
+
+            // Generate the bytes which constitute the data to be injected
+            int totalRequiredBytes = this.CalculateRequiredBytesCount();
+            List<byte> bytesToInject = new List<byte>( totalRequiredBytes );
+
+            // Get the bytes which represent the code caves section
+            bool bIsFirstCave = true;
+            foreach ( TCodeCave curCodeCave in Enum.GetValues( typeof( TCodeCave ) ) )
+            {
+                // Add separators between two consecutive code caves
+                if ( bIsFirstCave == false )
+                    bytesToInject.AddRange( m_codeCavesSeparator );
+                bIsFirstCave = false;
+
+                // Add the bytes which represent the code cave
+                CodeCaveDefinitionAttribute caveSpecs = GetEnumAttribute<CodeCaveDefinitionAttribute>( curCodeCave, true );
+                bytesToInject.AddRange( caveSpecs.GetCodeCaveBytes( this ) );
+            }
+
+            // Add separator from the variables section
+            bytesToInject.AddRange( m_variablesSectionSeparator );
+
+            // Add variables
+            foreach ( TVariable curVarID in Enum.GetValues( typeof( TVariable ) ) )
+            {
+                VariableDefinitionAttribute varSpecs = GetEnumAttribute<VariableDefinitionAttribute>( curVarID, true );
+                byte [] varInitialValueAsBytes = m_targetProcess.GetValueAsBytesArrayInTargetProcess( varSpecs.InitialValue );
+                bytesToInject.AddRange( varInitialValueAsBytes );
+            }
+
+            // Inject the data!
+            if ( m_targetProcess.WriteToTarget( m_baseInjectionAddress, bytesToInject.ToArray() ) == false )
+                throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureWriteToTarget );
+        }
+
+
+        /** Resets the internal data of the #Injector regarding the memory region where it has injected its data.
+         * This method should be called whenever the target process is terminated or whenever the #Injector object
+         * needs to deallocate the memory it has allocated on the target process. */
+        public void ResetAllocatedMemoryData()
+        {
+            // If the Injector has allocated memory on the target process, and if the target process
+            // is still running, free that allocated memory
+            if ( m_targetProcess != null )
+            {
+                Process attachedProcess = m_targetProcess.GetAttachedProcess();
+                if ( m_bHasAllocatedMemory && attachedProcess != null && attachedProcess.HasExited == false )
+                {
+                    WinAPI.VirtualFreeEx( attachedProcess.Handle, m_baseInjectionAddress, 0,
+                        WinAPI.FreeType.Release );
+                }
+            }
+
+            // Return allocation address to zero
+            m_baseInjectionAddress = IntPtr.Zero;
+            m_bHasAllocatedMemory = false;
+        }
+
+
+        /** Writes a CALL instruction at a specific point of the target process' memory
+         * space to enable the process' execution flow to be detoured to a specific,
+         * injected code cave.
+         * @param detourPoint The address of the target process' memory space where the
+         *    CALL instruction will be written.
+         * @param codeCave The code cave to where the target process' execution should be
+         *    diverted.
+         * @param instructionSize The size of the instruction that is going to be replaced by
+         *    the CALL instruction. This is used to fill the remaining bytes of the instruction
+         *    with NOP opcodes, so that when the execution flows back from the CALL instruction,
+         *    nothing unexpected happens. */
+        public bool WriteCodeCaveDetour( IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
+        {
+            // Error checking...
+            if ( m_targetProcess == null )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot write a code cave detour: target process has not been initialized yet!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            if ( m_targetProcess.IsAttached() == false )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot write a code cave detour: not attached to a target process!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            // Build the CALL instruction
+            IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
+            Object callOffset;
+
+            RAMvaderTarget.EPointerSize targetProcPointerSize = m_targetProcess.GetActualTargetPointerSize();
+            if ( targetProcPointerSize == RAMvaderTarget.EPointerSize.evPointerSize32 )
+                callOffset = (Int32) ( codeCaveAddress.ToInt32() - detourPoint.ToInt32() - INSTRUCTION_SIZE_CALL );
+            else if ( targetProcPointerSize == RAMvaderTarget.EPointerSize.evPointerSize64 )
+                callOffset = (Int64) ( codeCaveAddress.ToInt64() - detourPoint.ToInt64() - INSTRUCTION_SIZE_CALL );
+            else
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Failed to write a code cave detour: target process' pointer size is not supported.",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+            
+            List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_CALL );
+            tmpBytes.Add( OPCODE_CALL );
+            
+            byte [] callOffsetAsBytes = m_targetProcess.GetValueAsBytesArrayInTargetProcess( callOffset );
+            tmpBytes.AddRange( callOffsetAsBytes );
+
+            int extraNOPs = instructionSize - INSTRUCTION_SIZE_CALL;
+            if ( extraNOPs < 0 )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Failed to write a code cave detour: the CALL instruction is larger than the instruction that is going to be replaced.",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+            for ( int n = 0; n < extraNOPs; n++ )
+                tmpBytes.Add( OPCODE_NOP );
+
+            // Write the instruction
+            return m_targetProcess.WriteToTarget( detourPoint, tmpBytes.ToArray() );
+        }
+        #endregion
+    }
+}
