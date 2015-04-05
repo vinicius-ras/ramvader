@@ -75,6 +75,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="CodeCaveDefinitionAttribute.cs" />
+    <Compile Include="InjectionFailureException.cs" />
+    <Compile Include="Injector.cs" />
+    <Compile Include="InjectorException.cs" />
     <Compile Include="InstanceAlreadyAttachedException.cs" />
     <Compile Include="InstanceNotAttachedException.cs" />
     <Compile Include="PointerDataLostException.cs" />
@@ -83,6 +87,7 @@
     <Compile Include="RAMvaderTarget.cs" />
     <Compile Include="UnsupportedDataTypeException.cs" />
     <Compile Include="UnsupportedPointerSizeException.cs" />
+    <Compile Include="VariableDefinitionAttribute.cs" />
     <Compile Include="WinAPI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
