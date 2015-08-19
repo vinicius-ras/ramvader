@@ -75,19 +75,22 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CodeCaveDefinitionAttribute.cs" />
-    <Compile Include="InjectionFailureException.cs" />
+    <Compile Include="Attributes\CodeCaveDefinitionAttribute.cs" />
+    <Compile Include="Enumerations.cs" />
+    <Compile Include="Exceptions\InjectionFailureException.cs" />
     <Compile Include="Injector.cs" />
-    <Compile Include="InjectorException.cs" />
-    <Compile Include="InstanceAlreadyAttachedException.cs" />
-    <Compile Include="InstanceNotAttachedException.cs" />
-    <Compile Include="PointerDataLostException.cs" />
+    <Compile Include="Exceptions\InjectorException.cs" />
+    <Compile Include="Exceptions\InstanceAlreadyAttachedException.cs" />
+    <Compile Include="Exceptions\InstanceNotAttachedException.cs" />
+    <Compile Include="Exceptions\PointerDataLostException.cs" />
+    <Compile Include="Injector_PropertyIndexers.cs" />
+    <Compile Include="NotifyPropertyChangedAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="RAMvaderException.cs" />
+    <Compile Include="Exceptions\RAMvaderException.cs" />
     <Compile Include="RAMvaderTarget.cs" />
-    <Compile Include="UnsupportedDataTypeException.cs" />
-    <Compile Include="UnsupportedPointerSizeException.cs" />
-    <Compile Include="VariableDefinitionAttribute.cs" />
+    <Compile Include="Exceptions\UnsupportedDataTypeException.cs" />
+    <Compile Include="Exceptions\UnsupportedPointerSizeException.cs" />
+    <Compile Include="Attributes\VariableDefinitionAttribute.cs" />
     <Compile Include="WinAPI.cs" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

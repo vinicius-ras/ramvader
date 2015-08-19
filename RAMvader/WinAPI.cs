@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Runtime.InteropServices;
+
+
 namespace RAMvader
 {
     /** This class is an interface that provides access to the Windows API. */
