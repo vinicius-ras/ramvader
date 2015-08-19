@@ -1,8 +1,9 @@
-﻿using RAMvader;
-using System;
+﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Text;
 
 
@@ -14,7 +15,7 @@ namespace RAMvader.CodeInjection
      *    Each enumerator belonging to this enumeration should have the #CodeCaveDefinitionAttribute attribute.
      * @tparam TVariable An enumerated type which specifies the identifiers for variables to be injected at the target process.
      *    Each enumerator belonging to this enumeration should have the #VariableDefinitionAttribute attribute. */
-    public class Injector<TCodeCave, TVariable>
+    public partial class Injector<TCodeCave, TVariable> : NotifyPropertyChangedAdapter
     {
         #region PRIVATE CONSTANTS
         /** Keeps both the supported types of variables that can be injected into the
@@ -80,6 +81,118 @@ namespace RAMvader.CodeInjection
             OPCODE_INT3, OPCODE_INT3, OPCODE_INT3, OPCODE_INT3,
             OPCODE_INT3, OPCODE_INT3, OPCODE_INT3, OPCODE_INT3,
         };
+        /** Indexer field used to access the code cave offsets, usually for WPF Binding purposes.
+         * Calls #Injector.GetCodeCaveOffset() internally. */
+        private NestedPropertyIndexerCodeCaveOffset m_codeCaveOffset;
+        /** Indexer property used to access the address where a code cave has been injected, usually
+         * for WPF Binding purposes.
+         * Calls #Injector.GetInjectedCodeCaveAddress() internally.
+         * Backed by the #m_injectedCodeCaveAddress field. */
+        private NestedPropertyIndexerInjectedCodeCaveAddress m_injectedCodeCaveAddress;
+        /** Indexer property used to access variable offsets, usually for WPF Binding purposes.
+         * Calls #Injector.GetVariableOffset() internally.
+         * Backed by the #m_variableOffset field. */
+        private NestedPropertyIndexerVariableOffset m_variableOffset;
+        /** Indexer property used to access the address where a variable has been injected, usually
+         * for WPF Binding purposes.
+         * Calls #Injector.GetInjectedVariableAddress() internally.
+         * Backed by the #m_injectedVariableAddress field. */
+        private NestedPropertyIndexerInjectedVariableAddress m_injectedVariableAddress;
+        /** Indexer property used to retrieve the size of a variable, usually for WPF Binding purposes.
+         * Calls #Injector.GetVariableSize() internally.
+         * Backed by the #m_variableSize field. */
+        private NestedPropertyIndexerVariableSize m_variableSize;
+        #endregion
+
+
+
+
+
+        #region PUBLIC PROPERTIES
+        /** Keeps the base address of the memory which was allocated for the target
+         * process. Backed by the #m_baseInjectionAddress field. */
+        public IntPtr BaseInjectionAddress
+        {
+            get { return m_baseInjectionAddress; }
+            private set
+            {
+                m_baseInjectionAddress = value;
+                SendPropertyChangedNotification();
+
+                // The following properties also need to send a "property changed"
+                // notification when the Base Injection Address changes
+                // IMPORTANT: Their backing fields' values are NOT altered to "null" by this operation!
+                // These properties' setter methods do not alter the underlying value, they only fire
+                // "property changed" notifications for WPF Bindings to work correctly..
+                InjectedCodeCaveAddress = null;
+                InjectedVariableAddress = null;
+            }
+        }
+        /** The object used to attach to the target process, so that the
+         * #Injector can perform I/O operations into the target process' memory.
+         * Backed by the #m_targetProcess field. */
+        public RAMvaderTarget TargetProcess
+        {
+            get { return m_targetProcess; }
+            private set
+            {
+                m_targetProcess = value;
+                SendPropertyChangedNotification();
+            }
+        }
+        /** The total number of required bytes to inject the code caves and variables into the target
+         * process' memory space, as calculated by a call to the method #CalculateRequiredBytesCount(). */
+        public int RequiredBytesCount
+        {
+            get { return CalculateRequiredBytesCount(); }
+            private set
+            {
+                // Simulates property updating for the Binding system to work properly
+                SendPropertyChangedNotification();
+            }
+        }
+        /** Indexer property used to access the code cave offsets, usually for WPF Binding purposes.
+         * Calls #Injector.GetCodeCaveOffset() internally.
+         * Backed by the #m_codeCaveOffset field. */
+        public NestedPropertyIndexerCodeCaveOffset CodeCaveOffset
+        {
+            get { return m_codeCaveOffset; }
+            private set { SendPropertyChangedNotification(); }
+        }
+        /** Indexer property used to access the address where a code cave has been injected, usually
+         * for WPF Binding purposes.
+         * Calls #Injector.GetInjectedCodeCaveAddress() internally.
+         * Backed by the #m_injectedCodeCaveAddress field. */
+        public NestedPropertyIndexerInjectedCodeCaveAddress InjectedCodeCaveAddress
+        {
+            get { return m_injectedCodeCaveAddress; }
+            private set { SendPropertyChangedNotification(); }
+        }
+        /** Indexer property used to access variable offsets, usually for WPF Binding purposes.
+         * Calls #Injector.GetVariableOffset() internally.
+         * Backed by the #m_variableOffset field. */
+        public NestedPropertyIndexerVariableOffset VariableOffset
+        {
+            get { return m_variableOffset; }
+            private set { SendPropertyChangedNotification(); }
+        }
+        /** Indexer property used to access the address where a variable has been injected, usually
+         * for WPF Binding purposes.
+         * Calls #Injector.GetInjectedVariableAddress() internally.
+         * Backed by the #m_injectedVariableAddress field. */
+        public NestedPropertyIndexerInjectedVariableAddress InjectedVariableAddress
+        {
+            get { return m_injectedVariableAddress; }
+            private set { SendPropertyChangedNotification(); }
+        }
+        /** Indexer property used to retrieve the size of a variable, usually for WPF Binding purposes.
+         * Calls #Injector.GetVariableSize() internally.
+         * Backed by the #m_variableSize field. */
+        public NestedPropertyIndexerVariableSize VariableSize
+        {
+            get { return m_variableSize; }
+            private set { SendPropertyChangedNotification(); }
+        }
         #endregion
 
 
@@ -232,6 +345,16 @@ namespace RAMvader.CodeInjection
                         GetInjectorNameWithTemplateParameters(), curVariable.ToString(), varType.Name ) );
                 }
             }
+
+            // Initialize indexers.
+            // IMPORTANT: That is the ONLY point where indexers are initialized. Their respective properties'
+            // setter methods will NEVER alter their instance references - their only purpose is to raise
+            // "property changed" notifications for the WPF Binding system whenever necessary
+            m_codeCaveOffset = new NestedPropertyIndexerCodeCaveOffset( this );
+            m_injectedCodeCaveAddress = new NestedPropertyIndexerInjectedCodeCaveAddress( this );
+            m_variableOffset = new NestedPropertyIndexerVariableOffset( this );
+            m_injectedVariableAddress = new NestedPropertyIndexerInjectedVariableAddress( this );
+            m_variableSize = new NestedPropertyIndexerVariableSize( this );
         }
 
 
@@ -242,7 +365,7 @@ namespace RAMvader.CodeInjection
          * @see #GetTargetProcess() */
         public void SetTargetProcess( RAMvaderTarget targetProc )
         {
-            m_targetProcess = targetProc;
+            TargetProcess = targetProc;
         }
 
 
@@ -253,7 +376,7 @@ namespace RAMvader.CodeInjection
          * @see #SetTargetProcess() */
         public RAMvaderTarget GetTargetProcess()
         {
-            return m_targetProcess;
+            return TargetProcess;
         }
 
 
@@ -262,7 +385,7 @@ namespace RAMvader.CodeInjection
         public int GetTargetProcessPointerSize()
         {
             // Target process must've been initialized
-            if ( m_targetProcess == null )
+            if ( TargetProcess == null )
             {
                 throw new InjectorException( string.Format(
                     "The {0} class cannot retrieve the pointer size for the target process: target process has not been initialized yet!",
@@ -270,12 +393,12 @@ namespace RAMvader.CodeInjection
             }
 
             // Try to retrieve the pointer size
-            RAMvaderTarget.EPointerSize targetProcessPointerSize = m_targetProcess.GetActualTargetPointerSize();
+            EPointerSize targetProcessPointerSize = TargetProcess.GetActualTargetPointerSize();
             switch ( targetProcessPointerSize )
             {
-                case RAMvaderTarget.EPointerSize.evPointerSize32:
+                case EPointerSize.evPointerSize32:
                     return 4;
-                case RAMvaderTarget.EPointerSize.evPointerSize64:
+                case EPointerSize.evPointerSize64:
                     return 8;
             }
 
@@ -283,7 +406,7 @@ namespace RAMvader.CodeInjection
             throw new InjectorException( string.Format(
                 "The {0} class cannot retrieve the size of a pointer of type \"{1}.{2}.{3}\"!",
                 GetInjectorNameWithTemplateParameters(), typeof( RAMvaderTarget ).Name,
-                typeof( RAMvaderTarget.EPointerSize ).Name,
+                typeof( EPointerSize ).Name,
                 targetProcessPointerSize.ToString() ) );
         }
 
@@ -332,7 +455,7 @@ namespace RAMvader.CodeInjection
          * @see #Inject() */
         public IntPtr GetBaseInjectionAddress()
         {
-            return m_baseInjectionAddress;
+            return BaseInjectionAddress;
         }
 
 
@@ -373,14 +496,14 @@ namespace RAMvader.CodeInjection
          *    memory space. */
         public IntPtr GetInjectedCodeCaveAddress( TCodeCave codeCaveID )
         {
-            if ( m_baseInjectionAddress == IntPtr.Zero )
+            if ( BaseInjectionAddress == IntPtr.Zero )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Cannot retrieve injected code cave's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
                     GetInjectorNameWithTemplateParameters(), codeCaveID.ToString() ) );
             }
 
-            return m_baseInjectionAddress + GetCodeCaveOffset( codeCaveID );
+            return BaseInjectionAddress + GetCodeCaveOffset( codeCaveID );
         }
 
 
@@ -392,11 +515,15 @@ namespace RAMvader.CodeInjection
         {
             // Get the offset for the injected variables region in memory...
             TCodeCave [] codeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
-            TCodeCave lastDefinedCodeCave = codeCaves[codeCaves.Length - 1];
-            CodeCaveDefinitionAttribute lastDefinedCodeCaveSpecs = GetEnumAttribute<CodeCaveDefinitionAttribute>( lastDefinedCodeCave, true );
-
-            int lastDefinedCodeCaveOffset = GetCodeCaveOffset( lastDefinedCodeCave );
-            int lastDefinedCodeCaveSize = lastDefinedCodeCaveSpecs.GetCodeCaveSize( this );
+            int lastDefinedCodeCaveOffset = 0, lastDefinedCodeCaveSize = 0;
+            if ( codeCaves.Length > 0 )
+            {
+                TCodeCave lastDefinedCodeCave = codeCaves[codeCaves.Length - 1];
+                CodeCaveDefinitionAttribute lastDefinedCodeCaveSpecs = GetEnumAttribute<CodeCaveDefinitionAttribute>( lastDefinedCodeCave, true );
+                lastDefinedCodeCaveOffset = GetCodeCaveOffset( lastDefinedCodeCave );
+                lastDefinedCodeCaveSize = lastDefinedCodeCaveSpecs.GetCodeCaveSize( this );
+            }
+            
             int varOffset = lastDefinedCodeCaveOffset + lastDefinedCodeCaveSize + m_variablesSectionSeparator.Length;
 
             // Calculate the given variable's offset
@@ -421,13 +548,13 @@ namespace RAMvader.CodeInjection
          *    memory space. */
         public IntPtr GetInjectedVariableAddress( TVariable varID )
         {
-            if ( m_baseInjectionAddress == IntPtr.Zero )
+            if ( BaseInjectionAddress == IntPtr.Zero )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Cannot retrieve injected variable's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
                     GetInjectorNameWithTemplateParameters(), varID.ToString() ) );
             }
-            return m_baseInjectionAddress + GetVariableOffset( varID );
+            return BaseInjectionAddress + GetVariableOffset( varID );
         }
 
 
@@ -439,7 +566,7 @@ namespace RAMvader.CodeInjection
         {
             // The target process HAS to be specified, because it is the only one who knows the target process'
             // pointers size and endianness
-            if ( m_targetProcess == null )
+            if ( TargetProcess == null )
             {
                 throw new InjectorException( string.Format(
                     "Cannot retrieve the bytes of a code cave: the {0} object has not been initialized with a {1}!",
@@ -449,7 +576,7 @@ namespace RAMvader.CodeInjection
             // Retrive the address (in the target process' memory space) of the injected variable and then use
             // the RAMvaderTarget object to retrieve its byte-representation into the target process' memory space
             IntPtr varAddress = this.GetInjectedVariableAddress( varID );
-            return m_targetProcess.GetValueAsBytesArrayInTargetProcess( varAddress );
+            return TargetProcess.GetValueAsBytesArrayInTargetProcess( varAddress );
         }
 
 
@@ -466,7 +593,7 @@ namespace RAMvader.CodeInjection
             if ( varType == typeof( IntPtr ) )
             {
                 // Pointer types need the target process to be initialized
-                if ( m_targetProcess == null )
+                if ( TargetProcess == null )
                 {
                     throw new InjectorException( string.Format(
                         "The {0} class cannot retrieve the size of an injection variable of type IntPtr before its target process is initialized!",
@@ -479,7 +606,7 @@ namespace RAMvader.CodeInjection
         }
 
 
-        /** Calculates the total number of required bytes to #Inject the code caves and
+        /** Calculates the total number of required bytes to inject the code caves and
          * variables into the target process' memory space. This calculation takes in
          * consideration the separation bytes between two consecutive code caves, the separation
          * between the code caves section and the variables section and the size of each one of
@@ -522,11 +649,11 @@ namespace RAMvader.CodeInjection
         public void Inject()
         {
             // The target process should've been already defined
-            if ( m_targetProcess == null )
+            if ( TargetProcess == null )
                 throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureRAMvaderTargetNull );
 
             // Verify if there's an attachment to a target process
-            Process targetProcess = m_targetProcess.GetAttachedProcess();
+            Process targetProcess = TargetProcess.GetAttachedProcess();
             if ( targetProcess == null )
                 throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureNotAttached );
 
@@ -571,7 +698,7 @@ namespace RAMvader.CodeInjection
          *    thrown. */
         public void Inject( IntPtr baseInjectionAddress )
         {
-            m_baseInjectionAddress = baseInjectionAddress;
+            BaseInjectionAddress = baseInjectionAddress;
 
             // Generate the bytes which constitute the data to be injected
             int totalRequiredBytes = this.CalculateRequiredBytesCount();
@@ -598,12 +725,12 @@ namespace RAMvader.CodeInjection
             foreach ( TVariable curVarID in Enum.GetValues( typeof( TVariable ) ) )
             {
                 VariableDefinitionAttribute varSpecs = GetEnumAttribute<VariableDefinitionAttribute>( curVarID, true );
-                byte [] varInitialValueAsBytes = m_targetProcess.GetValueAsBytesArrayInTargetProcess( varSpecs.InitialValue );
+                byte [] varInitialValueAsBytes = TargetProcess.GetValueAsBytesArrayInTargetProcess( varSpecs.InitialValue );
                 bytesToInject.AddRange( varInitialValueAsBytes );
             }
 
             // Inject the data!
-            if ( m_targetProcess.WriteToTarget( m_baseInjectionAddress, bytesToInject.ToArray() ) == false )
+            if ( TargetProcess.WriteToTarget( BaseInjectionAddress, bytesToInject.ToArray() ) == false )
                 throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureWriteToTarget );
         }
 
@@ -615,18 +742,18 @@ namespace RAMvader.CodeInjection
         {
             // If the Injector has allocated memory on the target process, and if the target process
             // is still running, free that allocated memory
-            if ( m_targetProcess != null )
+            if ( TargetProcess != null )
             {
-                Process attachedProcess = m_targetProcess.GetAttachedProcess();
+                Process attachedProcess = TargetProcess.GetAttachedProcess();
                 if ( m_bHasAllocatedMemory && attachedProcess != null && attachedProcess.HasExited == false )
                 {
-                    WinAPI.VirtualFreeEx( attachedProcess.Handle, m_baseInjectionAddress, 0,
+                    WinAPI.VirtualFreeEx( attachedProcess.Handle, BaseInjectionAddress, 0,
                         WinAPI.FreeType.Release );
                 }
             }
 
             // Return allocation address to zero
-            m_baseInjectionAddress = IntPtr.Zero;
+            BaseInjectionAddress = IntPtr.Zero;
             m_bHasAllocatedMemory = false;
         }
 
@@ -645,14 +772,14 @@ namespace RAMvader.CodeInjection
         public bool WriteCodeCaveDetour( IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
         {
             // Error checking...
-            if ( m_targetProcess == null )
+            if ( TargetProcess == null )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Cannot write a code cave detour: target process has not been initialized yet!",
                     GetInjectorNameWithTemplateParameters() ) );
             }
 
-            if ( m_targetProcess.IsAttached() == false )
+            if ( TargetProcess.IsAttached() == false )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Cannot write a code cave detour: not attached to a target process!",
@@ -663,10 +790,10 @@ namespace RAMvader.CodeInjection
             IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
             Object callOffset;
 
-            RAMvaderTarget.EPointerSize targetProcPointerSize = m_targetProcess.GetActualTargetPointerSize();
-            if ( targetProcPointerSize == RAMvaderTarget.EPointerSize.evPointerSize32 )
+            EPointerSize targetProcPointerSize = TargetProcess.GetActualTargetPointerSize();
+            if ( targetProcPointerSize == EPointerSize.evPointerSize32 )
                 callOffset = (Int32) ( codeCaveAddress.ToInt32() - detourPoint.ToInt32() - INSTRUCTION_SIZE_CALL );
-            else if ( targetProcPointerSize == RAMvaderTarget.EPointerSize.evPointerSize64 )
+            else if ( targetProcPointerSize == EPointerSize.evPointerSize64 )
                 callOffset = (Int64) ( codeCaveAddress.ToInt64() - detourPoint.ToInt64() - INSTRUCTION_SIZE_CALL );
             else
             {
@@ -678,7 +805,7 @@ namespace RAMvader.CodeInjection
             List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_CALL );
             tmpBytes.Add( OPCODE_CALL );
             
-            byte [] callOffsetAsBytes = m_targetProcess.GetValueAsBytesArrayInTargetProcess( callOffset );
+            byte [] callOffsetAsBytes = TargetProcess.GetValueAsBytesArrayInTargetProcess( callOffset );
             tmpBytes.AddRange( callOffsetAsBytes );
 
             int extraNOPs = instructionSize - INSTRUCTION_SIZE_CALL;
@@ -692,7 +819,7 @@ namespace RAMvader.CodeInjection
                 tmpBytes.Add( OPCODE_NOP );
 
             // Write the instruction
-            return m_targetProcess.WriteToTarget( detourPoint, tmpBytes.ToArray() );
+            return TargetProcess.WriteToTarget( detourPoint, tmpBytes.ToArray() );
         }
         #endregion
     }

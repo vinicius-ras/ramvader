@@ -278,16 +278,16 @@ namespace RAMvaderGUI
             m_memoryData.ItemsSource = m_addressEntries;
 
             // Fill the list of endianness values and pointer sizes
-            foreach ( RAMvaderTarget.EEndianness curEndianness in Enum.GetValues( typeof( RAMvaderTarget.EEndianness ) ) )
+            foreach ( EEndianness curEndianness in Enum.GetValues( typeof( EEndianness ) ) )
                 m_cmbTargetEndianness.Items.Add( curEndianness );
-            m_cmbTargetEndianness.SelectedItem = RAMvaderTarget.EEndianness.evEndiannessDefault;
+            m_cmbTargetEndianness.SelectedItem = EEndianness.evEndiannessDefault;
 
-            foreach ( RAMvaderTarget.EPointerSize curPtrSize in Enum.GetValues( typeof( RAMvaderTarget.EPointerSize ) ) )
+            foreach ( EPointerSize curPtrSize in Enum.GetValues( typeof( EPointerSize ) ) )
                 m_cmbTargetPointerSize.Items.Add( curPtrSize );
-            m_cmbTargetPointerSize.SelectedItem = RAMvaderTarget.EPointerSize.evPointerSizeDefault;
+            m_cmbTargetPointerSize.SelectedItem = EPointerSize.evPointerSizeDefault;
 
             // This application will always use "safe truncation" error handling for pointers
-            m_targetProcess.SetTargetPointerSizeErrorHandling( RAMvaderTarget.EDifferentPointerSizeError.evSafeTruncation );
+            m_targetProcess.SetTargetPointerSizeErrorHandling( EDifferentPointerSizeError.evSafeTruncation );
 
             // Tell the user about the host process' pointer size
             logToConsole( string.Format( "Process running RAMvader is using {0}-bit pointers.", IntPtr.Size * 8 ) );
@@ -507,7 +507,7 @@ namespace RAMvaderGUI
         private void m_cmbTargetEndianness_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             // Update target process' endianness configuration
-            RAMvaderTarget.EEndianness selectedEndianness = (RAMvaderTarget.EEndianness) m_cmbTargetEndianness.SelectedValue;
+            EEndianness selectedEndianness = (EEndianness) m_cmbTargetEndianness.SelectedValue;
             m_targetProcess.SetTargetEndianness( selectedEndianness );
 
             // If there was a previous selection in this combo box (that is, if this
@@ -523,7 +523,7 @@ namespace RAMvaderGUI
         private void m_cmbTargetPointerSize_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             // Update target process' pointer size configuration
-            RAMvaderTarget.EPointerSize selectedPointerSize = (RAMvaderTarget.EPointerSize) m_cmbTargetPointerSize.SelectedValue;
+            EPointerSize selectedPointerSize = (EPointerSize) m_cmbTargetPointerSize.SelectedValue;
             m_targetProcess.SetTargetPointerSize( selectedPointerSize );
 
 
