@@ -304,6 +304,73 @@ namespace RAMvader.CodeInjection
 
 
 
+        #region PUBLIC STATIC METHODS
+        /** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a CALL instruction.
+         * @param callInstructionAddress The address off the CALL instruction itself.
+         * @param targetCallAddress The address which should be called by the CALL instruction.
+         * @param instructionSize When replacing an instruction in a target process' memory space by a CALL instruction, this parameter specifies
+         *    the size of the instruction to be replaced. If this size is larger than the size of a CALL instruction, the remaining bytes are filled
+         *    with NOP opcodes in the returned bytes sequence, so that the CALL instruction might replace other instructions while keeping the consistency
+         *    of its surrounding instructions when a RET instruction is used to return from the CALL.
+         * @param endianness The endianness to be used for the offset of the CALL opcode.
+         * @param pointerSize The size of pointer to be used for the offset of the CALL opcode.
+         * @param diffPointerSizeError The policy for handling errors regarding different sizes of pointers between RAMvader process'
+         *    pointers and the pointers size defined by the "pointerSize" parameter.
+         * @return Returns a sequence of bytes representing the CALL opcode that composes the given instruction. */
+        public static byte [] GetCallOpcode( IntPtr callInstructionAddress, IntPtr targetCallAddress,
+            int instructionSize = INSTRUCTION_SIZE_CALL,
+            EEndianness endianness = EEndianness.evEndiannessDefault,
+            EPointerSize pointerSize = EPointerSize.evPointerSizeDefault,
+            EDifferentPointerSizeError diffPointerSizeError = EDifferentPointerSizeError.evThrowException )
+        {
+            // Initialize defaults
+            if ( endianness == EEndianness.evEndiannessDefault )
+                endianness = BitConverter.IsLittleEndian ? EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
+
+            if ( pointerSize == EPointerSize.evPointerSizeDefault )
+                pointerSize = RAMvaderTarget.GetRAMvaderPointerSize();
+
+            // Calculate the offset between the CALL instruction and the target address that it should call
+            Object callOffset;
+
+            if ( pointerSize == EPointerSize.evPointerSize32 )
+                callOffset = (Int32) ( targetCallAddress.ToInt32() - callInstructionAddress.ToInt32() - INSTRUCTION_SIZE_CALL );
+            else if ( pointerSize == EPointerSize.evPointerSize64 )
+                callOffset = (Int64) ( targetCallAddress.ToInt64() - callInstructionAddress.ToInt64() - INSTRUCTION_SIZE_CALL );
+            else
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Failed to retrieve CALL instruction opcode: the specified pointer size is not supported.",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            // Build the CALL opcode
+            List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_CALL );
+            tmpBytes.Add( OPCODE_CALL );
+
+            byte [] callOffsetAsBytes = RAMvaderTarget.GetValueAsBytesArray( callOffset, endianness, pointerSize, diffPointerSizeError );
+            tmpBytes.AddRange( callOffsetAsBytes );
+
+            // Fill the remaining bytes of the given instruction size with NOP opcodes
+            int extraNOPs = instructionSize - INSTRUCTION_SIZE_CALL;
+            if ( extraNOPs < 0 )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Failed to retrieve CALL instruction opcode: the CALL instruction is larger than the instruction that is going to be replaced.",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+            for ( int n = 0; n < extraNOPs; n++ )
+                tmpBytes.Add( OPCODE_NOP );
+
+            // Return the result
+            return tmpBytes.ToArray();
+        }
+        #endregion
+
+
+
+
+
         #region PUBLIC METHODS
         /** Constructor. The constructor of the #Injector class checks the code caves and variables for consistency, throwing an exception if
          * there is any error found.
@@ -788,38 +855,89 @@ namespace RAMvader.CodeInjection
 
             // Build the CALL instruction
             IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
-            Object callOffset;
-
-            EPointerSize targetProcPointerSize = TargetProcess.GetActualTargetPointerSize();
-            if ( targetProcPointerSize == EPointerSize.evPointerSize32 )
-                callOffset = (Int32) ( codeCaveAddress.ToInt32() - detourPoint.ToInt32() - INSTRUCTION_SIZE_CALL );
-            else if ( targetProcPointerSize == EPointerSize.evPointerSize64 )
-                callOffset = (Int64) ( codeCaveAddress.ToInt64() - detourPoint.ToInt64() - INSTRUCTION_SIZE_CALL );
-            else
-            {
-                throw new InjectorException( string.Format(
-                    "[{0}] Failed to write a code cave detour: target process' pointer size is not supported.",
-                    GetInjectorNameWithTemplateParameters() ) );
-            }
-            
-            List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_CALL );
-            tmpBytes.Add( OPCODE_CALL );
-            
-            byte [] callOffsetAsBytes = TargetProcess.GetValueAsBytesArrayInTargetProcess( callOffset );
-            tmpBytes.AddRange( callOffsetAsBytes );
-
-            int extraNOPs = instructionSize - INSTRUCTION_SIZE_CALL;
-            if ( extraNOPs < 0 )
-            {
-                throw new InjectorException( string.Format(
-                    "[{0}] Failed to write a code cave detour: the CALL instruction is larger than the instruction that is going to be replaced.",
-                    GetInjectorNameWithTemplateParameters() ) );
-            }
-            for ( int n = 0; n < extraNOPs; n++ )
-                tmpBytes.Add( OPCODE_NOP );
+            byte [] callOpcode = GetCallOpcode( detourPoint, codeCaveAddress, instructionSize, TargetProcess.TargetProcessEndianness,
+                TargetProcess.TargetPointerSize, TargetProcess.PointerSizeErrorHandling );
 
             // Write the instruction
-            return TargetProcess.WriteToTarget( detourPoint, tmpBytes.ToArray() );
+            return TargetProcess.WriteToTarget( detourPoint, callOpcode );
+        }
+
+
+        /** Updates the value of a given variable into the target process' memory.
+         * This method is safe, as it checks the given variable's metadata against the given value's type to see if
+         * it matches the variable's type before updating the variable's value.
+         * @param variableID The identifier of the injected variable whose value is to be updated.
+         * @param newValue The new value for the variable.
+         * @return Returns the result of the write operation performed by a call to #RAMvaderTarget.WriteToTarget(). */
+        public bool WriteVariableValue( TVariable variableID, object newValue )
+        {
+            // Error checking...
+            if ( TargetProcess == null )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot update variable's value: target process has not been initialized yet!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            if ( TargetProcess.IsAttached() == false )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot update variable's value: not attached to a target process!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            VariableDefinitionAttribute varSpecs = GetEnumAttribute<VariableDefinitionAttribute>( variableID, true );
+            Type injectedVariableType = varSpecs.InitialValue.GetType();
+            Type givenValueType = newValue.GetType();
+            if ( injectedVariableType != givenValueType )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot update variable's value: given value's type ({1}) does not match the injected variable's type ({2})!",
+                    GetInjectorNameWithTemplateParameters(), givenValueType.Name, injectedVariableType.Name ) );
+            }
+
+            // Update the value in the target process' memory space
+            IntPtr varInjectedAddress = this.GetInjectedVariableAddress( variableID );
+            return this.TargetProcess.WriteToTarget( varInjectedAddress, newValue );
+        }
+
+
+        /** Reads the current value of a given variable from the target process' memory.
+         * This method is safe, as it checks the given variable's metadata against the given output variable's type to see if
+         * it matches the injected variable's type before reading the output value.
+         * @param variableID The identifier of the variable whose value is to be read from the target process' memory space.
+         * @param outputValue The variable which will receive the read value.
+         * @return Returns the result of the read operation performed by a call to #RAMvaderTarget.ReadFromTarget(). */
+        public bool ReadVariableValue( TVariable variableID, ref object outputValue )
+        {
+            // Error checking...
+            if ( TargetProcess == null )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot read injected variable's value: target process has not been initialized yet!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            if ( TargetProcess.IsAttached() == false )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot read injected variable's value: not attached to a target process!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            VariableDefinitionAttribute varSpecs = GetEnumAttribute<VariableDefinitionAttribute>( variableID, true );
+            Type injectedVariableType = varSpecs.InitialValue.GetType();
+            Type outputValueType = outputValue.GetType();
+            if ( injectedVariableType != outputValueType )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot read injected variable's value: given output value's type ({1}) does not match the injected variable's type ({2})!",
+                    GetInjectorNameWithTemplateParameters(), outputValueType.Name, injectedVariableType.Name ) );
+            }
+
+            // Update the value in the target process' memory space
+            IntPtr varInjectedAddress = this.GetInjectedVariableAddress( variableID );
+            return this.TargetProcess.ReadFromTarget( varInjectedAddress, ref outputValue );
         }
         #endregion
     }
