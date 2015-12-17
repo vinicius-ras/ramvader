@@ -187,6 +187,34 @@ namespace RAMvader
 
 
 
+        #region DELEGATES
+        /** Delegate used for handling the event which is fired when the #RAMvaderTarget object is attached to a process. */
+        public delegate void AttachedEventHandler( object sender, EventArgs args );
+        /** Delegate used for handling the event which is fired when the #RAMvaderTarget object is detached from a process. */
+        public delegate void DetachedEventHandler( object sender, EventArgs args );
+        #endregion
+
+
+
+
+
+
+
+
+        #region EVENTS
+        /** Handles the event that gets fired when the #RAMvaderTarget gets attached to a process. */
+        public event AttachedEventHandler AttachedEvent;
+        /** Handles the event that gets fired when the #RAMvaderTarget gets detached from a process. */
+        public event DetachedEventHandler DetachedEvent;
+        #endregion
+
+
+
+
+
+
+
+
         #region PUBLIC STATIC METHODS
         /** Retrieves the pointer size for the process which runs RAMvader.
          * @return Returns a #EPointerSize value, specifying the pointer size of the process. */
@@ -518,6 +546,11 @@ namespace RAMvader
             // If everything went well, update our internal data.
             TargetProcess = targetProcess;
 
+            // Fire "Attached" event
+            if ( AttachedEvent != null )
+                AttachedEvent( this, EventArgs.Empty );
+
+            // Return true (everything went well)
             return true;
         }
 
@@ -540,6 +573,11 @@ namespace RAMvader
             TargetProcess = null;
             ProcessHandle = IntPtr.Zero;
 
+            // Fire "Detached" event
+            if ( detachResult && DetachedEvent != null )
+                DetachedEvent( this, EventArgs.Empty );
+
+            // Return the status for the detachment process
             return detachResult;
         }
 

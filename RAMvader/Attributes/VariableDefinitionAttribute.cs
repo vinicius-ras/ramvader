@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 namespace RAMvader.CodeInjection
 {
@@ -26,6 +23,23 @@ namespace RAMvader.CodeInjection
         public Object InitialValue
         {
             get { return m_initialValue; }
+        }
+        #endregion
+
+
+
+
+
+        #region PUBLIC STATIC METHODS
+        /** Utility method which retrieves the #VariableDefinitionAttribute from the given enumerator value.
+         * @param elm The enumerator from which the #VariableDefinitionAttribute should be retrieved.
+         * @return Returns the #VariableDefinitionAttribute associated with the given enumerator, if any.
+         *    Returns null if no #VariableDefinitionAttribute is associated with the given enumerator. */
+        public static VariableDefinitionAttribute GetVariableDefinitionAttributeFromEnum( Enum elm )
+        {
+            Type enumType = elm.GetType();
+            FieldInfo fieldInfo = enumType.GetField( elm.ToString() );
+            return fieldInfo.GetCustomAttribute<VariableDefinitionAttribute>();
         }
         #endregion
 

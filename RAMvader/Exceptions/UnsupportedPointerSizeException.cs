@@ -1,7 +1,4 @@
-﻿using System;
-
-
-namespace RAMvader
+﻿namespace RAMvader
 {
     /** An exception which is thrown when the user tries to attach a 32-bits process to a 64-bits target process. */
     public class UnsupportedPointerSizeException : RAMvaderException

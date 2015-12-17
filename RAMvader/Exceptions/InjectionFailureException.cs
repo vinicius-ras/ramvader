@@ -15,8 +15,10 @@
              * attached to any process. */
             evFailureNotAttached,
             /** Indicates that the #Injector has tried to allocate virtual memory in the target process'
-             * memory space, but the allocation failed. Memory allocation happens when you can the
-             * #Injector.Inject() method (the parameterless version of it). */
+             * memory space, but the allocation failed. This usually happens either when the system denies the allocation
+             * or if there are no code caves and injection variables to be injected - which effectivelly means that there's
+             * actually NOTHING to be injected into the target process' memory space, making the injection completely unnecessary.
+             * Memory allocation happens when you can the #Injector.Inject() method (the parameterless version of it). */
             evFailureMemoryAllocation,
             /** Indicates that the call to #RAMvaderTarget.WriteToTarget() method has failed. */
             evFailureWriteToTarget,

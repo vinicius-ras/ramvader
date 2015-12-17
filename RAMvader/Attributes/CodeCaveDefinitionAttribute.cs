@@ -1,9 +1,6 @@
-﻿using RAMvader;
-using System;
+﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.Reflection;
 
 
 namespace RAMvader.CodeInjection
@@ -15,6 +12,23 @@ namespace RAMvader.CodeInjection
         /** Keeps the code cave definition which is initialized into this class'
          * constructor method. */
         private Object [] m_codeCaveDefinition;
+        #endregion
+
+
+
+
+
+        #region PUBLIC STATIC METHODS
+        /** Utility method which retrieves the #CodeCaveDefinitionAttribute from the given enumerator value.
+         * @param elm The enumerator from which the #CodeCaveDefinitionAttribute should be retrieved.
+         * @return Returns the #CodeCaveDefinitionAttribute associated with the given enumerator, if any.
+         *    Returns null if no #CodeCaveDefinitionAttribute is associated with the given enumerator. */
+        public static CodeCaveDefinitionAttribute GetCodeCaveDefinitionAttributeFromEnum( Enum elm )
+        {
+            Type enumType = elm.GetType();
+            FieldInfo fieldInfo = enumType.GetField( elm.ToString() );
+            return fieldInfo.GetCustomAttribute<CodeCaveDefinitionAttribute>();
+        }
         #endregion
 
 
