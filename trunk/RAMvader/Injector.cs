@@ -64,21 +64,53 @@ namespace RAMvader.CodeInjection
         public const byte OPCODE_NOP = 0x90;
         /** The byte value for the INT3 opcode. */
         public const byte OPCODE_INT3 = 0xCC;
-        /** Represents the byte value for the (near) CALL opcode. */
-        public const byte OPCODE_CALL = 0xE8;
-        /** The size of a (near) CALL instruction, given in bytes. */
-        public const int INSTRUCTION_SIZE_CALL = 5;
-        #endregion
+		/** Represents the byte value for the 32-bits CALL opcode. */
+		public const byte OPCODE_32_BITS_CALL = 0xE8;
+		/** Represents the byte value for the 32-bits NEAR JMP opcode. */
+		public const byte OPCODE_32_BITS_NEAR_JMP = 0xEB;
+		/** Represents the byte value for the 32-bits NEAR JA opcode. */
+		public const byte OPCODE_32_BITS_NEAR_JA  = 0x77;
+		/** Represents the byte value for the 32-bits NEAR JB opcode. */
+		public const byte OPCODE_32_BITS_NEAR_JB  = 0x72;
+		/** Represents the byte value for the 32-bits NEAR JG opcode. */
+		public const byte OPCODE_32_BITS_NEAR_JG  = 0x7F;
+		/** Represents the byte value for the 32-bits NEAR JL opcode. */
+		public const byte OPCODE_32_BITS_NEAR_JL  = 0x7C;
+		/** Represents the byte value for the 32-bits NEAR JE opcode. */
+		public const byte OPCODE_32_BITS_NEAR_JE  = 0x74;
+		/** Represents the byte value for the 32-bits NEAR JNE opcode. */
+		public const byte OPCODE_32_BITS_NEAR_JNE = 0x75;
+		/** Represents the byte value for the 32-bits FAR JMP opcode. */
+		public static readonly byte [] OPCODE_32_BITS_FAR_JMP = { 0xE9 };
+		/** Represents the byte value for the 32-bits FAR JA opcode. */
+		public static readonly byte [] OPCODE_32_BITS_FAR_JA  = { 0x0F, 0x87 };
+		/** Represents the byte value for the 32-bits FAR JB opcode. */
+		public static readonly byte [] OPCODE_32_BITS_FAR_JB  = { 0x0F, 0x82 };
+		/** Represents the byte value for the 32-bits FAR JG opcode. */
+		public static readonly byte [] OPCODE_32_BITS_FAR_JG  = { 0x0F, 0x8F };
+		/** Represents the byte value for the 32-bits FAR JL opcode. */
+		public static readonly byte [] OPCODE_32_BITS_FAR_JL  = { 0x0F, 0x8C };
+		/** Represents the byte value for the 32-bits FAR JE opcode. */
+		public static readonly byte [] OPCODE_32_BITS_FAR_JE  = { 0x0F, 0x84 };
+		/** Represents the byte value for the 32-bits FAR JNE opcode. */
+		public static readonly byte [] OPCODE_32_BITS_FAR_JNE = { 0x0F, 0x85 };
+		/** The size of a 32-bits CALL instruction, given in bytes. */
+		public const int INSTRUCTION_SIZE_32_BITS_CALL = 5;
+		/** The size of a 32-bits NEAR JUMP instruction, given in bytes. Near jumps allow jumps to instructions up to a distance of 0xFF bytes. */
+		public const int INSTRUCTION_SIZE_32_BITS_NEAR_JUMP = 2;
+		/** The size of a 32-bits FAR JUMP instruction, given in bytes. Far jumps allow jumps to instructions up to a distance of 0xFFFFFFFF bytes. */
+		public const int INSTRUCTION_SIZE_32_BITS_FAR_JUMP = 5;
+		#endregion
 
 
 
 
 
 
-        #region PRIVATE FIELDS
-        /** The object used to attach to the target process, so that the
+		#region PRIVATE FIELDS
+		/** The object used to attach to the target process, so that the
          * #Injector can perform I/O operations into the target process' memory. */
-        private RAMvaderTarget m_targetProcess;
+		private RAMvaderTarget m_targetProcess;
         /** Keeps the base address of the memory which was allocated for the target
          * process. */
         private IntPtr m_baseInjectionAddress = IntPtr.Zero;
@@ -322,8 +354,9 @@ namespace RAMvader.CodeInjection
 
 
         #region PUBLIC STATIC METHODS
-        /** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a CALL instruction.
-         * @param callInstructionAddress The address off the CALL instruction itself.
+        /** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a 32-bits CALL instruction.
+		 * 64-bits CALL instructions are currently not supported by the RAMvader library.
+         * @param callInstructionAddress The address of the CALL instruction itself.
          * @param targetCallAddress The address which should be called by the CALL instruction.
          * @param instructionSize When replacing an instruction in a target process' memory space by a CALL instruction, this parameter specifies
          *    the size of the instruction to be replaced. If this size is larger than the size of a CALL instruction, the remaining bytes are filled
@@ -334,8 +367,8 @@ namespace RAMvader.CodeInjection
          * @param diffPointerSizeError The policy for handling errors regarding different sizes of pointers between RAMvader process'
          *    pointers and the pointers size defined by the "pointerSize" parameter.
          * @return Returns a sequence of bytes representing the CALL opcode that composes the given instruction. */
-        public static byte [] GetCallOpcode( IntPtr callInstructionAddress, IntPtr targetCallAddress,
-            int instructionSize = INSTRUCTION_SIZE_CALL,
+        public static byte [] Get32BitsCallOpcode( IntPtr callInstructionAddress, IntPtr targetCallAddress,
+            int instructionSize = INSTRUCTION_SIZE_32_BITS_CALL,
             EEndianness endianness = EEndianness.evEndiannessDefault,
             EPointerSize pointerSize = EPointerSize.evPointerSizeDefault,
             EDifferentPointerSizeError diffPointerSizeError = EDifferentPointerSizeError.evThrowException )
@@ -351,9 +384,9 @@ namespace RAMvader.CodeInjection
             Object callOffset;
 
             if ( pointerSize == EPointerSize.evPointerSize32 )
-                callOffset = (Int32) ( targetCallAddress.ToInt32() - callInstructionAddress.ToInt32() - INSTRUCTION_SIZE_CALL );
+                callOffset = (Int32) ( targetCallAddress.ToInt32() - callInstructionAddress.ToInt32() - INSTRUCTION_SIZE_32_BITS_CALL );
             else if ( pointerSize == EPointerSize.evPointerSize64 )
-                callOffset = (Int64) ( targetCallAddress.ToInt64() - callInstructionAddress.ToInt64() - INSTRUCTION_SIZE_CALL );
+                callOffset = (Int64) ( targetCallAddress.ToInt64() - callInstructionAddress.ToInt64() - INSTRUCTION_SIZE_32_BITS_CALL );
             else
             {
                 throw new InjectorException( string.Format(
@@ -362,14 +395,14 @@ namespace RAMvader.CodeInjection
             }
 
             // Build the CALL opcode
-            List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_CALL );
-            tmpBytes.Add( OPCODE_CALL );
+            List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_32_BITS_CALL );
+            tmpBytes.Add( OPCODE_32_BITS_CALL );
 
             byte [] callOffsetAsBytes = RAMvaderTarget.GetValueAsBytesArray( callOffset, endianness, pointerSize, diffPointerSizeError );
             tmpBytes.AddRange( callOffsetAsBytes );
 
             // Fill the remaining bytes of the given instruction size with NOP opcodes
-            int extraNOPs = instructionSize - INSTRUCTION_SIZE_CALL;
+            int extraNOPs = instructionSize - INSTRUCTION_SIZE_32_BITS_CALL;
             if ( extraNOPs < 0 )
             {
                 throw new InjectorException( string.Format(
@@ -382,18 +415,237 @@ namespace RAMvader.CodeInjection
             // Return the result
             return tmpBytes.ToArray();
         }
-        #endregion
+
+
+		/** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a 32-bits NEAR JUMP instruction.
+		 * 64-bits JUMP instructions are currently not supported by the RAMvader library.
+		 * @param jumpInstructionType The specific type of jump instruction to be generated.
+         * @param jumpInstructionAddress The address of the JUMP instruction itself.
+         * @param targetJumpAddress The address to which the JUMP instruction should jump.
+         * @param instructionSize When replacing an instruction in a target process' memory space by a JUMP instruction, this parameter specifies
+         *    the size of the instruction to be replaced. If this size is larger than the size of a JUMP instruction, the remaining bytes are filled
+         *    with NOP opcodes in the returned bytes sequence, so that the JUMP instruction might replace other instructions while keeping the
+		 *    consistency of its surrounding instructions when the flow of code returns from the jump (if that ever happens).
+         * @param pointerSize The size of pointer to be used for the offset of the JUMP opcode.
+         * @return Returns a sequence of bytes representing the JUMP opcode that composes the given instruction. */
+		public static byte[] Get32BitsNearJumpOpcode( EJumpInstructionType jumpInstructionType,
+			IntPtr jumpInstructionAddress, IntPtr targetJumpAddress,
+			int instructionSize = INSTRUCTION_SIZE_32_BITS_NEAR_JUMP,
+			EPointerSize pointerSize = EPointerSize.evPointerSizeDefault )
+		{
+			// Initialize defaults
+			if ( pointerSize == EPointerSize.evPointerSizeDefault )
+				pointerSize = RAMvaderTarget.GetRAMvaderPointerSize();
+
+			// Calculate the offset between the JUMP instruction and the target address that it should jump to
+			Object jumpOffset;
+			bool offsetIsValid = false;
+
+			if ( pointerSize == EPointerSize.evPointerSize32 )
+			{
+				// Calculate offset as a signed byte value and verify if offset is valid (if it fits into a single, signed byte)
+				Int32 numJumpOffset = (Int32) ( targetJumpAddress.ToInt32() - jumpInstructionAddress.ToInt32() - INSTRUCTION_SIZE_32_BITS_NEAR_JUMP );
+				offsetIsValid = ( numJumpOffset >= SByte.MinValue && numJumpOffset <= SByte.MaxValue );
+
+				// Convert offset to unsigned byte (if necessary)
+				if ( numJumpOffset < 0 )
+					numJumpOffset = Byte.MaxValue + 1 + numJumpOffset;
+				jumpOffset = numJumpOffset;
+			}
+			else if ( pointerSize == EPointerSize.evPointerSize64 )
+			{
+				// Calculate offset as a signed byte value and verify if offset is valid (if it fits into a single, signed byte)
+				Int64 numJumpOffset = (Int64) ( targetJumpAddress.ToInt64() - jumpInstructionAddress.ToInt64() - INSTRUCTION_SIZE_32_BITS_NEAR_JUMP );
+				offsetIsValid = ( numJumpOffset >= SByte.MinValue && numJumpOffset <= SByte.MaxValue );
+
+				// Convert offset to unsigned byte (if necessary)
+				if ( numJumpOffset < 0 )
+					numJumpOffset = Byte.MaxValue + 1 + numJumpOffset;
+				jumpOffset = numJumpOffset;
+			}
+			else
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Failed to retrieve NEAR JUMP instruction opcode: the specified pointer size is not supported.",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			// NEAR JUMPs can make jumps to instructions up to 0xFF bytes of distance only
+			if ( offsetIsValid == false )
+				throw new InjectorException( string.Format(
+					"[{0}] Failed to retrieve NEAR JUMP instruction opcode: offset between the JUMP instruction and its target jump address is too large for making a NEAR JUMP!",
+					GetInjectorNameWithTemplateParameters() ) );
+
+			byte byteJumpOffset = Convert.ToByte( jumpOffset );
+
+			// Build the JUMP opcode
+			List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_32_BITS_NEAR_JUMP );
+			switch ( jumpInstructionType )
+			{
+				case EJumpInstructionType.evJMP:
+					tmpBytes.Add( OPCODE_32_BITS_NEAR_JMP );
+					break;
+				case EJumpInstructionType.evJA:
+					tmpBytes.Add( OPCODE_32_BITS_NEAR_JA );
+					break;
+				case EJumpInstructionType.evJB:
+					tmpBytes.Add( OPCODE_32_BITS_NEAR_JB );
+					break;
+				case EJumpInstructionType.evJG:
+					tmpBytes.Add( OPCODE_32_BITS_NEAR_JG );
+					break;
+				case EJumpInstructionType.evJL:
+					tmpBytes.Add( OPCODE_32_BITS_NEAR_JL );
+					break;
+				case EJumpInstructionType.evJE:
+					tmpBytes.Add( OPCODE_32_BITS_NEAR_JE );
+					break;
+				case EJumpInstructionType.evJNE:
+					tmpBytes.Add( OPCODE_32_BITS_NEAR_JNE );
+					break;
+				default:
+					throw new InjectorException( string.Format(
+						"[{0}] Failed to retrieve NEAR JUMP instruction opcode: the specified NEAR JUMP instruction type is not supported.",
+						GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			tmpBytes.Add( byteJumpOffset );
+
+			// Fill the remaining bytes of the given instruction size with NOP opcodes
+			int extraNOPs = instructionSize - INSTRUCTION_SIZE_32_BITS_NEAR_JUMP;
+			if ( extraNOPs < 0 )
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Failed to retrieve NEAR JUMP instruction opcode: the NEAR JUMP instruction is larger than the instruction that is going to be replaced.",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+			for ( int n = 0; n < extraNOPs; n++ )
+				tmpBytes.Add( OPCODE_NOP );
+
+			// Return the result
+			return tmpBytes.ToArray();
+		}
+
+
+		/** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a 32-bits FAR JUMP instruction.
+		 * 64-bits JUMP instructions are currently not supported by the RAMvader library.
+		 * @param jumpInstructionType The specific type of jump instruction to be generated.
+         * @param jumpInstructionAddress The address of the JUMP instruction itself.
+         * @param targetJumpAddress The address to which the JUMP instruction should jump.
+         * @param instructionSize When replacing an instruction in a target process' memory space by a JUMP instruction, this parameter specifies
+         *    the size of the instruction to be replaced. If this size is larger than the size of a JUMP instruction, the remaining bytes are filled
+         *    with NOP opcodes in the returned bytes sequence, so that the JUMP instruction might replace other instructions while keeping the
+		 *    consistency of its surrounding instructions when the flow of code returns from the jump (if that ever happens).
+         * @param endianness The endianness to be used for the offset of the JUMP opcode.
+         * @param pointerSize The size of pointer to be used for the offset of the JUMP opcode.
+         * @param diffPointerSizeError The policy for handling errors regarding different sizes of pointers between RAMvader process'
+         *    pointers and the pointers size defined by the "pointerSize" parameter.
+         * @return Returns a sequence of bytes representing the JUMP opcode that composes the given instruction. */
+		public static byte[] Get32BitsFarJumpOpcode( EJumpInstructionType jumpInstructionType,
+			IntPtr jumpInstructionAddress, IntPtr targetJumpAddress,
+			int instructionSize = INSTRUCTION_SIZE_32_BITS_FAR_JUMP,
+			EEndianness endianness = EEndianness.evEndiannessDefault,
+			EPointerSize pointerSize = EPointerSize.evPointerSizeDefault,
+			EDifferentPointerSizeError diffPointerSizeError = EDifferentPointerSizeError.evThrowException )
+		{
+			// Initialize defaults
+			if ( endianness == EEndianness.evEndiannessDefault )
+				endianness = BitConverter.IsLittleEndian ? EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
+
+			if ( pointerSize == EPointerSize.evPointerSizeDefault )
+				pointerSize = RAMvaderTarget.GetRAMvaderPointerSize();
+
+			// Calculate the offset between the JUMP instruction and the target address that it should call
+			Object jumpOffset;
+			bool offsetIsValid = false;
+
+			if ( pointerSize == EPointerSize.evPointerSize32 )
+			{
+				// Calculate offset as a signed byte value. Using 32-bits calculations, the offset is ALWAYS valid.
+				jumpOffset = (Int32) ( targetJumpAddress.ToInt32() - jumpInstructionAddress.ToInt32() - INSTRUCTION_SIZE_32_BITS_FAR_JUMP );
+				offsetIsValid = true;
+			}
+			else if ( pointerSize == EPointerSize.evPointerSize64 )
+			{
+				// Calculate offset and verify if it is valid (if it fits into a single, signed Int32)
+				Int64 numJumpOffset = (Int64) ( targetJumpAddress.ToInt64() - jumpInstructionAddress.ToInt64() - INSTRUCTION_SIZE_32_BITS_FAR_JUMP );
+				jumpOffset = numJumpOffset;
+				offsetIsValid = ( numJumpOffset >= Int32.MinValue && numJumpOffset <= Int32.MaxValue );
+			}
+			else
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Failed to retrieve FAR JUMP instruction opcode: the specified pointer size is not supported.",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			// FAR JUMPs can make jumps to instructions up to 0xFFFFFFFF bytes of distance only
+			if ( offsetIsValid == false )
+				throw new InjectorException( string.Format(
+					"[{0}] Failed to retrieve FAR JUMP instruction opcode: offset between the JUMP instruction and its target jump address is too large for making a FAR JUMP!.",
+					GetInjectorNameWithTemplateParameters() ) );
+
+
+			// Build the FAR JUMP opcode
+			List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_32_BITS_FAR_JUMP );
+			switch ( jumpInstructionType )
+			{
+				case EJumpInstructionType.evJMP:
+					tmpBytes.AddRange( OPCODE_32_BITS_FAR_JMP );
+					break;
+				case EJumpInstructionType.evJA:
+					tmpBytes.AddRange( OPCODE_32_BITS_FAR_JA );
+					break;
+				case EJumpInstructionType.evJB:
+					tmpBytes.AddRange( OPCODE_32_BITS_FAR_JB );
+					break;
+				case EJumpInstructionType.evJG:
+					tmpBytes.AddRange( OPCODE_32_BITS_FAR_JG );
+					break;
+				case EJumpInstructionType.evJL:
+					tmpBytes.AddRange( OPCODE_32_BITS_FAR_JL );
+					break;
+				case EJumpInstructionType.evJE:
+					tmpBytes.AddRange( OPCODE_32_BITS_FAR_JE );
+					break;
+				case EJumpInstructionType.evJNE:
+					tmpBytes.AddRange( OPCODE_32_BITS_FAR_JNE );
+					break;
+				default:
+					throw new InjectorException( string.Format(
+						"[{0}] Failed to retrieve FAR JUMP instruction opcode: the specified FAR JUMP instruction type is not supported.",
+						GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			byte [] jumpOffsetAsBytes = RAMvaderTarget.GetValueAsBytesArray( jumpOffset, endianness, pointerSize, diffPointerSizeError );
+			tmpBytes.AddRange( jumpOffsetAsBytes );
+
+			// Fill the remaining bytes of the given instruction size with NOP opcodes
+			int extraNOPs = instructionSize - INSTRUCTION_SIZE_32_BITS_FAR_JUMP;
+			if ( extraNOPs < 0 )
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Failed to retrieve FAR JUMP instruction opcode: the FAR JUMP instruction is larger than the instruction that is going to be replaced.",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+			for ( int n = 0; n < extraNOPs; n++ )
+				tmpBytes.Add( OPCODE_NOP );
+
+			// Return the result
+			return tmpBytes.ToArray();
+		}
+		#endregion
 
 
 
 
 
-        #region PUBLIC METHODS
-        /** Constructor. The constructor of the #Injector class checks the code caves and variables for consistency, throwing an exception if
+		#region PUBLIC METHODS
+		/** Constructor. The constructor of the #Injector class checks the code caves and variables for consistency, throwing an exception if
          * there is any error found.
          * @throw InjectorException Thrown when there is an inconsistency in the definition of code caves and/or variables. The inconsistency
          *    is specified in the exception's message. */
-        public Injector()
+		public Injector()
         {
             // Check the template parameters used to create the Injector instance: both must represent enumeration types.
             if ( typeof( TCodeCave ).IsEnum == false )
@@ -842,7 +1094,43 @@ namespace RAMvader.CodeInjection
         }
 
 
-        /** Writes a CALL instruction at a specific point of the target process' memory
+		/** Writes a 32-BITS CALL instruction at a specific point of the target process' memory
+         * space to enable the process' execution flow to be detoured to a specific address.
+         * @param detourPoint The address of the target process' memory space where the
+         *    CALL instruction will be written.
+         * @param targetAddress The address to where the target process' execution should be
+         *    diverted.
+         * @param instructionSize The size of the instruction that is going to be replaced by
+         *    the CALL instruction. This is used to fill the remaining bytes of the instruction
+         *    with NOP opcodes, so that when the execution flows back from the CALL instruction,
+         *    nothing unexpected happens. */
+		public bool Write32BitsCallInstruction( IntPtr detourPoint, IntPtr targetAddress, int instructionSize )
+        {
+            // Error checking...
+            if ( TargetProcess == null )
+            {
+                throw new InjectorException( string.Format(
+                    "[{0}] Cannot write a 32-BITS CALL instruction: target process has not been initialized yet!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            if ( TargetProcess.IsAttached() == false )
+            {
+                throw new InjectorException( string.Format(
+					"[{0}] Cannot write a 32-BITS CALL instruction: not attached to a target process!",
+                    GetInjectorNameWithTemplateParameters() ) );
+            }
+
+            // Build the CALL instruction
+            byte [] callOpcode = Get32BitsCallOpcode( detourPoint, targetAddress, instructionSize, TargetProcess.TargetProcessEndianness,
+                TargetProcess.TargetPointerSize, TargetProcess.PointerSizeErrorHandling );
+
+            // Write the instruction
+            return TargetProcess.WriteToTarget( detourPoint, callOpcode );
+        }
+
+
+		/** Writes a 32-BITS CALL instruction at a specific point of the target process' memory
          * space to enable the process' execution flow to be detoured to a specific,
          * injected code cave.
          * @param detourPoint The address of the target process' memory space where the
@@ -853,40 +1141,134 @@ namespace RAMvader.CodeInjection
          *    the CALL instruction. This is used to fill the remaining bytes of the instruction
          *    with NOP opcodes, so that when the execution flows back from the CALL instruction,
          *    nothing unexpected happens. */
-        public bool WriteCodeCaveDetour( IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
-        {
-            // Error checking...
-            if ( TargetProcess == null )
-            {
-                throw new InjectorException( string.Format(
-                    "[{0}] Cannot write a code cave detour: target process has not been initialized yet!",
-                    GetInjectorNameWithTemplateParameters() ) );
-            }
-
-            if ( TargetProcess.IsAttached() == false )
-            {
-                throw new InjectorException( string.Format(
-                    "[{0}] Cannot write a code cave detour: not attached to a target process!",
-                    GetInjectorNameWithTemplateParameters() ) );
-            }
-
-            // Build the CALL instruction
-            IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
-            byte [] callOpcode = GetCallOpcode( detourPoint, codeCaveAddress, instructionSize, TargetProcess.TargetProcessEndianness,
-                TargetProcess.TargetPointerSize, TargetProcess.PointerSizeErrorHandling );
-
-            // Write the instruction
-            return TargetProcess.WriteToTarget( detourPoint, callOpcode );
-        }
+		public bool Write32BitsCallToCodeCaveInstruction( IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
+		{
+			IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
+			return this.Write32BitsCallInstruction( detourPoint, codeCaveAddress, instructionSize );
+		}
 
 
-        /** Updates the value of a given variable into the target process' memory.
+		/** Writes a 32-BITS NEAR JUMP instruction at a specific point of the target process' memory
+         * space to enable the process' execution flow to be detoured to a specific address.
+		 * @param jumpInstructionType The specific type of jump instruction to be written.
+         * @param detourPoint The address of the target process' memory space where the
+         *    JUMP instruction will be written.
+         * @param targetAddress The address to where the target process' execution should be
+         *    diverted.
+         * @param instructionSize The size of the instruction that is going to be replaced by
+         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
+         *    with NOP opcodes, to keep the other instructions' balance unaffected by the new jump
+		 *    instruction. */
+		public bool Write32BitsNearJumpInstruction( EJumpInstructionType jumpInstructionType,
+			IntPtr detourPoint, IntPtr targetAddress, int instructionSize )
+		{
+			// Error checking...
+			if ( TargetProcess == null )
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Cannot write a 32-BITS NEAR JUMP instruction: target process has not been initialized yet!",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			if ( TargetProcess.IsAttached() == false )
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Cannot write a 32-BITS NEAR JUMP: not attached to a target process!",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			// Build the CALL instruction
+			byte [] jumpOpcode = Get32BitsNearJumpOpcode( jumpInstructionType, detourPoint, targetAddress, instructionSize,
+				TargetProcess.TargetPointerSize );
+
+			// Write the instruction
+			return TargetProcess.WriteToTarget( detourPoint, jumpOpcode );
+		}
+
+
+		/** Writes a 32-BITS NEAR JUMP instruction at a specific point of the target process' memory
+         * space to enable the process' execution flow to be detoured to a specific,
+         * injected code cave.
+		 * @param jumpInstructionType The specific type of jump instruction to be written.
+         * @param detourPoint The address of the target process' memory space where the
+         *    JUMP instruction will be written.
+         * @param codeCave The code cave to where the target process' execution should be
+         *    diverted.
+         * @param instructionSize The size of the instruction that is going to be replaced by
+         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
+         *    with NOP opcodes, so that the target process' code remains balanced and stable for debuggers. */
+		public bool Write32BitsNearJumpToCodeCaveInstruction( EJumpInstructionType jumpInstructionType,
+			IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
+		{
+			IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
+			return this.Write32BitsNearJumpInstruction( jumpInstructionType, detourPoint, codeCaveAddress, instructionSize );
+		}
+
+
+		/** Writes a 32-BITS FAR JUMP instruction at a specific point of the target process' memory
+         * space to enable the process' execution flow to be detoured to a specific address.
+		 * @param jumpInstructionType The specific type of jump instruction to be written.
+         * @param detourPoint The address of the target process' memory space where the
+         *    JUMP instruction will be written.
+         * @param targetAddress The address to where the target process' execution should be
+         *    diverted.
+         * @param instructionSize The size of the instruction that is going to be replaced by
+         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
+         *    with NOP opcodes, to keep the other instructions' balance unaffected by the new jump
+		 *    instruction. */
+		public bool Write32BitsFarJumpInstruction( EJumpInstructionType jumpInstructionType,
+			IntPtr detourPoint, IntPtr targetAddress, int instructionSize )
+		{
+			// Error checking...
+			if ( TargetProcess == null )
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Cannot write a 32-BITS FAR JUMP instruction: target process has not been initialized yet!",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			if ( TargetProcess.IsAttached() == false )
+			{
+				throw new InjectorException( string.Format(
+					"[{0}] Cannot write a 32-BITS FAR JUMP: not attached to a target process!",
+					GetInjectorNameWithTemplateParameters() ) );
+			}
+
+			// Build the CALL instruction
+			byte [] jumpOpcode = Get32BitsFarJumpOpcode( jumpInstructionType, detourPoint, targetAddress, instructionSize,
+				TargetProcess.TargetProcessEndianness, TargetProcess.TargetPointerSize, TargetProcess.PointerSizeErrorHandling );
+
+			// Write the instruction
+			return TargetProcess.WriteToTarget( detourPoint, jumpOpcode );
+		}
+
+
+		/** Writes a 32-BITS FAR JUMP instruction at a specific point of the target process' memory
+         * space to enable the process' execution flow to be detoured to a specific,
+         * injected code cave.
+		 * @param jumpInstructionType The specific type of jump instruction to be written.
+         * @param detourPoint The address of the target process' memory space where the
+         *    JUMP instruction will be written.
+         * @param codeCave The code cave to where the target process' execution should be
+         *    diverted.
+         * @param instructionSize The size of the instruction that is going to be replaced by
+         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
+         *    with NOP opcodes, so that the target process' code remains balanced and stable for debuggers. */
+		public bool Write32BitsFarJumpToCodeCaveInstruction( EJumpInstructionType jumpInstructionType,
+			IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
+		{
+			IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
+			return this.Write32BitsFarJumpInstruction( jumpInstructionType, detourPoint, codeCaveAddress, instructionSize );
+		}
+
+
+		/** Updates the value of a given variable into the target process' memory.
          * This method is safe, as it checks the given variable's metadata against the given value's type to see if
          * it matches the variable's type before updating the variable's value.
          * @param variableID The identifier of the injected variable whose value is to be updated.
          * @param newValue The new value for the variable.
          * @return Returns the result of the write operation performed by a call to #RAMvaderTarget.WriteToTarget(). */
-        public bool WriteVariableValue( TVariable variableID, object newValue )
+		public bool WriteVariableValue( TVariable variableID, object newValue )
         {
             // Error checking...
             if ( TargetProcess == null )
