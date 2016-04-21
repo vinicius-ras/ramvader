@@ -102,6 +102,13 @@
     <Compile Include="Exceptions\InstanceNotAttachedException.cs" />
     <Compile Include="Exceptions\PointerDataLostException.cs" />
     <Compile Include="Injector_PropertyIndexers.cs" />
+    <Compile Include="LowLevel.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationBase.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationX86Call.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationX86NearJump.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationX86FarJump.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationNOP.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationPoke.cs" />
     <Compile Include="NotifyPropertyChangedAdapter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Exceptions\RAMvaderException.cs" />

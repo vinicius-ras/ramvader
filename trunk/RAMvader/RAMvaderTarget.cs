@@ -647,9 +647,13 @@ namespace RAMvader
             // RAMvader doesn't support a 32-bits host trying to target a 64-bits process.
             if ( TargetPointerSize == EPointerSize.evPointerSize64 && GetRAMvaderPointerSize() != EPointerSize.evPointerSize64 )
                 throw new UnsupportedPointerSizeException();
-            
-            // Perform the writing operation, and check its results
-            IntPtr totalBytesWritten;
+
+			// Nothing needs to be written?
+			if ( writeData.Length == 0 )
+				return true;
+
+			// Perform the writing operation, and check its results
+			IntPtr totalBytesWritten;
 
             bool writeResult = WinAPI.WriteProcessMemory( ProcessHandle, address, writeData,
                 writeData.Length, out totalBytesWritten );
