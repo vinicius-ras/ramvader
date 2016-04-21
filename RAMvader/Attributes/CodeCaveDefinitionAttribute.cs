@@ -108,7 +108,7 @@ namespace RAMvader.CodeInjection
          * @param injector The #Injector object used to retrie
          * @return Returns a byte sequence representing the code cave, ready to be
          *    injected into the game's memory. */
-        public byte[] GetCodeCaveBytes<TCodeCave, TVariable>( Injector<TCodeCave, TVariable> injector )
+        public byte[] GetCodeCaveBytes<TMemoryAlterationID, TCodeCave, TVariable>( Injector<TMemoryAlterationID, TCodeCave, TVariable> injector )
         {
             // Generate the array of bytes representing the code cave
             List<byte> result = new List<byte>();
@@ -136,7 +136,7 @@ namespace RAMvader.CodeInjection
          * @param injector Reference to the #Injector object, used to calculate
          *    some size properties (e.g., variable sizes).
          * @return Returns the number of bytes of size for the code cave. */
-        public int GetCodeCaveSize<TCodeCave, TVariable>( Injector<TCodeCave, TVariable> injector )
+        public int GetCodeCaveSize<TMemoryAlterationID, TCodeCave, TVariable>( Injector<TMemoryAlterationID, TCodeCave, TVariable> injector )
         {
             int pointerSizeInTargetProcess = injector.GetTargetProcessPointerSize();
 
