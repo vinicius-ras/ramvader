@@ -26,15 +26,13 @@ using System.Text;
 
 namespace RAMvader.CodeInjection
 {
-	/** Implements the logic behind the injection of code caves and variables into a
+    /** Implements the logic behind the injection of code caves and variables into a
      * target process' memory space.
-	 * @tparam TMemoryAlterationSetID An enumerated type which specifies the identifiers for a specific set of memory
-	 *    alterations that can be enabled or disabled into the target process' memory space.
      * @tparam TCodeCave An enumerated type which specifies the identifiers for code caves.
      *    Each enumerator belonging to this enumeration should have the #CodeCaveDefinitionAttribute attribute.
      * @tparam TVariable An enumerated type which specifies the identifiers for variables to be injected at the target process.
      *    Each enumerator belonging to this enumeration should have the #VariableDefinitionAttribute attribute. */
-	public partial class Injector<TMemoryAlterationSetID, TCodeCave, TVariable> : NotifyPropertyChangedAdapter
+    public partial class Injector<TCodeCave, TVariable> : NotifyPropertyChangedAdapter
     {
         #region PRIVATE CONSTANTS
         /** Keeps both the supported types of variables that can be injected into the
@@ -61,36 +59,48 @@ namespace RAMvader.CodeInjection
 
 
 
-		#region PRIVATE FIELDS
-		/** The object used to attach to the target process, so that the
+        #region PUBLIC CONSTANTS
+        /** The byte value for the NOP opcode. */
+        public const byte OPCODE_NOP = 0x90;
+        /** The byte value for the INT3 opcode. */
+        public const byte OPCODE_INT3 = 0xCC;
+        /** Represents the byte value for the (near) CALL opcode. */
+        public const byte OPCODE_CALL = 0xE8;
+        /** The size of a (near) CALL instruction, given in bytes. */
+        public const int INSTRUCTION_SIZE_CALL = 5;
+        #endregion
+
+
+
+
+
+
+        #region PRIVATE FIELDS
+        /** The object used to attach to the target process, so that the
          * #Injector can perform I/O operations into the target process' memory. */
-		private RAMvaderTarget m_targetProcess;
+        private RAMvaderTarget m_targetProcess;
         /** Keeps the base address of the memory which was allocated for the target
          * process. */
         private IntPtr m_baseInjectionAddress = IntPtr.Zero;
-		/** Backs the #IsInjected projerty. */
-		private bool m_isInjected = false;
-		/** A flag specifying if the #Injector has allocated memory in the target process for
+        /** A flag specifying if the #Injector has allocated memory in the target process for
          * injecting its data. When the #Injector allocates memory in the target process, it is
          * responsible for freing it whenever necessary. */
-		private bool m_bHasAllocatedMemory = false;
+        private bool m_bHasAllocatedMemory = false;
         /** The sequence of bytes which separate two consecutive code caves. */
         private byte [] m_codeCavesSeparator =
         {
-			LowLevel.OPCODE_x86_NOP, LowLevel.OPCODE_x86_NOP, LowLevel.OPCODE_x86_NOP, LowLevel.OPCODE_x86_NOP,
-			LowLevel.OPCODE_x86_NOP, LowLevel.OPCODE_x86_NOP, LowLevel.OPCODE_x86_NOP, LowLevel.OPCODE_x86_NOP,
+            OPCODE_NOP, OPCODE_NOP, OPCODE_NOP, OPCODE_NOP,
+            OPCODE_NOP, OPCODE_NOP, OPCODE_NOP, OPCODE_NOP,
         };
         /** The sequence of bytes which separate the code caves region from the variables region. */
         private byte [] m_variablesSectionSeparator =
         {
-			LowLevel.OPCODE_x86_INT3, LowLevel.OPCODE_x86_INT3, LowLevel.OPCODE_x86_INT3, LowLevel.OPCODE_x86_INT3,
-		   LowLevel. OPCODE_x86_INT3, LowLevel.OPCODE_x86_INT3, LowLevel.OPCODE_x86_INT3, LowLevel.OPCODE_x86_INT3,
+            OPCODE_INT3, OPCODE_INT3, OPCODE_INT3, OPCODE_INT3,
+            OPCODE_INT3, OPCODE_INT3, OPCODE_INT3, OPCODE_INT3,
         };
-		/** Keeps all the alterations registered for a given memory alteration set. */
-		private Dictionary<TMemoryAlterationSetID, List<MemoryAlterationBase>> m_memoryAlterationSets = new Dictionary<TMemoryAlterationSetID, List<MemoryAlterationBase>>();
-		/** Indexer field used to access the code cave offsets, usually for WPF Binding purposes.
+        /** Indexer field used to access the code cave offsets, usually for WPF Binding purposes.
          * Calls #Injector.GetCodeCaveOffset() internally. */
-		private NestedPropertyIndexerCodeCaveOffset m_codeCaveOffset;
+        private NestedPropertyIndexerCodeCaveOffset m_codeCaveOffset;
         /** Indexer property used to access the address where a code cave has been injected, usually
          * for WPF Binding purposes.
          * Calls #Injector.GetInjectedCodeCaveAddress() internally.
@@ -117,8 +127,7 @@ namespace RAMvader.CodeInjection
 
         #region PUBLIC PROPERTIES
         /** Keeps the base address of the memory which was allocated for the target
-         * process. If this property has the value "IntPtr.Zero", the #Injector hasn't injected anything into the
-		 * target process' memory space. Backed by the #m_baseInjectionAddress field. */
+         * process. Backed by the #m_baseInjectionAddress field. */
         public IntPtr BaseInjectionAddress
         {
             get { return m_baseInjectionAddress; }
@@ -136,21 +145,10 @@ namespace RAMvader.CodeInjection
                 InjectedVariableAddress = null;
             }
         }
-		/** A flag that is set to true whenever the #Inject() method is called and succeeds, and set to false whenever
-		 * the #ResetAllocatedMemoryData() gets called. */
-		public bool IsInjected
-		{
-			get { return m_isInjected; }
-			private set
-			{
-				m_isInjected = value;
-				SendPropertyChangedNotification();
-			}
-		}
-		/** The object used to attach to the target process, so that the
+        /** The object used to attach to the target process, so that the
          * #Injector can perform I/O operations into the target process' memory.
          * Backed by the #m_targetProcess field. */
-		public RAMvaderTarget TargetProcess
+        public RAMvaderTarget TargetProcess
         {
             get { return m_targetProcess; }
             private set
@@ -301,7 +299,7 @@ namespace RAMvader.CodeInjection
          * @return Returns a string containing the name of the #Injector class and its generic parameters. */
         private static string GetInjectorNameWithTemplateParameters()
         {
-            Type injectorType = typeof( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> );
+            Type injectorType = typeof( Injector<TCodeCave, TVariable> );
             Type [] genericArguments = injectorType.GetGenericArguments();
             int totalGenericArguments = genericArguments.Length;
 
@@ -324,9 +322,8 @@ namespace RAMvader.CodeInjection
 
 
         #region PUBLIC STATIC METHODS
-        /** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a 32-bits CALL instruction.
-		 * 64-bits CALL instructions are currently not supported by the RAMvader library.
-         * @param callInstructionAddress The address of the CALL instruction itself.
+        /** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a CALL instruction.
+         * @param callInstructionAddress The address off the CALL instruction itself.
          * @param targetCallAddress The address which should be called by the CALL instruction.
          * @param instructionSize When replacing an instruction in a target process' memory space by a CALL instruction, this parameter specifies
          *    the size of the instruction to be replaced. If this size is larger than the size of a CALL instruction, the remaining bytes are filled
@@ -337,8 +334,8 @@ namespace RAMvader.CodeInjection
          * @param diffPointerSizeError The policy for handling errors regarding different sizes of pointers between RAMvader process'
          *    pointers and the pointers size defined by the "pointerSize" parameter.
          * @return Returns a sequence of bytes representing the CALL opcode that composes the given instruction. */
-        public static byte [] GetX86CallOpcode( IntPtr callInstructionAddress, IntPtr targetCallAddress,
-            int instructionSize = LowLevel.INSTRUCTION_SIZE_x86_CALL,
+        public static byte [] GetCallOpcode( IntPtr callInstructionAddress, IntPtr targetCallAddress,
+            int instructionSize = INSTRUCTION_SIZE_CALL,
             EEndianness endianness = EEndianness.evEndiannessDefault,
             EPointerSize pointerSize = EPointerSize.evPointerSizeDefault,
             EDifferentPointerSizeError diffPointerSizeError = EDifferentPointerSizeError.evThrowException )
@@ -354,9 +351,9 @@ namespace RAMvader.CodeInjection
             Object callOffset;
 
             if ( pointerSize == EPointerSize.evPointerSize32 )
-                callOffset = (Int32) ( targetCallAddress.ToInt32() - callInstructionAddress.ToInt32() - LowLevel.INSTRUCTION_SIZE_x86_CALL );
+                callOffset = (Int32) ( targetCallAddress.ToInt32() - callInstructionAddress.ToInt32() - INSTRUCTION_SIZE_CALL );
             else if ( pointerSize == EPointerSize.evPointerSize64 )
-                callOffset = (Int64) ( targetCallAddress.ToInt64() - callInstructionAddress.ToInt64() - LowLevel.INSTRUCTION_SIZE_x86_CALL );
+                callOffset = (Int64) ( targetCallAddress.ToInt64() - callInstructionAddress.ToInt64() - INSTRUCTION_SIZE_CALL );
             else
             {
                 throw new InjectorException( string.Format(
@@ -365,14 +362,14 @@ namespace RAMvader.CodeInjection
             }
 
             // Build the CALL opcode
-            List<byte> tmpBytes = new List<byte>( LowLevel.INSTRUCTION_SIZE_x86_CALL );
-            tmpBytes.Add( LowLevel.OPCODE_x86_CALL );
+            List<byte> tmpBytes = new List<byte>( INSTRUCTION_SIZE_CALL );
+            tmpBytes.Add( OPCODE_CALL );
 
             byte [] callOffsetAsBytes = RAMvaderTarget.GetValueAsBytesArray( callOffset, endianness, pointerSize, diffPointerSizeError );
             tmpBytes.AddRange( callOffsetAsBytes );
 
             // Fill the remaining bytes of the given instruction size with NOP opcodes
-            int extraNOPs = instructionSize - LowLevel.INSTRUCTION_SIZE_x86_CALL;
+            int extraNOPs = instructionSize - INSTRUCTION_SIZE_CALL;
             if ( extraNOPs < 0 )
             {
                 throw new InjectorException( string.Format(
@@ -380,255 +377,26 @@ namespace RAMvader.CodeInjection
                     GetInjectorNameWithTemplateParameters() ) );
             }
             for ( int n = 0; n < extraNOPs; n++ )
-                tmpBytes.Add( LowLevel.OPCODE_x86_NOP );
+                tmpBytes.Add( OPCODE_NOP );
 
             // Return the result
             return tmpBytes.ToArray();
         }
-
-
-		/** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a 32-bits NEAR JUMP instruction.
-		 * 64-bits JUMP instructions are currently not supported by the RAMvader library.
-		 * @param jumpInstructionType The specific type of jump instruction to be generated.
-         * @param jumpInstructionAddress The address of the JUMP instruction itself.
-         * @param targetJumpAddress The address to which the JUMP instruction should jump.
-         * @param instructionSize When replacing an instruction in a target process' memory space by a JUMP instruction, this parameter specifies
-         *    the size of the instruction to be replaced. If this size is larger than the size of a JUMP instruction, the remaining bytes are filled
-         *    with NOP opcodes in the returned bytes sequence, so that the JUMP instruction might replace other instructions while keeping the
-		 *    consistency of its surrounding instructions when the flow of code returns from the jump (if that ever happens).
-         * @param pointerSize The size of pointer to be used for the offset of the JUMP opcode.
-         * @return Returns a sequence of bytes representing the JUMP opcode that composes the given instruction. */
-		public static byte[] GetX86NearJumpOpcode( EJumpInstructionType jumpInstructionType,
-			IntPtr jumpInstructionAddress, IntPtr targetJumpAddress,
-			int instructionSize = LowLevel.INSTRUCTION_SIZE_x86_NEAR_JUMP,
-			EPointerSize pointerSize = EPointerSize.evPointerSizeDefault )
-		{
-			// Initialize defaults
-			if ( pointerSize == EPointerSize.evPointerSizeDefault )
-				pointerSize = RAMvaderTarget.GetRAMvaderPointerSize();
-
-			// Calculate the offset between the JUMP instruction and the target address that it should jump to
-			Object jumpOffset;
-			bool offsetIsValid = false;
-
-			if ( pointerSize == EPointerSize.evPointerSize32 )
-			{
-				// Calculate offset as a signed byte value and verify if offset is valid (if it fits into a single, signed byte)
-				Int32 numJumpOffset = (Int32) ( targetJumpAddress.ToInt32() - jumpInstructionAddress.ToInt32() - LowLevel.INSTRUCTION_SIZE_x86_NEAR_JUMP );
-				offsetIsValid = ( numJumpOffset >= SByte.MinValue && numJumpOffset <= SByte.MaxValue );
-
-				// Convert offset to unsigned byte (if necessary)
-				if ( numJumpOffset < 0 )
-					numJumpOffset = Byte.MaxValue + 1 + numJumpOffset;
-				jumpOffset = numJumpOffset;
-			}
-			else if ( pointerSize == EPointerSize.evPointerSize64 )
-			{
-				// Calculate offset as a signed byte value and verify if offset is valid (if it fits into a single, signed byte)
-				Int64 numJumpOffset = (Int64) ( targetJumpAddress.ToInt64() - jumpInstructionAddress.ToInt64() - LowLevel.INSTRUCTION_SIZE_x86_NEAR_JUMP );
-				offsetIsValid = ( numJumpOffset >= SByte.MinValue && numJumpOffset <= SByte.MaxValue );
-
-				// Convert offset to unsigned byte (if necessary)
-				if ( numJumpOffset < 0 )
-					numJumpOffset = Byte.MaxValue + 1 + numJumpOffset;
-				jumpOffset = numJumpOffset;
-			}
-			else
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Failed to retrieve NEAR JUMP instruction opcode: the specified pointer size is not supported.",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			// NEAR JUMPs can make jumps to instructions up to 0xFF bytes of distance only
-			if ( offsetIsValid == false )
-				throw new InjectorException( string.Format(
-					"[{0}] Failed to retrieve NEAR JUMP instruction opcode: offset between the JUMP instruction and its target jump address is too large for making a NEAR JUMP!",
-					GetInjectorNameWithTemplateParameters() ) );
-
-			byte byteJumpOffset = Convert.ToByte( jumpOffset );
-
-			// Build the JUMP opcode
-			List<byte> tmpBytes = new List<byte>( LowLevel.INSTRUCTION_SIZE_x86_NEAR_JUMP );
-			switch ( jumpInstructionType )
-			{
-				case EJumpInstructionType.evJMP:
-					tmpBytes.Add( LowLevel.OPCODE_x86_NEAR_JMP );
-					break;
-				case EJumpInstructionType.evJA:
-					tmpBytes.Add( LowLevel.OPCODE_x86_NEAR_JA );
-					break;
-				case EJumpInstructionType.evJB:
-					tmpBytes.Add( LowLevel.OPCODE_x86_NEAR_JB );
-					break;
-				case EJumpInstructionType.evJG:
-					tmpBytes.Add( LowLevel.OPCODE_x86_NEAR_JG );
-					break;
-				case EJumpInstructionType.evJL:
-					tmpBytes.Add( LowLevel.OPCODE_x86_NEAR_JL );
-					break;
-				case EJumpInstructionType.evJE:
-					tmpBytes.Add( LowLevel.OPCODE_x86_NEAR_JE );
-					break;
-				case EJumpInstructionType.evJNE:
-					tmpBytes.Add( LowLevel.OPCODE_x86_NEAR_JNE );
-					break;
-				default:
-					throw new InjectorException( string.Format(
-						"[{0}] Failed to retrieve NEAR JUMP instruction opcode: the specified NEAR JUMP instruction type is not supported.",
-						GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			tmpBytes.Add( byteJumpOffset );
-
-			// Fill the remaining bytes of the given instruction size with NOP opcodes
-			int extraNOPs = instructionSize - LowLevel.INSTRUCTION_SIZE_x86_NEAR_JUMP;
-			if ( extraNOPs < 0 )
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Failed to retrieve NEAR JUMP instruction opcode: the NEAR JUMP instruction is larger than the instruction that is going to be replaced.",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-			for ( int n = 0; n < extraNOPs; n++ )
-				tmpBytes.Add( LowLevel.OPCODE_x86_NOP );
-
-			// Return the result
-			return tmpBytes.ToArray();
-		}
-
-
-		/** Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding to a x86 FAR JUMP instruction.
-		 * 64-bits JUMP instructions are currently not supported by the RAMvader library.
-		 * @param jumpInstructionType The specific type of jump instruction to be generated.
-         * @param jumpInstructionAddress The address of the JUMP instruction itself.
-         * @param targetJumpAddress The address to which the JUMP instruction should jump.
-         * @param instructionSize When replacing an instruction in a target process' memory space by a JUMP instruction, this parameter specifies
-         *    the size of the instruction to be replaced. If this size is larger than the size of a JUMP instruction, the remaining bytes are filled
-         *    with NOP opcodes in the returned bytes sequence, so that the JUMP instruction might replace other instructions while keeping the
-		 *    consistency of its surrounding instructions when the flow of code returns from the jump (if that ever happens).
-         * @param endianness The endianness to be used for the offset of the JUMP opcode.
-         * @param pointerSize The size of pointer to be used for the offset of the JUMP opcode.
-         * @param diffPointerSizeError The policy for handling errors regarding different sizes of pointers between RAMvader process'
-         *    pointers and the pointers size defined by the "pointerSize" parameter.
-         * @return Returns a sequence of bytes representing the JUMP opcode that composes the given instruction. */
-		public static byte[] GetX86FarJumpOpcode( EJumpInstructionType jumpInstructionType,
-			IntPtr jumpInstructionAddress, IntPtr targetJumpAddress,
-			int instructionSize,
-			EEndianness endianness = EEndianness.evEndiannessDefault,
-			EPointerSize pointerSize = EPointerSize.evPointerSizeDefault,
-			EDifferentPointerSizeError diffPointerSizeError = EDifferentPointerSizeError.evThrowException )
-		{
-			// Initialize defaults
-			if ( endianness == EEndianness.evEndiannessDefault )
-				endianness = BitConverter.IsLittleEndian ? EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
-
-			if ( pointerSize == EPointerSize.evPointerSizeDefault )
-				pointerSize = RAMvaderTarget.GetRAMvaderPointerSize();
-
-			// Get the bytes that compose a FAR JUMP instruction (NOTICE: unconditional x86 jump instructions have different sizes as compared to conditional jumps)
-			List<byte> tmpBytes = new List<byte>();
-			switch ( jumpInstructionType )
-			{
-				case EJumpInstructionType.evJMP:
-					tmpBytes.AddRange( LowLevel.OPCODE_x86_FAR_JMP );
-					break;
-				case EJumpInstructionType.evJA:
-					tmpBytes.AddRange( LowLevel.OPCODE_x86_FAR_JA );
-					break;
-				case EJumpInstructionType.evJB:
-					tmpBytes.AddRange( LowLevel.OPCODE_x86_FAR_JB );
-					break;
-				case EJumpInstructionType.evJG:
-					tmpBytes.AddRange( LowLevel.OPCODE_x86_FAR_JG );
-					break;
-				case EJumpInstructionType.evJL:
-					tmpBytes.AddRange( LowLevel.OPCODE_x86_FAR_JL );
-					break;
-				case EJumpInstructionType.evJE:
-					tmpBytes.AddRange( LowLevel.OPCODE_x86_FAR_JE );
-					break;
-				case EJumpInstructionType.evJNE:
-					tmpBytes.AddRange( LowLevel.OPCODE_x86_FAR_JNE );
-					break;
-				default:
-					throw new InjectorException( string.Format(
-						"[{0}] Failed to retrieve FAR JUMP instruction opcode: the specified FAR JUMP instruction type is not supported.",
-						GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			// Calculate the offset between the JUMP instruction and the target address that it should call
-			Object jumpOffset;
-			bool offsetIsValid = false;
-
-			int farJumpBaseInstructionSize = tmpBytes.Count + 4;   // +4 bytes for the 32-bits JUMP OFFSET
-
-			if ( pointerSize == EPointerSize.evPointerSize32 )
-			{
-				// Calculate offset as a signed byte value. Using 32-bits calculations, the offset is ALWAYS valid.
-				jumpOffset = (Int32) ( targetJumpAddress.ToInt32() - jumpInstructionAddress.ToInt32() - farJumpBaseInstructionSize );
-				offsetIsValid = true;
-			}
-			else if ( pointerSize == EPointerSize.evPointerSize64 )
-			{
-				// Calculate offset and verify if it is valid (if it fits into a single, signed Int32)
-				Int64 numJumpOffset = (Int64) ( targetJumpAddress.ToInt64() - jumpInstructionAddress.ToInt64() - farJumpBaseInstructionSize );
-				jumpOffset = numJumpOffset;
-				offsetIsValid = ( numJumpOffset >= Int32.MinValue && numJumpOffset <= Int32.MaxValue );
-			}
-			else
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Failed to retrieve FAR JUMP instruction opcode: the specified pointer size is not supported.",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			// FAR JUMPs can make jumps to instructions up to 0xFFFFFFFF bytes of distance only
-			if ( offsetIsValid == false )
-				throw new InjectorException( string.Format(
-					"[{0}] Failed to retrieve FAR JUMP instruction opcode: offset between the JUMP instruction and its target jump address is too large for making a FAR JUMP!.",
-					GetInjectorNameWithTemplateParameters() ) );
-
-
-			// Build the FAR JUMP opcode
-			byte [] jumpOffsetAsBytes = RAMvaderTarget.GetValueAsBytesArray( jumpOffset, endianness, pointerSize, diffPointerSizeError );
-			tmpBytes.AddRange( jumpOffsetAsBytes );
-
-			// Fill the remaining bytes of the given instruction size with NOP opcodes
-			int extraNOPs = instructionSize - farJumpBaseInstructionSize;
-			if ( extraNOPs < 0 )
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Failed to retrieve FAR JUMP instruction opcode: the FAR JUMP instruction is larger than the instruction that is going to be replaced.",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-			for ( int n = 0; n < extraNOPs; n++ )
-				tmpBytes.Add( LowLevel.OPCODE_x86_NOP );
-
-			// Return the result
-			return tmpBytes.ToArray();
-		}
-		#endregion
+        #endregion
 
 
 
 
 
-		#region PUBLIC METHODS
-		/** Constructor. The constructor of the #Injector class checks the code caves and variables for consistency, throwing an exception if
+        #region PUBLIC METHODS
+        /** Constructor. The constructor of the #Injector class checks the code caves and variables for consistency, throwing an exception if
          * there is any error found.
          * @throw InjectorException Thrown when there is an inconsistency in the definition of code caves and/or variables. The inconsistency
          *    is specified in the exception's message. */
-		public Injector()
+        public Injector()
         {
             // Check the template parameters used to create the Injector instance: both must represent enumeration types.
-			if ( typeof( TMemoryAlterationSetID ).IsEnum == false )
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Failed to create instance. The type defined for memory alteration set identifiers was \"{1}\", while it MUST be an enumerated type!",
-					GetInjectorNameWithTemplateParameters(), typeof( TMemoryAlterationSetID ).Name ) );
-			}
-
-			if ( typeof( TCodeCave ).IsEnum == false )
+            if ( typeof( TCodeCave ).IsEnum == false )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Failed to create instance. The type defined for code cave identifiers was \"{1}\", while it MUST be an enumerated type!",
@@ -812,14 +580,14 @@ namespace RAMvader.CodeInjection
          *    memory space. */
         public IntPtr GetInjectedCodeCaveAddress( TCodeCave codeCaveID )
         {
-            if ( IsInjected == false )
+            if ( BaseInjectionAddress == IntPtr.Zero )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Cannot retrieve injected code cave's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
                     GetInjectorNameWithTemplateParameters(), codeCaveID.ToString() ) );
             }
 
-			return BaseInjectionAddress + GetCodeCaveOffset( codeCaveID );
+            return BaseInjectionAddress + GetCodeCaveOffset( codeCaveID );
         }
 
 
@@ -840,12 +608,10 @@ namespace RAMvader.CodeInjection
                 lastDefinedCodeCaveSize = lastDefinedCodeCaveSpecs.GetCodeCaveSize( this );
             }
             
-            int varOffset = lastDefinedCodeCaveOffset + lastDefinedCodeCaveSize;
-			if ( codeCaves.Length > 0 )
-				varOffset += m_variablesSectionSeparator.Length;
+            int varOffset = lastDefinedCodeCaveOffset + lastDefinedCodeCaveSize + m_variablesSectionSeparator.Length;
 
-			// Calculate the given variable's offset
-			foreach ( TVariable curVar in Enum.GetValues( typeof( TVariable ) ) )
+            // Calculate the given variable's offset
+            foreach ( TVariable curVar in Enum.GetValues( typeof( TVariable ) ) )
             {
                 if ( curVar.Equals( varID ) )
                     return varOffset;
@@ -866,7 +632,7 @@ namespace RAMvader.CodeInjection
          *    memory space. */
         public IntPtr GetInjectedVariableAddress( TVariable varID )
         {
-            if ( IsInjected == false )
+            if ( BaseInjectionAddress == IntPtr.Zero )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Cannot retrieve injected variable's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
@@ -958,89 +724,13 @@ namespace RAMvader.CodeInjection
         }
 
 
-		/** Adds a memory alteration to the set of alterations related to a given identifier.
-		 * Memory alteration sets are kept in as list, and this method adds a memory alteration to the end of this list.
-		 * The elements of a set of memory alterations are enabled/disabled in the order they get added to the list.
-		 * You can then call #SetMemoryAlterationsActive() to enable or disable the whole set of alterations related to an identifier.
-		 * @param memoryAlterationSetID The identifier that identifies the set of alterations that can be enabled/disabled all at once.
-		 * @param memoryAlteration An object representing the memory alteration that should be added to the given set. */
-		public void AddMemoryAlteration( TMemoryAlterationSetID memoryAlterationSetID, MemoryAlterationBase memoryAlteration )
-		{
-			// Retrieve the list used to keep the given memory alterations set, creating it when necessary
-			if ( m_memoryAlterationSets.ContainsKey( memoryAlterationSetID ) == false )
-				m_memoryAlterationSets[memoryAlterationSetID] = new List<MemoryAlterationBase>();
-
-			List<MemoryAlterationBase> memoryAlterationSet = m_memoryAlterationSets[memoryAlterationSetID];
-
-			// Add alteration to the list
-			memoryAlterationSet.Add( memoryAlteration );
-		}
-
-
-		/** Removes a memory alteration from the set of alterations related to a given identifier.
-		 * Memory alteration sets are kept in as list, and this method removes a memory alteration from this list.
-		 * The elements of a set of memory alterations are enabled/disabled in the order they get added to the list.
-		 * You can then call #SetMemoryAlterationsActive() to enable or disable the whole set of alterations related to an identifier.
-		 * @param memoryAlterationSetID The identifier that identifies the set of alterations that can be enabled/disabled all at once.
-		 * @param memoryAlteration The memory alteration to be removed from the given set.
-		 * @return Returns a flag specifying if the alteration has been removed from the set. */
-		public bool RemoveMemoryAlteration( TMemoryAlterationSetID memoryAlterationSetID, MemoryAlterationBase memoryAlteration )
-		{
-			// Retrieve the list used to keep the given memory alterations set, creating it when necessary
-			if ( m_memoryAlterationSets.ContainsKey( memoryAlterationSetID ) == false )
-				return false;
-
-			List<MemoryAlterationBase> memoryAlterationSet = m_memoryAlterationSets[memoryAlterationSetID];
-
-			// Remove item form the list, removing the list if it gets empty
-			bool result = memoryAlterationSet.Remove( memoryAlteration );
-			if ( memoryAlterationSet.Count <= 0 )
-				m_memoryAlterationSets.Remove( memoryAlterationSetID );
-			return result;
-		}
-
-
-		/** Returns an enumerable object containing all memory alterations registered for a given memory alteration set.
-		 * @param memoryAlterationSetID The identifier that identifies the set of alterations that can be enabled/disabled all at once.
-		 * @return Returns an enumerable list containing all the memory alterations in the given set. */
-		public IEnumerable<MemoryAlterationBase> GetMemoryAlterations( TMemoryAlterationSetID memoryAlterationSetID )
-		{
-			if ( m_memoryAlterationSets.ContainsKey( memoryAlterationSetID ) == false )
-				return null;
-			return m_memoryAlterationSets[memoryAlterationSetID];
-		}
-
-
-		/** Activates or deactivates all the memory alterations registered for a given memory alterations set.
-		 * @param memoryAlterationSetID The identifier that identifies the set of alterations that can be enabled/disabled all at once.
-		 * @param bActivate A flag specifying if the alterations should be activated or deactivated.
-		 * @return Returns a flag specifying if all alterations have been activated. If any of the memory alterations in a set fail to be
-		 *    activated/deactivated, the returned value is false. */
-		public bool SetMemoryAlterationsActive( TMemoryAlterationSetID memoryAlterationSetID, bool bActivate )
-		{
-			// If there is no alteration set with the given identifier, return true right away (nothing else to do)
-			if ( m_memoryAlterationSets.ContainsKey( memoryAlterationSetID ) == false )
-				return true;
-
-			// Activate or deactivate alterations
-			bool activationResult = true;
-			foreach ( MemoryAlterationBase curMemoryAlteration in m_memoryAlterationSets[memoryAlterationSetID] )
-			{
-				if ( curMemoryAlteration.SetEnabled( this, bActivate ) == false )
-					activationResult = false;
-			}
-
-			return activationResult;
-		}
-
-
-		/** Allocates memory into the target process' memory space and injects the code
+        /** Allocates memory into the target process' memory space and injects the code
          * caves and variables into that allocated memory.
          * @see #GetBaseInjectionAddress()
          * @throw #InjectorException Thrown when any errors occur regarding the injection process.
          *    The data set for this exception specifies the type of error that caused it to be
          *    thrown. */
-		public void Inject()
+        public void Inject()
         {
             // The target process should've been already defined
             if ( TargetProcess == null )
@@ -1053,19 +743,15 @@ namespace RAMvader.CodeInjection
 
             // Allocate READ+WRITE+EXECUTE memory into the target process' memory space
             uint totalRequiredSpace = (uint) CalculateRequiredBytesCount();
-			IntPtr baseInjectionAddress = IntPtr.Zero;
-			if ( totalRequiredSpace != 0 )
-			{
-				baseInjectionAddress = WinAPI.VirtualAllocEx(
-				targetProcess.Handle, IntPtr.Zero, totalRequiredSpace,
-				WinAPI.AllocationType.Reserve | WinAPI.AllocationType.Commit,
-				WinAPI.MemoryProtection.ExecuteReadWrite );
-				if ( baseInjectionAddress == IntPtr.Zero )
-					throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureMemoryAllocation );
+            IntPtr baseInjectionAddress = WinAPI.VirtualAllocEx(
+                targetProcess.Handle, IntPtr.Zero, totalRequiredSpace,
+                WinAPI.AllocationType.Reserve | WinAPI.AllocationType.Commit,
+                WinAPI.MemoryProtection.ExecuteReadWrite );
+            if ( baseInjectionAddress == IntPtr.Zero )
+                throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureMemoryAllocation );
 
-				// Now the Injector is responsible for deallocating the allocated memory
-				m_bHasAllocatedMemory = true;
-			}
+            // Now the Injector is responsible for deallocating the allocated memory
+            m_bHasAllocatedMemory = true;
 
             // Continue with the rest of the injection procedures
             try
@@ -1089,23 +775,17 @@ namespace RAMvader.CodeInjection
          * to calculate the total number of bytes required by the #Injector to Inject the code caves and variables,
          * see #CalculateRequiredBytesCount().
          * @param baseInjectionAddress The address - into the target process' memory
-         *    space - where the #Injector will Inject the code caves and variables. A value of "IntPtr.Zero" will
-		 *    cause the method to exit without any effect on the target process' memory space.
+         *    space - where the #Injector will Inject the code caves and variables.
          * @see #GetBaseInjectionAddress()
          * @throw #InjectorException Thrown when any errors occur regarding the injection process.
          *    The data set for this exception specifies the type of error that caused it to be
          *    thrown. */
         public void Inject( IntPtr baseInjectionAddress )
         {
-			// Cannot inject anything into another process' memory space if something has already been injected.
-			if ( this.IsInjected )
-				throw new InjectorException( string.Format( "[{0}] Failed to Inject into target process' memory space: already injected into process' memory space!", GetInjectorNameWithTemplateParameters() ) );
+            BaseInjectionAddress = baseInjectionAddress;
 
-			BaseInjectionAddress = baseInjectionAddress;
-			IsInjected = true;
-
-			// Generate the bytes which constitute the data to be injected
-			int totalRequiredBytes = this.CalculateRequiredBytesCount();
+            // Generate the bytes which constitute the data to be injected
+            int totalRequiredBytes = this.CalculateRequiredBytesCount();
             List<byte> bytesToInject = new List<byte>( totalRequiredBytes );
 
             // Get the bytes which represent the code caves section
@@ -1122,9 +802,8 @@ namespace RAMvader.CodeInjection
                 bytesToInject.AddRange( caveSpecs.GetCodeCaveBytes( this ) );
             }
 
-            // Add separator from the variables section (only if one or more code caves have already been injected)
-			if ( bytesToInject.Count > 0 )
-				bytesToInject.AddRange( m_variablesSectionSeparator );
+            // Add separator from the variables section
+            bytesToInject.AddRange( m_variablesSectionSeparator );
 
             // Add variables
             foreach ( TVariable curVarID in Enum.GetValues( typeof( TVariable ) ) )
@@ -1134,10 +813,10 @@ namespace RAMvader.CodeInjection
                 bytesToInject.AddRange( varInitialValueAsBytes );
             }
 
-			// Inject the data!
-			if ( TargetProcess.WriteToTarget( baseInjectionAddress, bytesToInject.ToArray() ) == false )
-				throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureWriteToTarget );
-		}
+            // Inject the data!
+            if ( TargetProcess.WriteToTarget( BaseInjectionAddress, bytesToInject.ToArray() ) == false )
+                throw new InjectionFailureException( InjectionFailureException.EFailureType.evFailureWriteToTarget );
+        }
 
 
         /** Resets the internal data of the #Injector regarding the memory region where it has injected its data.
@@ -1150,7 +829,7 @@ namespace RAMvader.CodeInjection
             if ( TargetProcess != null )
             {
                 Process attachedProcess = TargetProcess.GetAttachedProcess();
-                if ( IsInjected && m_bHasAllocatedMemory && attachedProcess != null && attachedProcess.HasExited == false )
+                if ( m_bHasAllocatedMemory && attachedProcess != null && attachedProcess.HasExited == false )
                 {
                     WinAPI.VirtualFreeEx( attachedProcess.Handle, BaseInjectionAddress, 0,
                         WinAPI.FreeType.Release );
@@ -1160,39 +839,40 @@ namespace RAMvader.CodeInjection
             // Return allocation address to zero
             BaseInjectionAddress = IntPtr.Zero;
             m_bHasAllocatedMemory = false;
-			IsInjected = false;
-		}
+        }
 
 
-		/** Writes a x86 CALL instruction at a specific point of the target process' memory
-         * space to enable the process' execution flow to be detoured to a specific address.
+        /** Writes a CALL instruction at a specific point of the target process' memory
+         * space to enable the process' execution flow to be detoured to a specific,
+         * injected code cave.
          * @param detourPoint The address of the target process' memory space where the
          *    CALL instruction will be written.
-         * @param targetAddress The address to where the target process' execution should be
+         * @param codeCave The code cave to where the target process' execution should be
          *    diverted.
          * @param instructionSize The size of the instruction that is going to be replaced by
          *    the CALL instruction. This is used to fill the remaining bytes of the instruction
          *    with NOP opcodes, so that when the execution flows back from the CALL instruction,
          *    nothing unexpected happens. */
-		public bool WriteX86CallInstruction( IntPtr detourPoint, IntPtr targetAddress, int instructionSize )
+        public bool WriteCodeCaveDetour( IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
         {
             // Error checking...
             if ( TargetProcess == null )
             {
                 throw new InjectorException( string.Format(
-                    "[{0}] Cannot write a x86 CALL instruction: target process has not been initialized yet!",
+                    "[{0}] Cannot write a code cave detour: target process has not been initialized yet!",
                     GetInjectorNameWithTemplateParameters() ) );
             }
 
             if ( TargetProcess.IsAttached() == false )
             {
                 throw new InjectorException( string.Format(
-					"[{0}] Cannot write a x86 CALL instruction: not attached to a target process!",
+                    "[{0}] Cannot write a code cave detour: not attached to a target process!",
                     GetInjectorNameWithTemplateParameters() ) );
             }
 
             // Build the CALL instruction
-            byte [] callOpcode = GetX86CallOpcode( detourPoint, targetAddress, instructionSize, TargetProcess.TargetProcessEndianness,
+            IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
+            byte [] callOpcode = GetCallOpcode( detourPoint, codeCaveAddress, instructionSize, TargetProcess.TargetProcessEndianness,
                 TargetProcess.TargetPointerSize, TargetProcess.PointerSizeErrorHandling );
 
             // Write the instruction
@@ -1200,145 +880,13 @@ namespace RAMvader.CodeInjection
         }
 
 
-		/** Writes a x86 CALL instruction at a specific point of the target process' memory
-         * space to enable the process' execution flow to be detoured to a specific,
-         * injected code cave.
-         * @param detourPoint The address of the target process' memory space where the
-         *    CALL instruction will be written.
-         * @param codeCave The code cave to where the target process' execution should be
-         *    diverted.
-         * @param instructionSize The size of the instruction that is going to be replaced by
-         *    the CALL instruction. This is used to fill the remaining bytes of the instruction
-         *    with NOP opcodes, so that when the execution flows back from the CALL instruction,
-         *    nothing unexpected happens. */
-		public bool WriteX86CallToCodeCaveInstruction( IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
-		{
-			IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
-			return this.WriteX86CallInstruction( detourPoint, codeCaveAddress, instructionSize );
-		}
-
-
-		/** Writes a x86 NEAR JUMP instruction at a specific point of the target process' memory
-         * space to enable the process' execution flow to be detoured to a specific address.
-		 * @param jumpInstructionType The specific type of jump instruction to be written.
-         * @param detourPoint The address of the target process' memory space where the
-         *    JUMP instruction will be written.
-         * @param targetAddress The address to where the target process' execution should be
-         *    diverted.
-         * @param instructionSize The size of the instruction that is going to be replaced by
-         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
-         *    with NOP opcodes, to keep the other instructions' balance unaffected by the new jump
-		 *    instruction. */
-		public bool WriteX86NearJumpInstruction( EJumpInstructionType jumpInstructionType,
-			IntPtr detourPoint, IntPtr targetAddress, int instructionSize )
-		{
-			// Error checking...
-			if ( TargetProcess == null )
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Cannot write a x86 NEAR JUMP instruction: target process has not been initialized yet!",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			if ( TargetProcess.IsAttached() == false )
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Cannot write a x86 NEAR JUMP: not attached to a target process!",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			// Build the CALL instruction
-			byte [] jumpOpcode = GetX86NearJumpOpcode( jumpInstructionType, detourPoint, targetAddress, instructionSize,
-				TargetProcess.TargetPointerSize );
-
-			// Write the instruction
-			return TargetProcess.WriteToTarget( detourPoint, jumpOpcode );
-		}
-
-
-		/** Writes a x86 NEAR JUMP instruction at a specific point of the target process' memory
-         * space to enable the process' execution flow to be detoured to a specific,
-         * injected code cave.
-		 * @param jumpInstructionType The specific type of jump instruction to be written.
-         * @param detourPoint The address of the target process' memory space where the
-         *    JUMP instruction will be written.
-         * @param codeCave The code cave to where the target process' execution should be
-         *    diverted.
-         * @param instructionSize The size of the instruction that is going to be replaced by
-         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
-         *    with NOP opcodes, so that the target process' code remains balanced and stable for debuggers. */
-		public bool WriteX86NearJumpToCodeCaveInstruction( EJumpInstructionType jumpInstructionType,
-			IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
-		{
-			IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
-			return this.WriteX86NearJumpInstruction( jumpInstructionType, detourPoint, codeCaveAddress, instructionSize );
-		}
-
-
-		/** Writes a x86 FAR JUMP instruction at a specific point of the target process' memory
-         * space to enable the process' execution flow to be detoured to a specific address.
-		 * @param jumpInstructionType The specific type of jump instruction to be written.
-         * @param detourPoint The address of the target process' memory space where the
-         *    JUMP instruction will be written.
-         * @param targetAddress The address to where the target process' execution should be
-         *    diverted.
-         * @param instructionSize The size of the instruction that is going to be replaced by
-         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
-         *    with NOP opcodes, to keep the other instructions' balance unaffected by the new jump
-		 *    instruction. */
-		public bool WriteX86FarJumpInstruction( EJumpInstructionType jumpInstructionType,
-			IntPtr detourPoint, IntPtr targetAddress, int instructionSize )
-		{
-			// Error checking...
-			if ( TargetProcess == null )
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Cannot write a x86 FAR JUMP instruction: target process has not been initialized yet!",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			if ( TargetProcess.IsAttached() == false )
-			{
-				throw new InjectorException( string.Format(
-					"[{0}] Cannot write a x86 FAR JUMP: not attached to a target process!",
-					GetInjectorNameWithTemplateParameters() ) );
-			}
-
-			// Build the CALL instruction
-			byte [] jumpOpcode = GetX86FarJumpOpcode( jumpInstructionType, detourPoint, targetAddress, instructionSize,
-				TargetProcess.TargetProcessEndianness, TargetProcess.TargetPointerSize, TargetProcess.PointerSizeErrorHandling );
-
-			// Write the instruction
-			return TargetProcess.WriteToTarget( detourPoint, jumpOpcode );
-		}
-
-
-		/** Writes a x86 FAR JUMP instruction at a specific point of the target process' memory
-         * space to enable the process' execution flow to be detoured to a specific,
-         * injected code cave.
-		 * @param jumpInstructionType The specific type of jump instruction to be written.
-         * @param detourPoint The address of the target process' memory space where the
-         *    JUMP instruction will be written.
-         * @param codeCave The code cave to where the target process' execution should be
-         *    diverted.
-         * @param instructionSize The size of the instruction that is going to be replaced by
-         *    the JUMP instruction. This is used to fill the remaining bytes of the instruction
-         *    with NOP opcodes, so that the target process' code remains balanced and stable for debuggers. */
-		public bool WriteX86FarJumpToCodeCaveInstruction( EJumpInstructionType jumpInstructionType,
-			IntPtr detourPoint, TCodeCave codeCave, int instructionSize )
-		{
-			IntPtr codeCaveAddress = this.GetInjectedCodeCaveAddress( codeCave );
-			return this.WriteX86FarJumpInstruction( jumpInstructionType, detourPoint, codeCaveAddress, instructionSize );
-		}
-
-
-		/** Updates the value of a given variable into the target process' memory.
+        /** Updates the value of a given variable into the target process' memory.
          * This method is safe, as it checks the given variable's metadata against the given value's type to see if
          * it matches the variable's type before updating the variable's value.
          * @param variableID The identifier of the injected variable whose value is to be updated.
          * @param newValue The new value for the variable.
          * @return Returns the result of the write operation performed by a call to #RAMvaderTarget.WriteToTarget(). */
-		public bool WriteVariableValue( TVariable variableID, object newValue )
+        public bool WriteVariableValue( TVariable variableID, object newValue )
         {
             // Error checking...
             if ( TargetProcess == null )

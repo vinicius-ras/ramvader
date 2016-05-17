@@ -24,7 +24,7 @@
 using System;
 namespace RAMvader.CodeInjection
 {
-    public partial class Injector<TMemoryAlterationSetID, TCodeCave, TVariable>
+    public partial class Injector<TCodeCave, TVariable>
     {
         #region PRIVATE CONSTANTS
         /** The default name of an indexer property, which is used to raise the "property changed"
@@ -44,7 +44,7 @@ namespace RAMvader.CodeInjection
         {
             #region PRIVATE FIELDS
             /** Reference to the #Injector which owns this object. */
-            private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
+            private Injector<TCodeCave, TVariable> m_injector;
             #endregion
 
 
@@ -56,7 +56,7 @@ namespace RAMvader.CodeInjection
              * instanced outside of the #Injector class.
              * @param injector A reference to the #Injector object used to retrieve data
              *    for the indexer property. */
-            internal NestedPropertyIndexerCodeCaveOffset( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
+            internal NestedPropertyIndexerCodeCaveOffset( Injector<TCodeCave, TVariable> injector )
             {
                 m_injector = injector;
             }
@@ -83,7 +83,7 @@ namespace RAMvader.CodeInjection
         {
             #region PRIVATE FIELDS
             /** Reference to the #Injector which owns this object. */
-            private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
+            private Injector<TCodeCave, TVariable> m_injector;
             #endregion
 
 
@@ -95,7 +95,7 @@ namespace RAMvader.CodeInjection
              * instanced outside of the #Injector class.
              * @param injector A reference to the #Injector object used to retrieve data
              *    for the indexer property. */
-            internal NestedPropertyIndexerInjectedCodeCaveAddress( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
+            internal NestedPropertyIndexerInjectedCodeCaveAddress( Injector<TCodeCave, TVariable> injector )
             {
                 m_injector = injector;
             }
@@ -123,7 +123,7 @@ namespace RAMvader.CodeInjection
         {
             #region PRIVATE FIELDS
             /** Reference to the #Injector which owns this object. */
-            private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
+            private Injector<TCodeCave, TVariable> m_injector;
             #endregion
 
 
@@ -135,7 +135,7 @@ namespace RAMvader.CodeInjection
              * instanced outside of the #Injector class.
              * @param injector A reference to the #Injector object used to retrieve data
              *    for the indexer property. */
-            internal NestedPropertyIndexerVariableOffset( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
+            internal NestedPropertyIndexerVariableOffset( Injector<TCodeCave, TVariable> injector )
             {
                 m_injector = injector;
             }
@@ -163,7 +163,7 @@ namespace RAMvader.CodeInjection
         {
             #region PRIVATE FIELDS
             /** Reference to the #Injector which owns this object. */
-            private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
+            private Injector<TCodeCave, TVariable> m_injector;
             #endregion
 
 
@@ -175,7 +175,7 @@ namespace RAMvader.CodeInjection
              * instanced outside of the #Injector class.
              * @param injector A reference to the #Injector object used to retrieve data
              *    for the indexer property. */
-            internal NestedPropertyIndexerInjectedVariableAddress( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
+            internal NestedPropertyIndexerInjectedVariableAddress( Injector<TCodeCave, TVariable> injector )
             {
                 m_injector = injector;
             }
@@ -203,7 +203,7 @@ namespace RAMvader.CodeInjection
         {
             #region PRIVATE FIELDS
             /** Reference to the #Injector which owns this object. */
-            private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
+            private Injector<TCodeCave, TVariable> m_injector;
             #endregion
 
 
@@ -215,7 +215,7 @@ namespace RAMvader.CodeInjection
              * instanced outside of the #Injector class.
              * @param injector A reference to the #Injector object used to retrieve data
              *    for the indexer property. */
-            internal NestedPropertyIndexerVariableSize( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
+            internal NestedPropertyIndexerVariableSize( Injector<TCodeCave, TVariable> injector )
             {
                 m_injector = injector;
             }
