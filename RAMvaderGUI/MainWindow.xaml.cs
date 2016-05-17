@@ -1,23 +1,4 @@
-﻿/*
- * Copyright (C) 2014 Vinicius Rogério Araujo Silva
- *
- * This file is part of RAMvader.
- * 
- * RAMvader is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * RAMvader is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-using RAMvader;
+﻿using RAMvader;
 using System;
 using System.Collections.ObjectModel;
 using System.Collections.Generic;
@@ -297,16 +278,16 @@ namespace RAMvaderGUI
             m_memoryData.ItemsSource = m_addressEntries;
 
             // Fill the list of endianness values and pointer sizes
-            foreach ( EEndianness curEndianness in Enum.GetValues( typeof( EEndianness ) ) )
+            foreach ( RAMvaderTarget.EEndianness curEndianness in Enum.GetValues( typeof( RAMvaderTarget.EEndianness ) ) )
                 m_cmbTargetEndianness.Items.Add( curEndianness );
-            m_cmbTargetEndianness.SelectedItem = EEndianness.evEndiannessDefault;
+            m_cmbTargetEndianness.SelectedItem = RAMvaderTarget.EEndianness.evEndiannessDefault;
 
-            foreach ( EPointerSize curPtrSize in Enum.GetValues( typeof( EPointerSize ) ) )
+            foreach ( RAMvaderTarget.EPointerSize curPtrSize in Enum.GetValues( typeof( RAMvaderTarget.EPointerSize ) ) )
                 m_cmbTargetPointerSize.Items.Add( curPtrSize );
-            m_cmbTargetPointerSize.SelectedItem = EPointerSize.evPointerSizeDefault;
+            m_cmbTargetPointerSize.SelectedItem = RAMvaderTarget.EPointerSize.evPointerSizeDefault;
 
             // This application will always use "safe truncation" error handling for pointers
-            m_targetProcess.SetTargetPointerSizeErrorHandling( EDifferentPointerSizeError.evSafeTruncation );
+            m_targetProcess.SetTargetPointerSizeErrorHandling( RAMvaderTarget.EDifferentPointerSizeError.evSafeTruncation );
 
             // Tell the user about the host process' pointer size
             logToConsole( string.Format( "Process running RAMvader is using {0}-bit pointers.", IntPtr.Size * 8 ) );
@@ -526,7 +507,7 @@ namespace RAMvaderGUI
         private void m_cmbTargetEndianness_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             // Update target process' endianness configuration
-            EEndianness selectedEndianness = (EEndianness) m_cmbTargetEndianness.SelectedValue;
+            RAMvaderTarget.EEndianness selectedEndianness = (RAMvaderTarget.EEndianness) m_cmbTargetEndianness.SelectedValue;
             m_targetProcess.SetTargetEndianness( selectedEndianness );
 
             // If there was a previous selection in this combo box (that is, if this
@@ -542,7 +523,7 @@ namespace RAMvaderGUI
         private void m_cmbTargetPointerSize_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             // Update target process' pointer size configuration
-            EPointerSize selectedPointerSize = (EPointerSize) m_cmbTargetPointerSize.SelectedValue;
+            RAMvaderTarget.EPointerSize selectedPointerSize = (RAMvaderTarget.EPointerSize) m_cmbTargetPointerSize.SelectedValue;
             m_targetProcess.SetTargetPointerSize( selectedPointerSize );
 
 

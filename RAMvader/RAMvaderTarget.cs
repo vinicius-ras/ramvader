@@ -1,30 +1,9 @@
-﻿/*
- * Copyright (C) 2014 Vinicius Rogério Araujo Silva
- *
- * This file is part of RAMvader.
- * 
- * RAMvader is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- * 
- * RAMvader is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public License
- * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
- */
-
-#if DEBUG
-using System.Text;
-#endif
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Diagnostics;
 using System.Reflection;
+using System.Text;
 
 
 namespace RAMvader
@@ -32,7 +11,7 @@ namespace RAMvader
     /** The main working class of the library. Instances of this class are able
      * to "attach" to processes and execute reading and writing operations in their
      * memories. */
-    public class RAMvaderTarget : NotifyPropertyChangedAdapter
+    public class RAMvaderTarget
     {
         #region PRIVATE CONSTANTS
         /** A dictionary containing both all basic data types supported by the RAMvader library and their respective sizes.
@@ -50,6 +29,59 @@ namespace RAMvader
             { typeof( Single ), sizeof( Single ) },
             { typeof( Double ), sizeof( Double ) },
         };
+        #endregion
+
+
+
+
+
+
+
+
+        #region PUBLIC ENUMERATIONS
+        /** Defines the possible endianness options which RAMvader can operate on. */
+        public enum EEndianness
+        {
+            /** A value indicating that RAMvader should operate in the same endianness as the
+             * process that RAMvader is running on. */
+            evEndiannessDefault,
+            /** A value indicating that RAMvader should operate in Little-Endian byte order. */
+            evEndiannessLittle,
+            /** A value indicating that RAMvader should operate in Big-Endian byte order. */
+            evEndiannessBig,
+        }
+
+
+        /** Defines the supported pointer sizes for the target process. */
+        public enum EPointerSize
+        {
+            /** The default pointer size configuration, where the target process' pointer size
+             * is assumed to be the same as the pointer size of the process which runs RAMvader.
+             * The pointer size can be retrieved through IntPtr.Size. */
+            evPointerSizeDefault,
+            /** Explicitly identifies a 32-bit pointer. */
+            evPointerSize32,
+            /** Explicitly identifies a 64-bit pointer. */
+            evPointerSize64,
+        }
+
+
+        /** Defines how errors with different pointer sizes are handled by the library. */
+        public enum EDifferentPointerSizeError
+        {
+            /** Throws an exception if the target process and the process which runs RAMvader have
+             * different pointer sizes. This is the default behaviour, for safety reasons. */
+            evThrowException,
+            /** If the target process and the process which uses RAMvader have different pointer sizes,
+             * operations with pointers truncate the pointers to 32-bits when necessary. If any data is
+             * lost during the truncation process, a #PointerDataLostException is thrown. */
+            evSafeTruncation,
+            /** If the target process and the process which uses RAMvader have different pointer sizes,
+             * operations with pointers truncate the pointers to 32-bits when necessary. If any data is lost
+             * during the truncation process, nothing happens. Thus, this is the less recommended option and
+             * should be used with caution. */
+            evUnsafeTruncation,
+        }
         #endregion
 
 
@@ -83,161 +115,10 @@ namespace RAMvader
 
 
 
-        #region PUBLIC PROPERTIES
-        /** The Process object which this RAMvaderTarget instance is attached to.
-         * The #TargetProcess property can only be changed by calls to #AttachToProcess()
-         * or #DetachFromProcess().
-         * Backed by the #m_process field. */
-        public Process TargetProcess
-        {
-            get { return m_process; }
-            private set {
-                m_process = value;
-                SendPropertyChangedNotification();
-
-                Attached = ( value != null );
-            }
-        }
-        /** The handle to the Process object which this RAMvaderTarget instance is attached to.
-         * The #ProcessHandle property can only be changed by calls to #AttachToProcess() or #DetachFromProcess().
-         * Backed by the #m_targetProcessHandle field. */
-        public IntPtr ProcessHandle
-        {
-            get { return m_targetProcessHandle; }
-            private set { m_targetProcessHandle = value; SendPropertyChangedNotification(); }
-        }
-        /** A flag specifying if this instance is currently attached to a target process.
-         * Returns the same result as the #IsAttached() method. */
-        public bool Attached
-        {
-            get { return IsAttached(); }
-            private set
-            {
-                // Simulate a property set event
-                SendPropertyChangedNotification();
-            }
-        }
-        /** The endianness configured for the target process.
-         * This property can also be accessed through the methods #SetTargetEndianness()
-         * and #GetTargetEndianness().
-         * Backed by the #m_targetProcessEndianness field. */
-        public EEndianness TargetProcessEndianness
-        {
-            get { return m_targetProcessEndianness; }
-            set {
-                m_targetProcessEndianness = value;
-                SendPropertyChangedNotification();
-
-                // Simulate a change to the ActualTargetProcessEndianness property, so that
-                // it can send its own "property changed" notification
-                ActualTargetProcessEndianness = value;
-            }
-        }
-        /** The actual endianness that the #RAMvaderTarget instance is currently assuming that
-         * the target process is using. This is the same value returned by
-         * the #GetActualTargetEndianness() method - see its description for more details. */
-        public EEndianness ActualTargetProcessEndianness
-        {
-            get
-            {
-                if ( TargetProcessEndianness == EEndianness.evEndiannessDefault )
-                    return BitConverter.IsLittleEndian ? EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
-                return TargetProcessEndianness;
-            }
-            private set
-            {
-                // This property has no backing field, but it should notify whenever it
-                // gets "changed" (which might happen when the TargetProcessEndianness
-                // property changes)
-                SendPropertyChangedNotification();
-            }
-        }
-        /** The pointer size configured for the target process.
-         * This property can also be accessed through the methods #SetTargetPointerSize()
-         * and #GetTargetPointerSize().
-         * Backed by the #m_targetPointerSize field. */
-        public EPointerSize TargetPointerSize
-        {
-            get { return m_targetPointerSize; }
-            set {
-                m_targetPointerSize = value;
-                SendPropertyChangedNotification();
-
-                // Simulate a change to the ActualTargetPointerSize property, so that
-                // it can send its own "property changed" notification
-                ActualTargetPointerSize = value;
-            }
-        }
-        /** The actual pointer size that the #RAMvaderTarget instance is currently assuming that
-         * the target process is using. This is the same value returned by
-         * the #GetActualTargetPointerSize() method - see its description for more details. */
-        public EPointerSize ActualTargetPointerSize
-        {
-            get
-            {
-                if ( TargetPointerSize == EPointerSize.evPointerSizeDefault )
-                    return GetRAMvaderPointerSize();
-                return TargetPointerSize;
-            }
-            private set
-            {
-                // This property has no backing field, but it should notify whenever it
-                // gets "changed" (which might happen when the TargetPointerSize
-                // property changes)
-                SendPropertyChangedNotification();
-            }
-        }
-        /** The type of error handling which is used when the target process runs with a different
-         * pointer size configuration, as compared to the process which runs RAMvader.
-         * This property can also be accessed through the methods #SetTargetPointerSizeErrorHandling()
-         * and #GetTargetPointerSizeErrorHandling().
-         * Backed by the #m_diffPointerSizeError field. */
-        public EDifferentPointerSizeError PointerSizeErrorHandling
-        {
-            get { return m_diffPointerSizeError; }
-            set { m_diffPointerSizeError = value; SendPropertyChangedNotification(); }
-        }
-        #endregion
-
-
-
-
-
-
-
-
-        #region DELEGATES
-        /** Delegate used for handling the event which is fired when the #RAMvaderTarget object is attached to a process. */
-        public delegate void AttachedEventHandler( object sender, EventArgs args );
-        /** Delegate used for handling the event which is fired when the #RAMvaderTarget object is detached from a process. */
-        public delegate void DetachedEventHandler( object sender, EventArgs args );
-        #endregion
-
-
-
-
-
-
-
-
-        #region EVENTS
-        /** Handles the event that gets fired when the #RAMvaderTarget gets attached to a process. */
-        public event AttachedEventHandler AttachedEvent;
-        /** Handles the event that gets fired when the #RAMvaderTarget gets detached from a process. */
-        public event DetachedEventHandler DetachedEvent;
-        #endregion
-
-
-
-
-
-
-
-
-        #region PUBLIC STATIC METHODS
+        #region PRIVATE STATIC METHODS
         /** Retrieves the pointer size for the process which runs RAMvader.
          * @return Returns a #EPointerSize value, specifying the pointer size of the process. */
-        public static EPointerSize GetRAMvaderPointerSize()
+        private static EPointerSize GetRAMvaderPointerSize()
         {
             if ( IntPtr.Size == 4 )
                 return EPointerSize.evPointerSize32;
@@ -247,127 +128,6 @@ namespace RAMvader
                 throw new RAMvaderException( string.Format(
                     "[{0}] The following pointer size (returned by IntPtr.Size) is not supported by RAMvader: {1} bytes.",
                     typeof( RAMvaderTarget ).Name, IntPtr.Size ) );
-        }
-
-
-        /** Utility method for retrieving a given value as an array of bytes, respecting the specified endianness.
-         * @param value The value to be retrieved as a sequence of bytes.
-         * @param endianness The endianness to be used when retrieving the sequence of bytes.
-         * @param pointerSize The size of pointer to be used when retrieving the sequence of bytes. That parameter is
-         *    only used when retrieving the bytes representation of IntPtr values.
-         * @param diffPointerSizeError The policy for handling errors regarding different sizes of pointers between RAMvader process'
-         *    pointers and the pointers size defined by the "pointerSize" parameter. That parameter is only used when retrieving the
-         *    bytes representation of IntPtr values.
-         * @return Returns a sequence of bytes representing the value in the given endianness (and pointer sizes, if applicable). */
-        public static byte[] GetValueAsBytesArray( Object value, EEndianness endianness = EEndianness.evEndiannessDefault,
-            EPointerSize pointerSize = EPointerSize.evPointerSizeDefault,
-            EDifferentPointerSizeError diffPointerSizeError = EDifferentPointerSizeError.evThrowException )
-        {
-            // Initialize defaults
-            if ( endianness == EEndianness.evEndiannessDefault )
-                endianness = BitConverter.IsLittleEndian ? EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
-
-            if ( pointerSize == EPointerSize.evPointerSizeDefault )
-                pointerSize = RAMvaderTarget.GetRAMvaderPointerSize();
-
-            // Is the value a single-byte value?
-            if ( value is Byte )
-                return new byte[] { (byte) value };
-
-            // If this point is reached, the value is represented by multiple bytes,
-            // and we need to consider the specified endianness (and possibli pointer sizes) to turn it into
-            // a correct array of bytes.
-
-            // For pointers, we need to verify how they will be written in the specified pointers size.
-            // This depends on the configuration for the specified pointer size
-            if ( value is IntPtr )
-            {
-                // Handle the cases where the size specified for pointers are different than RAMvader's pointer size
-                EPointerSize curProcessPtrSize = GetRAMvaderPointerSize();
-
-                Object ptrInSpecifiedSize = null;
-                if ( curProcessPtrSize != pointerSize )
-                {
-                    switch ( diffPointerSizeError )
-                    {
-                        case EDifferentPointerSizeError.evThrowException:
-                            throw new PointerDataLostException( false );
-                        case EDifferentPointerSizeError.evSafeTruncation:
-                        case EDifferentPointerSizeError.evUnsafeTruncation:
-                            {
-                                bool bIsSafeTruncation = ( diffPointerSizeError == EDifferentPointerSizeError.evSafeTruncation );
-
-                                // Expand or truncate accordingly, for the write operation
-                                bool bComparisonFailed = false;
-                                if ( curProcessPtrSize == EPointerSize.evPointerSize32 )
-                                {
-                                    // Expand 32-bit pointer to 64-bits
-                                    UInt32 ptrInCurProcess = (UInt32) (IntPtr) value;
-                                    UInt64 ptrInTargetProcessExpanded = (UInt64) ptrInCurProcess;
-                                    ptrInSpecifiedSize = (UInt64) ptrInCurProcess;
-
-                                    bComparisonFailed = ( ptrInCurProcess != ptrInTargetProcessExpanded );
-                                }
-                                else
-                                {
-                                    // Truncate 64-bit pointer to 32-bits
-                                    UInt64 ptrInCurProcess = (UInt64) (IntPtr) value;
-                                    UInt32 ptrInTargetProcessTruncated = (UInt32) ptrInCurProcess;
-                                    ptrInSpecifiedSize = (UInt32) ptrInCurProcess;
-
-                                    bComparisonFailed = ( ptrInCurProcess != ptrInTargetProcessTruncated );
-                                }
-
-                                // Perform safety check, as needed
-                                if ( bIsSafeTruncation && bComparisonFailed )
-                                    throw new PointerDataLostException( false );
-                                break;
-                            }
-                    }
-                }
-                else
-                {
-                    if ( curProcessPtrSize == EPointerSize.evPointerSize32 )
-                        ptrInSpecifiedSize = (Int32) ( (IntPtr) value ).ToInt32();
-                    else
-                        ptrInSpecifiedSize = (Int64) ( (IntPtr) value ).ToInt64();
-                }
-
-                // Return the pointer's bytes
-                return GetValueAsBytesArray( ptrInSpecifiedSize );
-            }
-
-            // Call "BitConverter.GetBytes()" through reflection, to convert the object
-            // into its specific bytes representation (using the same endianness as the 
-            // RAMvader library)
-            MethodInfo getBytesMethod = typeof( BitConverter ).GetMethod( "GetBytes", new Type[] { value.GetType() } );
-            Object getBytesInvokeResult = getBytesMethod.Invoke( null, new Object[] { value } ); ;
-            byte [] resultingBytesArray = (byte[]) getBytesInvokeResult;
-
-            // Correct endianness when necessary (transform OUR endianness into the SPECIFIED endianness).
-            RevertArrayOnEndiannessDifference( resultingBytesArray, endianness );
-            return resultingBytesArray;
-        }
-
-
-        /** Reverts the given array of bytes, if the specified endianness is different
-         * from the endianness used by the process which runs RAMvader.
-         * @param bytesArray The array to be set to the target process' endianness.
-         * @param endianness The endianness to compare agains the RAMvader process' endianness. */
-        public static void RevertArrayOnEndiannessDifference( byte[] bytesArray, EEndianness endianness )
-        {
-            // Default endianness configuration? No need to to anything.
-            if ( endianness == EEndianness.evEndiannessDefault )
-                return;
-
-            // Verify if RAMvader's process runs in a different endianness configuration as compared to
-            // the specified endianness
-            EEndianness ramVaderEndianness = BitConverter.IsLittleEndian ?
-                EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
-
-            // If the endianness configuration is different, reverse bytes order
-            if ( ramVaderEndianness != endianness )
-                Array.Reverse( bytesArray );
         }
         #endregion
 
@@ -418,7 +178,7 @@ namespace RAMvader
         /** Destructor. */
         ~RAMvaderTarget()
         {
-            if ( ProcessHandle != IntPtr.Zero )
+            if ( m_targetProcessHandle != IntPtr.Zero )
                 DetachFromProcess();
         }
 
@@ -430,7 +190,7 @@ namespace RAMvader
          * @see #GetTargetEndianness() */
         public void SetTargetEndianness( EEndianness endianness )
         {
-            TargetProcessEndianness = endianness;
+            m_targetProcessEndianness = endianness;
         }
 
 
@@ -439,7 +199,7 @@ namespace RAMvader
          * @see #SetTargetEndianness() */
         public EEndianness GetTargetEndianness()
         {
-            return TargetProcessEndianness;
+            return m_targetProcessEndianness;
         }
 
 
@@ -449,7 +209,9 @@ namespace RAMvader
          * @see #SetTargetEndianness() */
         public EEndianness GetActualTargetEndianness()
         {
-            return ActualTargetProcessEndianness;
+            if ( m_targetProcessEndianness == EEndianness.evEndiannessDefault )
+                return BitConverter.IsLittleEndian ? EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
+            return m_targetProcessEndianness;
         }
 
 
@@ -460,7 +222,7 @@ namespace RAMvader
          * @see #GetTargetPointerSize() */
         public void SetTargetPointerSize( EPointerSize pointerSize )
         {
-            TargetPointerSize = pointerSize;
+            m_targetPointerSize = pointerSize;
         }
 
 
@@ -469,7 +231,7 @@ namespace RAMvader
          * @see #SetTargetPointerSize() */
         public EPointerSize GetTargetPointerSize()
         {
-            return TargetPointerSize;
+            return m_targetPointerSize;
         }
 
 
@@ -479,7 +241,9 @@ namespace RAMvader
          * @see #SetTargetPointerSize() */
         public EPointerSize GetActualTargetPointerSize()
         {
-            return ActualTargetPointerSize;
+            if ( m_targetPointerSize == EPointerSize.evPointerSizeDefault )
+                return GetRAMvaderPointerSize();
+            return m_targetPointerSize;
         }
 
 
@@ -489,7 +253,7 @@ namespace RAMvader
          * @see #GetTargetPointerSizeErrorHandling() */
         public void SetTargetPointerSizeErrorHandling( EDifferentPointerSizeError pointerSizeErrorHandling )
         {
-            PointerSizeErrorHandling = pointerSizeErrorHandling;
+            m_diffPointerSizeError = pointerSizeErrorHandling;
         }
 
 
@@ -498,7 +262,7 @@ namespace RAMvader
          * @see #SetTargetPointerSizeErrorHandling() */
         public EDifferentPointerSizeError GetTargetPointerSizeErrorHandling()
         {
-            return PointerSizeErrorHandling;
+            return m_diffPointerSizeError;
         }
 
 
@@ -508,8 +272,18 @@ namespace RAMvader
          * @param bytesArray The array to be set to the target process' endianness. */
         public void RevertArrayOnEndiannessDifference( byte[] bytesArray )
         {
-            // Transfer execution to the static version of the method
-            RevertArrayOnEndiannessDifference( bytesArray, TargetProcessEndianness );
+            // Default endianness configuration? No need to to anything.
+            if ( m_targetProcessEndianness == EEndianness.evEndiannessDefault )
+                return;
+
+            // Verify if RAMvader's process runs in a different endianness configuration as compared to
+            // the target process
+            EEndianness ramVaderEndianness = BitConverter.IsLittleEndian ?
+                EEndianness.evEndiannessLittle : EEndianness.evEndiannessBig;
+
+            // If both processes run on different endianness configurations, reverse bytes order
+            if ( ramVaderEndianness != m_targetProcessEndianness )
+                Array.Reverse( bytesArray );
         }
 
 
@@ -523,8 +297,8 @@ namespace RAMvader
         public bool AttachToProcess( Process targetProcess )
         {
             // Is this instance already attached to a process?
-            if ( TargetProcess != null )
-                throw new InstanceAlreadyAttachedException( TargetProcess );
+            if ( m_process != null )
+                throw new InstanceAlreadyAttachedException( m_process );
 
             // Certify this process is attachable
             try
@@ -558,18 +332,13 @@ namespace RAMvader
                 WinAPI.ProcessAccessFlags.QueryInformation |
                 WinAPI.ProcessAccessFlags.VMRead |
                 WinAPI.ProcessAccessFlags.VMWrite;
-            ProcessHandle = WinAPI.OpenProcess( processOpenFlags, false, targetProcess.Id );
-            if ( ProcessHandle == IntPtr.Zero )
+            m_targetProcessHandle = WinAPI.OpenProcess( processOpenFlags, false, targetProcess.Id );
+            if ( m_targetProcessHandle == IntPtr.Zero )
                 return false;
 
             // If everything went well, update our internal data.
-            TargetProcess = targetProcess;
+            m_process = targetProcess;
 
-            // Fire "Attached" event
-            if ( AttachedEvent != null )
-                AttachedEvent( this, EventArgs.Empty );
-
-            // Return true (everything went well)
             return true;
         }
 
@@ -582,21 +351,16 @@ namespace RAMvader
          *    target process. */
         public bool DetachFromProcess()
         {
-            if ( TargetProcess == null )
+            if ( m_process == null )
                 throw new InstanceNotAttachedException();
 
             // Close process' Handle
-            bool detachResult = WinAPI.CloseHandle( ProcessHandle );
+            bool detachResult = WinAPI.CloseHandle( m_targetProcessHandle );
 
             // Update internal data
-            TargetProcess = null;
-            ProcessHandle = IntPtr.Zero;
+            m_process = null;
+            m_targetProcessHandle = IntPtr.Zero;
 
-            // Fire "Detached" event
-            if ( detachResult && DetachedEvent != null )
-                DetachedEvent( this, EventArgs.Empty );
-
-            // Return the status for the detachment process
             return detachResult;
         }
 
@@ -607,7 +371,7 @@ namespace RAMvader
          *    this method returns null. */
         public Process GetAttachedProcess()
         {
-            return TargetProcess;
+            return m_process;
         }
 
 
@@ -632,7 +396,84 @@ namespace RAMvader
          *    endianness configurations. */
         public byte [] GetValueAsBytesArrayInTargetProcess( Object objVal )
         {
-            return GetValueAsBytesArray( objVal, this.TargetProcessEndianness, this.TargetPointerSize, this.PointerSizeErrorHandling );
+            // Is the value a single-byte value?
+            if ( objVal is Byte )
+                return new byte[] { (byte) objVal };
+
+            // If this point is reached, the value is represented by multiple bytes,
+            // and we need to consider the target process' endianness to turn it into
+            // a correct array of bytes.
+
+            // For pointers, we need to verify how they will be written to the target process.
+            // This depends on the configuration for the target process' pointer size
+            if ( objVal is IntPtr )
+            {
+                // Handle the cases where the size of pointers in the processes are different
+                EPointerSize curProcessPtrSize = GetRAMvaderPointerSize();
+                EPointerSize targetProcessPtrSize = GetActualTargetPointerSize();
+
+                Object ptrInTargetProcess = null;
+                if ( curProcessPtrSize != targetProcessPtrSize )
+                {
+                    switch ( m_diffPointerSizeError )
+                    {
+                        case EDifferentPointerSizeError.evThrowException:
+                            throw new PointerDataLostException( false );
+                        case EDifferentPointerSizeError.evSafeTruncation:
+                        case EDifferentPointerSizeError.evUnsafeTruncation:
+                            {
+                                bool bIsSafeTruncation = ( m_diffPointerSizeError == EDifferentPointerSizeError.evSafeTruncation );
+
+                                // Expand or truncate accordingly, for the write operation
+                                bool bComparisonFailed = false;
+                                if ( curProcessPtrSize == EPointerSize.evPointerSize32 )
+                                {
+                                    // Expand 32-bit pointer to 64-bits
+                                    UInt32 ptrInCurProcess = (UInt32) (IntPtr) objVal;
+                                    UInt64 ptrInTargetProcessExpanded = (UInt64) ptrInCurProcess;
+                                    ptrInTargetProcess = (UInt64) ptrInCurProcess;
+
+                                    bComparisonFailed = ( ptrInCurProcess != ptrInTargetProcessExpanded );
+                                }
+                                else
+                                {
+                                    // Truncate 64-bit pointer to 32-bits
+                                    UInt64 ptrInCurProcess = (UInt64) (IntPtr) objVal;
+                                    UInt32 ptrInTargetProcessTruncated = (UInt32) ptrInCurProcess;
+                                    ptrInTargetProcess = (UInt32) ptrInCurProcess;
+
+                                    bComparisonFailed = ( ptrInCurProcess != ptrInTargetProcessTruncated );
+                                }
+
+                                // Perform safety check, as needed
+                                if ( bIsSafeTruncation && bComparisonFailed )
+                                    throw new PointerDataLostException( false );
+                                break;
+                            }
+                    }
+                }
+                else
+                {
+                    if ( curProcessPtrSize == EPointerSize.evPointerSize32 )
+                        ptrInTargetProcess = (Int32) ( (IntPtr) objVal ).ToInt32();
+                    else
+                        ptrInTargetProcess = (Int64) ( (IntPtr) objVal ).ToInt64();
+                }
+
+                // Return the pointer's bytes
+                return GetValueAsBytesArrayInTargetProcess( ptrInTargetProcess );
+            }
+            
+            // Call "BitConverter.GetBytes()" through reflection, to convert the object
+            // into its specific bytes representation (using the same endianness as the 
+            // RAMvader library)
+            MethodInfo getBytesMethod = typeof( BitConverter ).GetMethod( "GetBytes", new Type[] { objVal.GetType() } );
+            Object getBytesInvokeResult = getBytesMethod.Invoke( null, new Object[] { objVal } ); ;
+            byte [] bytesArrayInTargetProcess = (byte[]) getBytesInvokeResult;
+
+            // Correct endianness when necessary (transform OUR endianness into the TARGET PROCESS' endianness).
+            RevertArrayOnEndiannessDifference( bytesArrayInTargetProcess );
+            return bytesArrayInTargetProcess;
         }
 
 
@@ -645,17 +486,13 @@ namespace RAMvader
         public bool WriteToTarget( IntPtr address, byte [] writeData )
         {
             // RAMvader doesn't support a 32-bits host trying to target a 64-bits process.
-            if ( TargetPointerSize == EPointerSize.evPointerSize64 && GetRAMvaderPointerSize() != EPointerSize.evPointerSize64 )
+            if ( m_targetPointerSize == EPointerSize.evPointerSize64 && GetRAMvaderPointerSize() != EPointerSize.evPointerSize64 )
                 throw new UnsupportedPointerSizeException();
+            
+            // Perform the writing operation, and check its results
+            IntPtr totalBytesWritten;
 
-			// Nothing needs to be written?
-			if ( writeData.Length == 0 )
-				return true;
-
-			// Perform the writing operation, and check its results
-			IntPtr totalBytesWritten;
-
-            bool writeResult = WinAPI.WriteProcessMemory( ProcessHandle, address, writeData,
+            bool writeResult = WinAPI.WriteProcessMemory( m_targetProcessHandle, address, writeData,
                 writeData.Length, out totalBytesWritten );
 
             return ( writeResult && totalBytesWritten == new IntPtr( writeData.Length ) );
@@ -691,13 +528,13 @@ namespace RAMvader
         public bool ReadFromTarget( IntPtr address, byte[] outDestiny )
         {
             // RAMvader doesn't support a 32-bits host trying to target a 64-bits process.
-            if ( TargetPointerSize == EPointerSize.evPointerSize64 && GetRAMvaderPointerSize() != EPointerSize.evPointerSize64 )
+            if ( m_targetPointerSize == EPointerSize.evPointerSize64 && GetRAMvaderPointerSize() != EPointerSize.evPointerSize64 )
                 throw new UnsupportedPointerSizeException();
 
             // Perform the reading operation
             IntPtr totalBytesRead;
             int expectedReadBytes = outDestiny.Length;
-            bool readResult = WinAPI.ReadProcessMemory( ProcessHandle, address, outDestiny,
+            bool readResult = WinAPI.ReadProcessMemory( m_targetProcessHandle, address, outDestiny,
                 expectedReadBytes, out totalBytesRead );
             return ( readResult && totalBytesRead == new IntPtr( expectedReadBytes ) );
         }
@@ -772,14 +609,14 @@ namespace RAMvader
                 // Handle the cases where the size of pointers in the processes are different
                 if ( curProcessPtrSize != targetProcessPtrSize )
                 {
-                    switch ( PointerSizeErrorHandling )
+                    switch ( m_diffPointerSizeError )
                     {
                         case EDifferentPointerSizeError.evThrowException:
                             throw new PointerDataLostException( true );
                         case EDifferentPointerSizeError.evSafeTruncation:
                         case EDifferentPointerSizeError.evUnsafeTruncation:
                             {
-                                bool bIsSafeTruncation = ( PointerSizeErrorHandling == EDifferentPointerSizeError.evSafeTruncation );
+                                bool bIsSafeTruncation = ( m_diffPointerSizeError == EDifferentPointerSizeError.evSafeTruncation );
 
                                 // Expand or truncate accordingly, for the write operation
                                 bool bComparisonFailed = false;
