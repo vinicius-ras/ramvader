@@ -1,0 +1,98 @@
+﻿<Window x:Class="RAMvaderGUI.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:conv="clr-namespace:RAMvaderGUI.Converters"
+        Title="RAMvader GUI" Width="525" Height="450"
+        MinWidth="{Binding RelativeSource={RelativeSource Self},Path=Width,Mode=OneTime}"
+        MinHeight="{Binding RelativeSource={RelativeSource Self},Path=Height,Mode=OneTime}">
+    <Window.Resources>
+        <conv:HumanReadableTypeConverter x:Key="HumanReadableTypeConverter" />
+        <conv:IntToHexStringConverter x:Key="IntToHexStringConverter" />
+        <conv:DataGridBasicDataTypesConverter x:Key="DataGridBasicDataTypesConverter" />
+    </Window.Resources>
+    <Grid Margin="5">
+        <!-- Grid's row and column definitions -->
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="auto" />
+            <RowDefinition Height="auto" />
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto" />
+            <ColumnDefinition Width="Auto"/>
+            <ColumnDefinition Width="*" />
+        </Grid.ColumnDefinitions>
+        
+        <!-- Processes list -->
+        <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Vertical">
+            <Label Content="Processes" />
+            <ListBox x:Name="m_lstProcesses" MinWidth="150" MinHeight="200" MaxWidth="150" MaxHeight="200" SelectionChanged="m_lstProcesses_SelectionChanged" ScrollViewer.VerticalScrollBarVisibility="Auto" ScrollViewer.CanContentScroll="False" ScrollViewer.HorizontalScrollBarVisibility="Auto" Margin="3" />
+            <Button x:Name="m_btRefreshProcesses" Content="Refresh" Click="m_btRefreshProcesses_Click" Margin="3" />
+            <Button x:Name="m_btAttachToProcess" Content="Attach" IsEnabled="False" Click="m_btAttachToProcess_Click" Margin="3" />
+        </StackPanel>
+
+        <Separator Grid.Row="0" Grid.Column="1" Margin="3,2" Style="{StaticResource {x:Static ToolBar.SeparatorStyleKey}}"  />
+        
+        <!-- Addresses list -->
+        <Grid Grid.Row="0" Grid.Column="2">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="auto" />
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="auto" />
+                <ColumnDefinition Width="*" />
+            </Grid.ColumnDefinitions>
+            
+            <Label Grid.Row="0" Grid.Column="0" Content="Addresses" HorizontalAlignment="Left" VerticalAlignment="Center" />
+            <Button x:Name="m_btRefreshMemory" Grid.Row="0" Grid.Column="1" Grid.ColumnSpan="2" Content="Refresh" VerticalAlignment="Center" IsEnabled="False" HorizontalAlignment="Stretch" Margin="3" Click="m_btRefreshMemory_Click" />
+            
+            <CheckBox x:Name="m_chkRefreshMemory" Grid.Row="1" Grid.Column="0" Content="Automatic refresh" HorizontalAlignment="Left" VerticalAlignment="Center" IsChecked="True" Checked="m_chkRefreshMemory_Checked" Unchecked="m_chkRefreshMemory_Checked" />
+            <Label Grid.Row="1" Grid.Column="1" Content="Time:" HorizontalAlignment="Center" VerticalAlignment="Center" />
+            <TextBox x:Name="m_txtRefreshMemoryTime" Grid.Row="1" Grid.Column="2" MinWidth="40" HorizontalAlignment="Center" VerticalAlignment="Center" Text="500" LostFocus="m_txtRefreshMemoryTime_LostFocus" />
+
+            <Label Grid.Row="2" Grid.Column="0" Content="Target process' endianness:" VerticalAlignment="Center" />
+            <ComboBox x:Name="m_cmbTargetEndianness" Grid.Row="2" Grid.Column="1" Grid.ColumnSpan="3" Margin="3,3,3,0" Height="22" VerticalAlignment="Top" SelectionChanged="m_cmbTargetEndianness_SelectionChanged" />
+
+            <Label Grid.Row="3" Grid.Column="0" Content="Target process' pointer size:" VerticalAlignment="Center" />
+            <ComboBox x:Name="m_cmbTargetPointerSize" Grid.Row="3" Grid.Column="1" Grid.ColumnSpan="3" Margin="3" SelectionChanged="m_cmbTargetPointerSize_SelectionChanged" />
+
+            <DataGrid x:Name="m_memoryData" Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="4"
+                      ContextMenuOpening="m_memoryData_ContextMenuOpening" AutoGenerateColumns="False"
+                      IsReadOnly="True" MouseDoubleClick="m_memoryData_MouseDoubleClick" >
+                <DataGrid.ContextMenu>
+                    <ContextMenu>
+                        <MenuItem x:Name="m_menuAddAddress" Header="Add address" Click="m_menuAddAddress_Click"/>
+                        <MenuItem x:Name="m_menuDeleteSelectedAddresses" Header="Delete selected addresses" Click="m_menuDeleteSelectedAddresses_Click"/>
+                        <Separator />
+                        <MenuItem Header="RAMvaderTestTarget">
+                            <MenuItem x:Name="m_menuAddTestAddresses" Header="Add RAMvaderTestTarget addresses" Click="m_menuAddTestAddresses_Click" />
+                            <MenuItem x:Name="m_menuFreezeOnTestValues" Header="Freeze using predefined test values" Click="m_menuFreezeOnTestValues_Click" />
+                        </MenuItem>
+                    </ContextMenu>
+                </DataGrid.ContextMenu>
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="Identifier" Binding="{Binding Path=Description}" />
+                    <DataGridTextColumn Header="Address" Binding="{Binding Address, Converter={StaticResource ResourceKey=IntToHexStringConverter}}"/>
+                    <DataGridTextColumn Header="Type" Binding="{Binding ValueType, Converter={StaticResource ResourceKey=HumanReadableTypeConverter}}" />
+                    <DataGridTextColumn Header="Value" Binding="{Binding Converter={StaticResource DataGridBasicDataTypesConverter}, Mode=OneWay}"/>
+                    <DataGridCheckBoxColumn Header="Freeze?" Binding="{Binding Path=Freeze}"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Grid>
+        
+        <!-- Console -->
+        <Separator Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="3" Margin="2,3" />
+        <Expander Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="3" Header="CONSOLE" IsExpanded="True">
+            <DockPanel Margin="10,3,0,0" LastChildFill="True">
+                <Button DockPanel.Dock="Left" x:Name="m_btClearConsole" Content="Clear" Margin="3" Click="m_btClearConsole_Click" HorizontalAlignment="Center" />
+                <ListBox DockPanel.Dock="Right" x:Name="m_lstConsole" Height="75" Margin="3" />
+            </DockPanel>
+        </Expander>
+    </Grid>
+</Window>
