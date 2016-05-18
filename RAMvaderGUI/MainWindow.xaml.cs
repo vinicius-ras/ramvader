@@ -29,18 +29,16 @@ using System.Windows.Controls;
 
 namespace RAMvaderGUI
 {
-    /// <summary>
-    /// Interaction logic for MainWindow.xaml
-    /// </summary>
+    /// <summary>Interaction logic for MainWindow.xaml</summary>
     public partial class MainWindow : Window
     {
-        #region CONSTANTS
-        /** Defines the maximum number of messages that might exist in the application's console. */
-        private const int MAX_CONSOLE_ENTRIES = 100;
-        /** The default interval for the application's reading and writing timer. */
-        private const int DEFAULT_MEMORY_TIMER_INTERVAL = 500;
-        /** Defines the test values which are used for testing writing operations on RAMvaderTestTarget. */
-        private readonly Dictionary<Type, Object> WRITE_TEST_VALUES = new Dictionary<Type, object>()
+		#region CONSTANTS
+		/// <summary>Defines the maximum number of messages that might exist in the application's console.</summary>
+		private const int MAX_CONSOLE_ENTRIES = 100;
+		/// <summary>The default interval for the application's reading and writing timer.</summary>
+		private const int DEFAULT_MEMORY_TIMER_INTERVAL = 500;
+		/// <summary>Defines the test values which are used for testing writing operations on RAMvaderTestTarget.</summary>
+		private readonly Dictionary<Type, Object> WRITE_TEST_VALUES = new Dictionary<Type, object>()
         {
             { typeof( Byte ), (Byte) 100 },
             { typeof( Int16 ), (Int16) 101 },
@@ -53,7 +51,7 @@ namespace RAMvaderGUI
             { typeof( Double ), (Double) 108.108 },
             { typeof( IntPtr ), new IntPtr( (int)0x11223344 ) },
         };
-        #endregion
+		#endregion
 
 
 
@@ -62,10 +60,10 @@ namespace RAMvaderGUI
 
 
 
-        #region STATIC PROPERTIES
-        /** Reference to the singleton instance of MainWindow. */
-        private static MainWindow sm_instance;
-        #endregion
+		#region STATIC PROPERTIES
+		/// <summary>Reference to the singleton instance of MainWindow.</summary>
+		private static MainWindow sm_instance;
+		#endregion
 
 
 
@@ -74,16 +72,16 @@ namespace RAMvaderGUI
 
 
 
-        #region PROPERTIES
-        /** Snapshot containing all the processes that are currently displayed on the list. */
-        private Process [] m_processes;
-        /** The RAMvader instance, used to gain access to the target process' memory. */
-        private RAMvaderTarget m_targetProcess = new RAMvaderTarget();
-        /** The timer used to execute the memory-updating functions. */
-        private Timer m_memoryTimer = new Timer();
-        /** The list containing the memory positions that are being edited/watched by the user. */
-        private ObservableCollection<AddressEntry> m_addressEntries = new ObservableCollection<AddressEntry>();
-        #endregion
+		#region PROPERTIES
+		/// <summary>Snapshot containing all the processes that are currently displayed on the list.</summary>
+		private Process [] m_processes;
+		/// <summary>The RAMvader instance, used to gain access to the target process' memory.</summary>
+		private RAMvaderTarget m_targetProcess = new RAMvaderTarget();
+		/// <summary>The timer used to execute the memory-updating functions.</summary>
+		private Timer m_memoryTimer = new Timer();
+		/// <summary>The list containing the memory positions that are being edited/watched by the user.</summary>
+		private ObservableCollection<AddressEntry> m_addressEntries = new ObservableCollection<AddressEntry>();
+		#endregion
 
 
 
@@ -92,10 +90,12 @@ namespace RAMvaderGUI
 
 
 
-        #region PUBLIC STATIC METHODS
-        /** Sends the given message to the application's console.
-         * @param logMsg The message to be logged. */
-        public static void logToConsole( string logMsg )
+		#region PUBLIC STATIC METHODS
+		/// <summary>
+		/// Sends the given message to the application's console.
+		/// </summary>
+		/// <param name="logMsg">The message to be logged.</param>
+		public static void logToConsole( string logMsg )
         {
             // Verify if the console has reached its maximum messages limit
             ListBox consoleObj = sm_instance.m_lstConsole;
@@ -106,7 +106,7 @@ namespace RAMvaderGUI
             consoleObj.Items.Add( logMsg );
             consoleObj.ScrollIntoView( consoleObj.Items[consoleObj.Items.Count - 1] );
         }
-        #endregion
+		#endregion
 
 
 
@@ -115,13 +115,17 @@ namespace RAMvaderGUI
 
 
 
-        #region PRIVATE STATIC METHODS
-        /** Called when the timer responsible for reading and writing the target process' memory gets elapsed. */
-        private static void onMemoryTimerElapsed( object sender, ElapsedEventArgs args )
+		#region PRIVATE STATIC METHODS
+		/// <summary>
+		/// Called when the timer responsible for reading and writing the target process' memory gets elapsed.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private static void onMemoryTimerElapsed( object sender, ElapsedEventArgs args )
         {
             sm_instance.Dispatcher.Invoke( sm_instance.executeMemoryOperations );
         }
-        #endregion
+		#endregion
 
 
 
@@ -130,9 +134,11 @@ namespace RAMvaderGUI
 
 
 
-        #region PRIVATE METHODS
-        /** Detaches our application from the target process. */
-        private void detachFromTargetProcess()
+		#region PRIVATE METHODS
+		/// <summary>
+		/// Detaches our application from the target process.
+		/// </summary>
+		private void detachFromTargetProcess()
         {
             // Detach from target
             if ( m_targetProcess.DetachFromProcess() )
@@ -142,8 +148,10 @@ namespace RAMvaderGUI
         }
 
 
-        /** Should be called after the application attaches to or detaches from a target process to update the GUI. */
-        private void onAttachmentStateChanged()
+		/// <summary>
+		/// Should be called after the application attaches to or detaches from a target process to update the GUI.
+		/// </summary>
+		private void onAttachmentStateChanged()
         {
             // Update GUI and start/stop memory timer
             bool isCurrentlyAttached = ( m_targetProcess.GetAttachedProcess() != null );
@@ -156,8 +164,10 @@ namespace RAMvaderGUI
         }
 
 
-        /** Executes the operations related to reading from and writing to the target process' memory. */
-        private void executeMemoryOperations()
+		/// <summary>
+		/// Executes the operations related to reading from and writing to the target process' memory.
+		/// </summary>
+		private void executeMemoryOperations()
         {
             if ( m_targetProcess.GetAttachedProcess() == null )
                 return;
@@ -283,7 +293,7 @@ namespace RAMvaderGUI
 
 
         #region PUBLIC METHODS
-        /** Constructor. */
+        /// <summary>Constructor.</summary>
         public MainWindow()
         {
             InitializeComponent();
@@ -311,7 +321,7 @@ namespace RAMvaderGUI
             // Tell the user about the host process' pointer size
             logToConsole( string.Format( "Process running RAMvader is using {0}-bit pointers.", IntPtr.Size * 8 ) );
         }
-        #endregion
+		#endregion
 
 
 
@@ -320,9 +330,13 @@ namespace RAMvaderGUI
 
 
 
-        #region EVENT CALLBACKS
-        /** Called when the user clicks the "Refresh Processes" button. */
-        private void m_btRefreshProcesses_Click( object sender, RoutedEventArgs e )
+		#region EVENT CALLBACKS
+		/// <summary>
+		/// Called when the user clicks the "Refresh Processes" button.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_btRefreshProcesses_Click( object sender, RoutedEventArgs e )
         {
             // Clear the list of processes
             m_lstProcesses.Items.Clear();
@@ -337,15 +351,23 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the selection of the list of processes gets changed. */
-        private void m_lstProcesses_SelectionChanged( object sender, System.Windows.Controls.SelectionChangedEventArgs e )
+		/// <summary>
+		/// Called when the selection of the list of processes gets changed.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_lstProcesses_SelectionChanged( object sender, System.Windows.Controls.SelectionChangedEventArgs e )
         {
             m_btAttachToProcess.IsEnabled = ( m_lstProcesses.SelectedIndex >= 0 );
         }
 
 
-        /** Called when the user clicks the "Attach/Detach to/from process" button. */
-        private void m_btAttachToProcess_Click( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the user clicks the "Attach/Detach to/from process" button.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_btAttachToProcess_Click( object sender, RoutedEventArgs e )
         {
             if ( m_targetProcess.GetAttachedProcess() == null )
             {
@@ -365,15 +387,23 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the user clicks the "Clear console" button. */
-        private void m_btClearConsole_Click( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the user clicks the "Clear console" button.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_btClearConsole_Click( object sender, RoutedEventArgs e )
         {
             m_lstConsole.Items.Clear();
         }
 
 
-        /** Called when the "Refresh Memory" period textbox loses focus. */
-        private void m_txtRefreshMemoryTime_LostFocus( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the "Refresh Memory" period textbox loses focus.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_txtRefreshMemoryTime_LostFocus( object sender, RoutedEventArgs e )
         {
             // Verify if the given value is numeric
             int typedValue;
@@ -398,15 +428,23 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the user clicks the "Refresh memory" button. */
-        private void m_btRefreshMemory_Click( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the user clicks the "Refresh memory" button.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_btRefreshMemory_Click( object sender, RoutedEventArgs e )
         {
             executeMemoryOperations();
         }
 
 
-        /** Called when the "Automatic refresh" CheckBox is checked or unchecked. */
-        private void m_chkRefreshMemory_Checked( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the "Automatic refresh" CheckBox is checked or unchecked.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_chkRefreshMemory_Checked( object sender, RoutedEventArgs e )
         {
             if ( sm_instance == null )
                 return;
@@ -415,8 +453,12 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the user clicks the "Add Address" context menu item (in the memory data grid). */
-        private void m_menuAddAddress_Click( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the user clicks the "Add Address" context menu item (in the memory data grid).
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_menuAddAddress_Click( object sender, RoutedEventArgs e )
         {
             EditAddressDialog addrDialog = new EditAddressDialog();
             addrDialog.Owner = this;
@@ -429,16 +471,24 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the user clicks the "Delete Selected Addresses" context menu item (in the memory data grid). */
-        private void m_menuDeleteSelectedAddresses_Click( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the user clicks the "Delete Selected Addresses" context menu item (in the memory data grid).
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_menuDeleteSelectedAddresses_Click( object sender, RoutedEventArgs e )
         {
             for ( int a = m_memoryData.SelectedItems.Count - 1; a >= 0; a-- )
                 m_addressEntries.Remove( (AddressEntry) m_memoryData.SelectedItems[a] );
         }
 
 
-        /** Called when the user clicks the "Add RAMvaderTestTarget addresses" context menu item (in the memory data grid). */
-        private void m_menuAddTestAddresses_Click( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the user clicks the "Add RAMvaderTestTarget addresses" context menu item (in the memory data grid).
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_menuAddTestAddresses_Click( object sender, RoutedEventArgs e )
         {
             RAMvaderTestTargetAddAddressesDialog addrDialog = new RAMvaderTestTargetAddAddressesDialog();
             addrDialog.Owner = this;
@@ -452,8 +502,12 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the user clicks the "Write test values" context menu item (in the memory data grid). */
-        private void m_menuFreezeOnTestValues_Click( object sender, RoutedEventArgs e )
+		/// <summary>
+		/// Called when the user clicks the "Write test values" context menu item (in the memory data grid).
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_menuFreezeOnTestValues_Click( object sender, RoutedEventArgs e )
         {
             // Verify if the set of registered addresses corresponds to the expected set
             if ( m_addressEntries.Count != WRITE_TEST_VALUES.Count )
@@ -494,15 +548,23 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the context menu for the "Memory Data Grid" is opening. */
-        private void m_memoryData_ContextMenuOpening( object sender, ContextMenuEventArgs e )
+		/// <summary>
+		/// Called when the context menu for the "Memory Data Grid" is opening.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_memoryData_ContextMenuOpening( object sender, ContextMenuEventArgs e )
         {
             m_menuDeleteSelectedAddresses.IsEnabled = ( m_memoryData.SelectedItems.Count > 0 );
         }
 
 
-        /** Catches double-clicks on the DataGrid of the #MainWindow. */
-        private void m_memoryData_MouseDoubleClick( object sender, System.Windows.Input.MouseButtonEventArgs e )
+		/// <summary>
+		/// Catches double-clicks on the DataGrid of the <see cref="MainWindow"/>.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_memoryData_MouseDoubleClick( object sender, System.Windows.Input.MouseButtonEventArgs e )
         {
             if ( m_memoryData.SelectedItems.Count != 1 )
                 return;
@@ -523,7 +585,12 @@ namespace RAMvaderGUI
         }
 
 
-        private void m_cmbTargetEndianness_SelectionChanged( object sender, SelectionChangedEventArgs e )
+		/// <summary>
+		/// Called when the "target endianness" combo box gets its selection changed.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_cmbTargetEndianness_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             // Update target process' endianness configuration
             EEndianness selectedEndianness = (EEndianness) m_cmbTargetEndianness.SelectedValue;
@@ -539,7 +606,12 @@ namespace RAMvaderGUI
         }
 
 
-        private void m_cmbTargetPointerSize_SelectionChanged( object sender, SelectionChangedEventArgs e )
+		/// <summary>
+		/// Called when the "target pointer size" combo box gets its selection changed.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_cmbTargetPointerSize_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             // Update target process' pointer size configuration
             EPointerSize selectedPointerSize = (EPointerSize) m_cmbTargetPointerSize.SelectedValue;

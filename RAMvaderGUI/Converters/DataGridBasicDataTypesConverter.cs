@@ -26,30 +26,32 @@ using System.Windows.Data;
 
 namespace RAMvaderGUI.Converters
 {
-    /** A converter, used for WPF bindings, which transforms #AddressEntry objects into
-     * strings representing their values to be displayed in the DataGrid which displays
-     * these objects, in the #MainWindow. */
-    public class DataGridBasicDataTypesConverter : IValueConverter
+	/// <summary>
+	/// A converter, used for WPF bindings, which transforms <see cref="AddressEntry"/> objects into strings
+	/// representing their values to be displayed in the DataGrid which displays these objects,
+	/// in the <see cref="MainWindow"/>.
+	/// </summary>
+	public class DataGridBasicDataTypesConverter : IValueConverter
     {
-        #region PRIVATE CONSTANTS
-        /** The string to be displayed when the converter cannot convert a given object
-         * type. */
-        private const string ERROR_STRING = "<DISPLAY ERROR>";
-        /** The format used to display Single and Double values. */
-        private const string FLOATING_POINT_FORMATS_SPECIFIER = "0.000";
-        #endregion
+		#region PRIVATE CONSTANTS
+		/// <summary>The string to be displayed when the converter cannot convert a given object type.</summary>
+		private const string ERROR_STRING = "<DISPLAY ERROR>";
+		/// <summary>The format used to display Single and Double values.</summary>
+		private const string FLOATING_POINT_FORMATS_SPECIFIER = "0.000";
+		#endregion
 
 
 
 
 
-        #region PUBLIC STATIC METHODS
-        /** Converts the given Object which represents a basic type supported by
-         * the RAMvader library to a String object.
-         * @param addressEntryObj The object holding the value to be converted.
-         * @return Returns the converted value, in case of success.
-         *    Returns null in case of failure. */
-        public static String convertBasicDataTypeToString( AddressEntry addressEntryObj )
+		#region PUBLIC STATIC METHODS
+		/// <summary>Converts the given Object which represents a basic type supported by the RAMvader library to a String object.</summary>
+		/// <param name="addressEntryObj">The object holding the value to be converted.</param>
+		/// <returns>
+		///    Returns the converted value, in case of success.
+		///    Returns null in case of failure.
+		/// </returns>
+		public static String convertBasicDataTypeToString( AddressEntry addressEntryObj )
         {
             Object objVal = addressEntryObj.Value;
             if ( objVal is IntPtr )
