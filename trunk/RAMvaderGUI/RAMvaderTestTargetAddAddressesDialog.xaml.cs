@@ -23,14 +23,18 @@ using System.Windows;
 
 namespace RAMvaderGUI
 {
-    /** Implements the logic behind the dialog used to add all the addresses for
-     * the RAMvaderTestTarget program simultaneously. */
-    public partial class RAMvaderTestTargetAddAddressesDialog : Window
+	/// <summary>
+	/// Implements the logic behind the dialog used to add all the addresses for
+	/// the RAMvaderTestTarget program simultaneously.
+	/// </summary>
+	public partial class RAMvaderTestTargetAddAddressesDialog : Window
     {
-        #region PRIVATE CONSTANTS
-        /** The list of expected types of addresses to be registered for the application.
-         * Addresses are expected to appear in the order as they are declared in this list. */
-        private readonly Type [] EXPECTED_TYPES_LIST =
+		#region PRIVATE CONSTANTS
+		/// <summary>
+		/// The list of expected types of addresses to be registered for the application.
+		/// Addresses are expected to appear in the order as they are declared in this list.
+		/// </summary>
+		private readonly Type [] EXPECTED_TYPES_LIST =
         {
             typeof( Byte ),
             typeof( Int16 ),
@@ -43,15 +47,17 @@ namespace RAMvaderGUI
             typeof( Double ),
             typeof( IntPtr ),
         };
-        #endregion
+		#endregion
 
 
 
 
 
-        #region PRIVATE FIELDS
-        /** Keeps the resulting set of #AddressEntry objects, which are created when the user clicks the dialog's "Ok" button. */
-        private AddressEntry [] m_dialogResult;
+		#region PRIVATE FIELDS
+		/// <summary>
+		/// Keeps the resulting set of <see cref="AddressEntry"/> objects, which are created when the user clicks the dialog's "Ok" button.
+		/// </summary>
+		private AddressEntry [] m_dialogResult;
         #endregion
 
 
@@ -59,31 +65,36 @@ namespace RAMvaderGUI
 
 
         #region PUBLIC METHODS
-        /** Constructor. */
+		/// <summary>
+		/// Constructor.
+		/// </summary>
         public RAMvaderTestTargetAddAddressesDialog()
         {
             InitializeComponent();
         }
 
 
-        /** Retrieves the list of the addresses typed by the user, in the order they
-         * were typed.
-         * @return Returns an array of typed addresses, ready to be registered in the
-         *    application. In case of any errors (e.g., incorrect/malformed user's input),
-         *    returns null. */
-        public AddressEntry [] getResults()
+		/// <summary>
+		/// Retrieves the list of the addresses typed by the user, in the order they were typed.
+		/// </summary>
+		/// <returns>Returns an array of typed addresses, ready to be registered in the application. In case of any errors (e.g., incorrect/malformed user's input), returns null.</returns>
+		public AddressEntry [] getResults()
         {
             return m_dialogResult;
         }
-        #endregion
+		#endregion
 
 
 
 
 
-        #region EVENT CALLBACKS
-        /** Called when the user clicks the "OK" button. */
-        private void m_btOk_Click( object sender, RoutedEventArgs e )
+		#region EVENT CALLBACKS
+		/// <summary>
+		/// Called when the user clicks the "OK" button.
+		/// </summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_btOk_Click( object sender, RoutedEventArgs e )
         {
             // Check typed values: did the user enter the correct number of necessary addresses?
             string [] typedAddresses = m_txtAddresses.Text.Split( new string [] { "\r\n", "\n" }, StringSplitOptions.RemoveEmptyEntries );

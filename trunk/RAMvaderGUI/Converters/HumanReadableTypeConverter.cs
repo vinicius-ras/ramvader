@@ -24,14 +24,13 @@ using System.Windows.Data;
 
 namespace RAMvaderGUI.Converters
 {
-    [ValueConversion( typeof( Type ), typeof( String ) )]
-    /** Converts Type objects from fully-qualified class names to human-readable,
-     * more user-friendly names. */
+	/// <summary>Converts Type objects from fully-qualified class names to human-readable, more user-friendly names.</summary>
+	[ValueConversion( typeof( Type ), typeof( String ) )]
     public class HumanReadableTypeConverter : IValueConverter
     {
-        #region STATIC PROPERTIES
-        /** Maps Type values to their corresponding (human-readable/user-friendly) String values. */
-        private static Dictionary<Type, String> sm_typeNames = new Dictionary<Type, string>()
+		#region STATIC PROPERTIES
+		/// <summary>Maps Type values to their corresponding (human-readable/user-friendly) String values.</summary>
+		private static Dictionary<Type, String> sm_typeNames = new Dictionary<Type, string>()
         {
             { typeof( Byte ), "BYTE" },
             { typeof( Int16 ), "WORD" },
@@ -44,9 +43,9 @@ namespace RAMvaderGUI.Converters
             { typeof( Double ), "DOUBLE" },
             { typeof( IntPtr ), string.Format( "{0}-BITS POINTER", IntPtr.Size * 8 ) },
         };
-        /** Maps String values back to their corresponding Type values. */
-        private static Dictionary<String, Type> sm_stringsToTypes = new Dictionary<string, Type>();
-        #endregion
+		/// <summary>Maps String values back to their corresponding Type values.</summary>
+		private static Dictionary<String, Type> sm_stringsToTypes = new Dictionary<string, Type>();
+		#endregion
 
 
 
@@ -55,13 +54,13 @@ namespace RAMvaderGUI.Converters
 
 
 
-        #region STATIC INITIALIZER
-        /** Class static initializer. */
+		#region STATIC INITIALIZER
+		/// <summary>Class static initializer.</summary>
         static HumanReadableTypeConverter() {
             foreach ( KeyValuePair<Type, String> keyValPair in sm_typeNames )
                 sm_stringsToTypes.Add( keyValPair.Value.ToUpper( CultureInfo.InvariantCulture ), keyValPair.Key );
         }
-        #endregion
+		#endregion
 
 
 
@@ -70,12 +69,14 @@ namespace RAMvaderGUI.Converters
 
 
 
-        #region PUBLIC STATIC FUNCTIONS
-        /** Converts the given Type to a user-friendly String.
-         * @param valueToConvert The value to be converted.
-         * @return Returns the converted value, in case of success.
-         *    Returns null in case of failure. */
-        public static String convertTypeToString( Type valueToConvert )
+		#region PUBLIC STATIC FUNCTIONS
+		/// <summary>Converts the given Type to a user-friendly String.</summary>
+		/// <param name="valueToConvert"> value to be converted.</param>
+		/// <returns>
+		///    Returns the converted value, in case of success.
+		///    Returns null in case of failure.
+		/// </returns>
+		public static String convertTypeToString( Type valueToConvert )
         {
             if ( valueToConvert != null && sm_typeNames.ContainsKey( valueToConvert ) )
                 return sm_typeNames[valueToConvert];
@@ -83,11 +84,13 @@ namespace RAMvaderGUI.Converters
         }
 
 
-        /** Converts the given user-friendly String to a Type.
-         * @param valueToConvert The value to be converted.
-         * @return Returns the converted value, in case of success.
-         *    Returns null in case of failure. */
-        public static Type convertStringToType( String valueToConvert )
+		/// <summary>Converts the given user-friendly String to a Type.</summary>
+		/// <param name="valueToConvert">The value to be converted.</param>
+		/// <returns>
+		///    Returns the converted value, in case of success.
+		///    Returns null in case of failure.
+		/// </returns>
+		public static Type convertStringToType( String valueToConvert )
         {
             String targetSearchKey = valueToConvert.ToUpper( CultureInfo.InvariantCulture );
             if ( targetSearchKey != null && sm_stringsToTypes.ContainsKey( targetSearchKey ) )

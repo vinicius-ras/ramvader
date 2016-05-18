@@ -27,22 +27,20 @@ using System.Reflection;
 
 namespace RAMvaderGUI
 {
-    /// <summary>
-    /// Interaction logic for EditAddressDialog.xaml
-    /// </summary>
+    /// <summary>Interaction logic for EditAddressDialog.xaml</summary>
     public partial class EditAddressDialog : Window
     {
-        #region STATIC PROPERTIES
-        /** The types of data the application can manipulate. */
-        private static Type [] sm_appAllowedDataTypes = new Type[] {
+		#region STATIC PROPERTIES
+		/// <summary>The types of data the application can manipulate.</summary>
+		private static Type [] sm_appAllowedDataTypes = new Type[] {
             typeof( Byte ),
             typeof( Int16 ), typeof( Int32 ), typeof( Int64 ),
             typeof( UInt16 ), typeof( UInt32 ), typeof( UInt64 ),
             typeof( Single ), typeof( Double ), typeof( IntPtr )
         };
-        /** A string representing a pointer, which points to the position "zero". */
-        private static string sm_zeroPointerString = Converters.IntToHexStringConverter.convertIntPtrToString( IntPtr.Zero );
-        #endregion
+		/// <summary>A string representing a pointer, which points to the position "zero".</summary>
+		private static string sm_zeroPointerString = Converters.IntToHexStringConverter.convertIntPtrToString( IntPtr.Zero );
+		#endregion
 
 
 
@@ -51,14 +49,18 @@ namespace RAMvaderGUI
 
 
 
-        #region PRIVATE METHODS
-        /** Retrieves an Object representing the value typed by the user. The Object has the same Type
-         * as selected by the user in the dialog's Type ComboBox.
-         * @return Returns the resulting object. 
-         * @throws OverflowException When there is an overflow while trying to convert the number to the
-         *    type of data the user has selected in the Available Types ComboBox.
-         * @throws FormatException When the user input is malformed. */
-        private Object getValueObject()
+		#region PRIVATE METHODS
+		/// <summary>
+		/// Retrieves an Object representing the value typed by the user.The Object has the same Type as selected
+		/// by the user in the dialog's Type ComboBox.
+		/// </summary>
+		/// <returns>Returns the resulting object.</returns>
+		/// <exception cref="OverflowException">
+		/// When there is an overflow while trying to convert the number to the
+		/// type of data the user has selected in the Available Types ComboBox.
+		/// </exception>
+		/// <exception cref="FormatException">When the user input is malformed.</exception>
+		private Object getValueObject()
         {
             // Process according to numeric types
             Type userSelectedType = (Type) m_cmbType.SelectedItem;
@@ -92,10 +94,10 @@ namespace RAMvaderGUI
         }
 
 
-        /** Retrieves a string representing an IntPtr, based on the current architecture (32 or 64 bits).
-         * @param pVal The IntPtr value to be transformed into a string.
-         * @return Returns a string representing the givben IntPtr. */
-        private string getIntPtrAsString( IntPtr pVal )
+		/// <summary>Retrieves a string representing an IntPtr, based on the current architecture (32 or 64 bits).</summary>
+		/// <param name="pVal">The IntPtr value to be transformed into a string.</param>
+		/// <returns>Returns a string representing the givben IntPtr.</returns>
+		private string getIntPtrAsString( IntPtr pVal )
         {
             int pointerSize = IntPtr.Size;
             switch ( pointerSize )
@@ -114,7 +116,7 @@ namespace RAMvaderGUI
                         IntPtr.Size ) );
             }
         }
-        #endregion
+		#endregion
 
 
 
@@ -122,10 +124,10 @@ namespace RAMvaderGUI
 
 
 
-        #region PUBLIC METHODS
-        /** Constructor.
-         * @param entry The #AddressEntry to be edited, if any. */
-        public EditAddressDialog( AddressEntry entry = null )
+		#region PUBLIC METHODS
+		/// <summary>Constructor.</summary>
+		/// <param name="entry">The <see cref="AddressEntry"/> to be edited, if any.</param>
+		public EditAddressDialog( AddressEntry entry = null )
         {
             InitializeComponent();
 
@@ -153,10 +155,9 @@ namespace RAMvaderGUI
         }
 
 
-        /** Retrieves the resulting #AddressEntry configured by the user by using the dialog.
-         * @return Returns an #AddressEntry object, representing the configuration the user made
-         *    in the dialog. */
-        public AddressEntry getResult()
+		/// <summary>Retrieves the resulting <see cref="AddressEntry"/> configured by the user by using the dialog.</summary>
+		/// <returns>Returns an <see cref="AddressEntry"/> object, representing the configuration the user made in the dialog.</returns>
+		public AddressEntry getResult()
         {
             // Get the identifier of the address
             AddressEntry result = new AddressEntry();
@@ -170,7 +171,7 @@ namespace RAMvaderGUI
             
             return result;
         }
-        #endregion
+		#endregion
 
 
 
@@ -179,17 +180,21 @@ namespace RAMvaderGUI
 
 
 
-        #region EVENT CALLBACKS
-        /** Called when the user clicks the dialog's OK button. */
-        private void m_btOk_Click( object sender, RoutedEventArgs e )
+		#region EVENT CALLBACKS
+		/// <summary>Called when the user clicks the dialog's OK button.</summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_btOk_Click( object sender, RoutedEventArgs e )
         {
             this.DialogResult = true;
             this.Close();
         }
 
 
-        /** Called when the "Address" TextBox loses focus. */
-        private void m_txtAddress_LostFocus( object sender, RoutedEventArgs e )
+		/// <summary>Called when the "Address" TextBox loses focus.</summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_txtAddress_LostFocus( object sender, RoutedEventArgs e )
         {
             // Verify if this is a valid address
             try
@@ -206,8 +211,10 @@ namespace RAMvaderGUI
         }
 
 
-        /** Called when the "Value" TextBox loses focus. */
-        private void m_txtValue_LostFocus( object sender, RoutedEventArgs e )
+		/// <summary>Called when the "Value" TextBox loses focus.</summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_txtValue_LostFocus( object sender, RoutedEventArgs e )
         {
             try
             {
@@ -222,9 +229,11 @@ namespace RAMvaderGUI
             }
         }
 
-        
-        /** Called when the user changes the data type selected in the available data types ComboBox. */
-        private void m_cmbType_SelectionChanged( object sender, SelectionChangedEventArgs e )
+
+		/// <summary>Called when the user changes the data type selected in the available data types ComboBox.</summary>
+		/// <param name="sender">Object which sent the event.</param>
+		/// <param name="e">Arguments for the event.</param>
+		private void m_cmbType_SelectionChanged( object sender, SelectionChangedEventArgs e )
         {
             // Prevents this method from executing during the initialization of the combobox
             if ( e.RemovedItems.Count <= 0 )

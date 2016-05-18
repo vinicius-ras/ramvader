@@ -19,61 +19,65 @@
 
 namespace RAMvader.CodeInjection
 {
-    /** An exception thrown by the #Injector to indicate the injection method has
-     * failed. */
-    public class InjectionFailureException : InjectorException
+	/// <summary>An exception thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> to indicate the injection method has failed.</summary>
+	public class InjectionFailureException : InjectorException
     {
-        #region PUBLIC ENUMERATIONS
-        /** Indicates the type of failure which caused the exception. */
-        public enum EFailureType
+		#region PUBLIC ENUMERATIONS
+		/// <summary>Indicates the type of failure which caused the exception.</summary>
+		public enum EFailureType
         {
-            /** Indicates that the #Injector has not been initialized with a
-             * #RAMvaderTarget object. This can be done by calling #Injector.SetTargetProcess(). */
-            evFailureRAMvaderTargetNull,
-            /** Indicates that the #RAMvaderTarget object associated to the #Injector is currently not
-             * attached to any process. */
-            evFailureNotAttached,
-            /** Indicates that the #Injector has tried to allocate virtual memory in the target process'
-             * memory space, but the allocation failed. This usually happens either when the system denies the allocation
-             * or if there are no code caves and injection variables to be injected - which effectivelly means that there's
-             * actually NOTHING to be injected into the target process' memory space, making the injection completely unnecessary.
-             * Memory allocation happens when you can the #Injector.Inject() method (the parameterless version of it). */
-            evFailureMemoryAllocation,
-            /** Indicates that the call to #RAMvaderTarget.WriteToTarget() method has failed. */
-            evFailureWriteToTarget,
+			/// <summary>
+			///    Indicates that the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> has not been initialized with a
+			///    <see cref="RAMvaderTarget"/> object. This can be done by calling <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.SetTargetProcess(RAMvaderTarget)"/>.
+			/// </summary>
+			evFailureRAMvaderTargetNull,
+			/// <summary>
+			///    Indicates that the <see cref="RAMvaderTarget"/> object associated to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> is currently not
+			///    attached to any process.
+			/// </summary>
+			evFailureNotAttached,
+			/// <summary>
+			///    Indicates that the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> has tried to allocate virtual memory in the target process'
+			///    memory space, but the allocation failed. This usually happens either when the system denies the allocation
+			///    or if there are no code caves and injection variables to be injected - which effectivelly means that there's
+			///    actually NOTHING to be injected into the target process' memory space, making the injection completely unnecessary.
+			///    Memory allocation happens when you call the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/> method (the parameterless version of it).
+			/// </summary>
+			evFailureMemoryAllocation,
+			/// <summary>Indicates that the call to <see cref="RAMvaderTarget.WriteToTarget(System.IntPtr, byte[])"/> method has failed.</summary>
+			evFailureWriteToTarget,
         }
-        #endregion
+		#endregion
 
 
 
 
 
-        #region PRIVATE FIELDS
-        /** Keeps the type of failure that caused the exception to be thrown. */
-        private EFailureType m_failureType;
-        #endregion
+		#region PRIVATE FIELDS
+		/// <summary>Keeps the type of failure that caused the exception to be thrown.</summary>
+		private EFailureType m_failureType;
+		#endregion
 
 
 
 
 
-        #region PUBLIC PROPERTIES
-        /** The type of failure that caused the exception to be thrown. */
-        public EFailureType FailureType
+		#region PUBLIC PROPERTIES
+		/// <summary>The type of failure that caused the exception to be thrown.</summary>
+		public EFailureType FailureType
         {
             get { return m_failureType; }
         }
-        #endregion
+		#endregion
 
 
 
 
 
-        #region PUBLIC METHODS
-        /** Constructor.
-         * @param failureType The type of failure which caused the exception to be
-         *    thrown. */
-        public InjectionFailureException( EFailureType failureType )
+		#region PUBLIC METHODS
+		/// <summary>Constructor.</summary>
+		/// <param name="failureType">The type of failure which caused the exception to be thrown.</param>
+		public InjectionFailureException( EFailureType failureType )
             : base( string.Format( "Injection process has failed with code: {0}.", failureType.ToString() ) )
         {
             m_failureType = failureType;

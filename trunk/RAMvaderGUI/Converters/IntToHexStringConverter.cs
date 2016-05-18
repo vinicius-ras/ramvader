@@ -24,28 +24,37 @@ using System.Globalization;
 
 namespace RAMvaderGUI.Converters
 {
-    [ValueConversion( typeof( IntPtr ), typeof( String ) )]
-    /** A converter, used for WPF bindings, which transforms IntPtr address values into
-     * their representing Hex strings. */
+	/// <summary> A converter, used for WPF bindings, which transforms IntPtr
+	/// address values into their representing Hex strings. </summary>
+	[ValueConversion( typeof( IntPtr ), typeof( String ) )]
     public class IntToHexStringConverter : IValueConverter
     {
-        #region PUBLIC STATIC METHODS
-        /** Converts the given IntPtr to a String object.
-         * @param textToParse The value to be converted.
-         * @return Returns the converted value, in case of success.
-         *    Returns null in case of failure. */
-        public static String convertIntPtrToString( IntPtr textToParse )
+		#region PUBLIC STATIC METHODS
+		/** 
+ * @param textToParse 
+ * @return 
+ *     */
+
+		/// <summary>Converts the given IntPtr to a String object.</summary>
+		/// <param name="textToParse">The value to be converted.</param>
+		/// <returns>
+		///    Returns the converted value, in case of success.
+		///    Returns null in case of failure.
+		/// </returns>
+		public static String convertIntPtrToString( IntPtr textToParse )
         {
             string hexText = textToParse.ToString( string.Format( "X{0}", IntPtr.Size * 2 ) );
             return string.Format( "0x{0}", hexText );
         }
 
 
-        /** Converts the given String to an IntPtr object.
-         * @param textToParse The value to be converted.
-         * @return Returns the converted value, in case of success.
-         *    Returns null in case of failure. */
-        public static IntPtr convertStringToIntPtr( String textToParse )
+		/// <summary>Converts the given String to an IntPtr object.</summary>
+		/// <param name="textToParse">The value to be converted.</param>
+		/// <returns>
+		///    Returns the converted value, in case of success.
+		///    Returns null in case of failure.
+		/// </returns>
+		public static IntPtr convertStringToIntPtr( String textToParse )
         {
             // Verify if the number starts with the hexadecimal specifier ("0x")
             textToParse = textToParse.Trim();
@@ -87,5 +96,8 @@ namespace RAMvaderGUI.Converters
             return convertStringToIntPtr( (String) value );
         }
         #endregion
+
+
+
     }
 }

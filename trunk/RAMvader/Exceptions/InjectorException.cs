@@ -22,13 +22,13 @@ using System;
 
 namespace RAMvader.CodeInjection
 {
-    /** A generic expection that might be thrown by the #Injector class. */
-    public class InjectorException : RAMvaderException
+	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
+	public class InjectorException : RAMvaderException
     {
-        #region PUBLIC METHODS
-        /** Constructor.
-         * @param msg The message used to initialize the Exception. */
-        public InjectorException( string msg )
+		#region PUBLIC METHODS
+		/// <summary>Constructor.</summary>
+		/// <param name="msg">The message used to initialize the Exception.</param>
+		public InjectorException( string msg )
             : base( msg )
         {
         }

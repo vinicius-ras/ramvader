@@ -19,13 +19,15 @@
 
 namespace RAMvader
 {
-    /** Exception thrown when the user code tries to detach a #RAMvader instance
-     * from its target process, but the #RAMvader instance has not been attached to
-     * any process. */
-    public class InstanceNotAttachedException : RAMvaderException
+	/// <summary>
+	///    Exception thrown when the user code tries to detach a <see cref="RAMvaderTarget"/> instance
+	///    from its target process, but the <see cref="RAMvaderTarget"/> instance has not been attached to
+	///    any process.
+	/// </summary>
+	public class InstanceNotAttachedException : RAMvaderException
     {
-        /** Constructor. */
-        public InstanceNotAttachedException()
+		/// <summary>Constructor.</summary>
+		public InstanceNotAttachedException()
             : base( "This instance is not attached to any process." )
         {
         }

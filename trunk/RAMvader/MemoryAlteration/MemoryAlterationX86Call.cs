@@ -1,13 +1,12 @@
 ﻿using System;
-using System.Collections.Generic;
 
 namespace RAMvader.CodeInjection
 {
-	/** Represents a memory alteration that overwrites instructions of the target process' memory space with x86 CALL instruction. */
+	/// <summary>Represents a memory alteration that overwrites instructions of the target process' memory space with x86 CALL instruction.</summary>
 	public class MemoryAlterationX86Call : MemoryAlterationBase
 	{
 		#region PRIVATE FIELDS
-		/** The identifier of the code cave to which the CALL instruction will make the target process' code flow. */
+		/// <summary>The identifier of the code cave to which the CALL instruction will make the target process' code flow.</summary>
 		private Enum m_codeCaveID;
 		#endregion
 
@@ -16,14 +15,16 @@ namespace RAMvader.CodeInjection
 
 
 		#region PUBLIC METHODS
-		/** Constructor.
-		 * @param targetIORef A reference to the #RAMvaderTarget object that will be used to read the target process' memory space.
-		 *    This #RAMvaderTarget MUST be attached to a process, as it will be used in this constructor method to read the process'
-		 *    memory and keep a snapshot of the original bytes at the given 'targetAddress' for restoring their values,
-		 *    whenever #MemoryAlterationBase.setEnabled() is called to deactivate a memory alteration.
-		 * @param targetAddress The address of the instruction(s) that will be replaced x86 CALL instruction.
-		 * @param targetCodeCaveID The target code cave, to which the code should be diverted.
-		 * @param instructionSize The size of the instruction(s) that will be replaced with NOP instructions. */
+		/// <summary>Constructor.</summary>
+		/// <param name="targetIORef">
+		///    A reference to the <see cref="RAMvaderTarget"/> object that will be used to read the target process' memory space.
+		///    This <see cref="RAMvaderTarget"/> MUST be attached to a process, as it will be used in this constructor method to read the process'
+		///    memory and keep a snapshot of the original bytes at the given 'targetAddress' for restoring their values,
+		///    whenever <see cref="MemoryAlterationX86Call.SetEnabled{TMemoryAlterationID, TCodeCave, TVariable}(Injector{TMemoryAlterationID, TCodeCave, TVariable}, bool)"/> is called to deactivate a memory alteration.
+		/// </param>
+		/// <param name="targetAddress">The address of the instruction(s) that will be replaced x86 CALL instruction.</param>
+		/// <param name="targetCodeCaveID">The target code cave, to which the code should be diverted.</param>
+		/// <param name="instructionSize">The size of the instruction(s) that will be replaced with NOP instructions.</param>
 		public MemoryAlterationX86Call( RAMvaderTarget targetIORef, IntPtr targetAddress, Enum targetCodeCaveID, int instructionSize )
 			: base( targetIORef, targetAddress, instructionSize )
 		{
@@ -36,6 +37,16 @@ namespace RAMvader.CodeInjection
 
 
 		#region PUBLIC ABSTRACT METHODS IMPLEMENTATION: MemoryAlterationBase
+		/// <summary>Called to activate or deactivate a memory alteration into the target process' memory space.</summary>
+		/// <typeparam name="TMemoryAlterationID">The enumeration of Memory Alteration Sets used for the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}" />.</typeparam>
+		/// <typeparam name="TCodeCave">The enumeration of Code Caves used for the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}" />.</typeparam>
+		/// <typeparam name="TVariable">The enumeration of Injection Variables used for the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}" />.</typeparam>
+		/// <param name="injectorRef">
+		///    A reference to an <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}" /> object, with which you can perform I/O operations
+		///    on the target process' memory space and access related data, like values and addresses of variables and code caves.
+		/// </param>
+		/// <param name="bEnable">A flag specifying if the memory alteration should be enabled or disabled.</param>
+		/// <returns>Returns a flag specifying if the operation was successful or not.</returns>
 		public override bool SetEnabled<TMemoryAlterationID, TCodeCave, TVariable>(
 			Injector<TMemoryAlterationID, TCodeCave, TVariable> injectorRef, bool bEnable )
 		{

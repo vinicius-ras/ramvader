@@ -22,12 +22,15 @@ using System;
 
 namespace RAMvader
 {
-    public class UnsupportedDataTypeException : RAMvaderException
+	/// <summary>
+	///    An exception which is thrown when the user tries to perform a read or write operation using
+	///    a data type that is not supported by the library.
+	/// </summary>
+	public class UnsupportedDataTypeException : RAMvaderException
     {
-        /** Constructor.
-         * @param dataType The data type for which RAMvader does not offer support
-         *    to. */
-        public UnsupportedDataTypeException( Type dataType )
+		/// <summary>Constructor.</summary>
+		/// <param name="dataType">The data type for which RAMvader does not offer support to.</param>
+		public UnsupportedDataTypeException( Type dataType )
             : base( string.Format(
                 "RAMvader library does not support reading/writing operations on the data type \"{0}\"!",
                 dataType.Name ) )

@@ -19,12 +19,12 @@
 
 namespace RAMvader
 {
-    /** An exception which is thrown when the user tries to attach a 32-bits process to a 64-bits target process. */
+    /// <summary>An exception which is thrown when the user tries to attach a 32-bits process to a 64-bits target process.</summary>
     public class UnsupportedPointerSizeException : RAMvaderException
     {
-        #region PUBLIC METHODS
-        /** Constructor. */
-        public UnsupportedPointerSizeException()
+		#region PUBLIC METHODS
+		/// <summary>Constructor.</summary>
+		public UnsupportedPointerSizeException()
             : base( string.Format( "RAMvader library currently does not support a 32-bits host process trying to target a 64-bits process." ) )
         {
         }
