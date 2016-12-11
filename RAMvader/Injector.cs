@@ -1097,6 +1097,24 @@ namespace RAMvader.CodeInjection
 		}
 
 
+		/// <summary>Activates or deactivates all the memory alterations registered with the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.</summary>
+		/// <param name="bActivate">A flag specifying if the alterations should be activated or deactivated.</param>
+		/// <returns>
+		///    Returns a flag specifying if all alterations have been activated.
+		///    If any of the memory alterations in a set fail to be activated/deactivated, the returned value is false.
+		/// </returns>
+		public bool SetAllMemoryAlterationsActive( bool bActivate )
+		{
+			bool result = true;
+			foreach ( TMemoryAlterationSetID curMemAlterationSet in Enum.GetValues( typeof( TMemoryAlterationSetID ) ) ) {
+				if ( this.SetMemoryAlterationsActive( curMemAlterationSet, bActivate ) == false )
+					result = false;
+			}
+
+			return result;
+		}
+
+
 		/// <summary>
 		///    Allocates memory into the target process' memory space and injects the code caves and
 		///    variables into that allocated memory.
@@ -1467,10 +1485,14 @@ namespace RAMvader.CodeInjection
 		///    This method is safe, as it checks the given variable's metadata against the given output variable's type to
 		///    see if it matches the injected variable's type before reading the output value.
 		/// </summary>
+		/// <typeparam name="T">The type of the variable to be read, which must match the type of the injected variable.</typeparam>
 		/// <param name="variableID">The identifier of the variable whose value is to be read from the target process' memory space.</param>
-		/// <param name="outputValue">The variable which will receive the read value.</param>
+		/// <param name="outDestiny">
+		///    The result of the reading will be stored in this variable.
+		///    The referenced variable's data must be of the same type as declared for the variable defined in parameter <code>variableID</code>.
+		/// </param>
 		/// <returns>Returns the result of the read operation performed by a call to <see cref="RAMvaderTarget.ReadFromTarget(IntPtr, ref object)"/>.</returns>
-		public bool ReadVariableValue( TVariable variableID, ref object outputValue )
+		public bool ReadVariableValue<T>( TVariable variableID, ref T outDestiny )
         {
             // Error checking...
             if ( TargetProcess == null )
@@ -1489,17 +1511,17 @@ namespace RAMvader.CodeInjection
 
             VariableDefinitionAttribute varSpecs = GetEnumAttribute<VariableDefinitionAttribute>( variableID, true );
             Type injectedVariableType = varSpecs.InitialValue.GetType();
-            Type outputValueType = outputValue.GetType();
-            if ( injectedVariableType != outputValueType )
+			Type outputValueType = typeof(T);
+			if ( injectedVariableType != outputValueType )
             {
                 throw new InjectorException( string.Format(
                     "[{0}] Cannot read injected variable's value: given output value's type ({1}) does not match the injected variable's type ({2})!",
                     GetInjectorNameWithTemplateParameters(), outputValueType.Name, injectedVariableType.Name ) );
             }
 
-            // Update the value in the target process' memory space
+            // Try to read the value from the target's memory space
             IntPtr varInjectedAddress = this.GetInjectedVariableAddress( variableID );
-            return this.TargetProcess.ReadFromTarget( varInjectedAddress, ref outputValue );
+			return this.TargetProcess.ReadFromTarget( varInjectedAddress, ref outDestiny );
         }
         #endregion
     }

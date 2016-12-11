@@ -755,24 +755,25 @@ namespace RAMvader
 
 
 		/// <summary>Reads a value from the target process' memory.</summary>
+		/// <typeparam name="T">The data type expected to be read from the target process' memory space.</typeparam>
 		/// <param name="address">The address on the target process' memory where the data will be read from.</param>
 		/// <param name="outDestiny">
 		///    The result of the reading will be stored in this variable.
 		///    The referenced variable's data must be one of the basic data types supported by the RAMvader library.
 		/// </param>
 		/// <returns>Returns true in case of success, false in case of failure.</returns>
-		public bool ReadFromTarget( IntPtr address, ref Object outDestiny )
+		public bool ReadFromTarget<T>( IntPtr address, ref T outDestiny )
         {
             // Determine the size for pointers into the target process
             EPointerSize curProcessPtrSize = RAMvaderTarget.GetRAMvaderPointerSize();
             EPointerSize targetProcessPtrSize = GetActualTargetPointerSize();
 
             // Does the RAMvader library support the given data type?
-            Type readDataType = outDestiny.GetType();
+            Type expectedOutputDataType = typeof(T);
             int destinySizeInBytes;
-            if ( SUPPORTED_DATA_TYPES_SIZE.ContainsKey( readDataType ) == false )
+            if ( SUPPORTED_DATA_TYPES_SIZE.ContainsKey( expectedOutputDataType ) == false )
             {
-                if ( readDataType == typeof( IntPtr ) )
+                if ( expectedOutputDataType == typeof( IntPtr ) )
                 {
                     switch ( targetProcessPtrSize )
                     {
@@ -789,10 +790,10 @@ namespace RAMvader
                     }
                 }
                 else
-                    throw new UnsupportedDataTypeException( readDataType );
+                    throw new UnsupportedDataTypeException( expectedOutputDataType );
             }
             else
-                destinySizeInBytes = SUPPORTED_DATA_TYPES_SIZE[readDataType];
+                destinySizeInBytes = SUPPORTED_DATA_TYPES_SIZE[expectedOutputDataType];
 
             // Try to perform the reading operation
             byte [] byteBuff = new byte[destinySizeInBytes];
@@ -801,26 +802,27 @@ namespace RAMvader
 
             RevertArrayOnEndiannessDifference( byteBuff );
 
-            // Convert the read bytes to their corresponding format
-            if ( outDestiny is Byte )
-                outDestiny = byteBuff[0];
-            else if ( outDestiny is Int16 )
-                outDestiny = BitConverter.ToInt16( byteBuff, 0 );
-            else if ( outDestiny is Int32 )
-                outDestiny = BitConverter.ToInt32( byteBuff, 0 );
-            else if ( outDestiny is Int64 )
-                outDestiny = BitConverter.ToInt64( byteBuff, 0 );
-            else if ( outDestiny is UInt16 )
-                outDestiny = BitConverter.ToUInt16( byteBuff, 0 );
-            else if ( outDestiny is UInt32 )
-                outDestiny = BitConverter.ToUInt32( byteBuff, 0 );
-            else if ( outDestiny is UInt64 )
-                outDestiny = BitConverter.ToUInt64( byteBuff, 0 );
-            else if ( outDestiny is Single )
-                outDestiny = BitConverter.ToSingle( byteBuff, 0 );
-            else if ( outDestiny is Double )
-                outDestiny = BitConverter.ToDouble( byteBuff, 0 );
-            else if ( outDestiny is IntPtr )
+			// Convert the read bytes to their corresponding format
+			Object outDestinyRaw = null;
+            if ( expectedOutputDataType == typeof( Byte ) )
+				outDestinyRaw = byteBuff[0];
+            else if ( expectedOutputDataType == typeof( Int16 ) )
+				outDestinyRaw = BitConverter.ToInt16( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( Int32 ) )
+				outDestinyRaw = BitConverter.ToInt32( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( Int64 ) )
+				outDestinyRaw = BitConverter.ToInt64( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( UInt16 ) )
+				outDestinyRaw = BitConverter.ToUInt16( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( UInt32 ) )
+				outDestinyRaw = BitConverter.ToUInt32( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( UInt64 ) )
+				outDestinyRaw = BitConverter.ToUInt64( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( Single ) )
+				outDestinyRaw = BitConverter.ToSingle( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( Double ) )
+				outDestinyRaw = BitConverter.ToDouble( byteBuff, 0 );
+            else if ( expectedOutputDataType == typeof( IntPtr ) )
             {
                 // Handle the cases where the size of pointers in the processes are different
                 if ( curProcessPtrSize != targetProcessPtrSize )
@@ -842,8 +844,8 @@ namespace RAMvader
                                     Int64 ptrInTargetProcess = BitConverter.ToInt64( byteBuff, 0 );
                                     Int32 ptrInTargetProcessTruncated = (Int32) ptrInTargetProcess;
                                     bComparisonFailed = ( ptrInTargetProcess != ptrInTargetProcessTruncated );
-                                    
-                                    outDestiny = new IntPtr( ptrInTargetProcessTruncated );
+
+									outDestinyRaw = new IntPtr( ptrInTargetProcessTruncated );
                                 }
                                 else
                                 {
@@ -852,7 +854,7 @@ namespace RAMvader
                                     UInt64 ptrInTargetProcessExpanded = (UInt64) ptrInTargetProcess;
                                     bComparisonFailed = ( ptrInTargetProcess != ptrInTargetProcessExpanded );
 
-                                    outDestiny = new IntPtr( ptrInTargetProcess );
+									outDestinyRaw = new IntPtr( ptrInTargetProcess );
                                 }
 
                                 // Perform safety check, as needed
@@ -865,9 +867,9 @@ namespace RAMvader
                 else
                 {
                     if ( curProcessPtrSize == EPointerSize.evPointerSize32 )
-                        outDestiny = new IntPtr( (Int32) BitConverter.ToInt32( byteBuff, 0 ) );
+						outDestinyRaw = new IntPtr( (Int32) BitConverter.ToInt32( byteBuff, 0 ) );
                     else
-                        outDestiny = new IntPtr( (Int64) BitConverter.ToInt64( byteBuff, 0 ) );
+						outDestinyRaw = new IntPtr( (Int64) BitConverter.ToInt64( byteBuff, 0 ) );
                 }
             }
             else
@@ -875,8 +877,11 @@ namespace RAMvader
                 // Code should never really reach this point...
                 // If it does, this means an "else if" statement needs to be written to
                 // treat the data type given by the "readDataType" variable
-                throw new UnsupportedDataTypeException( readDataType );
+                throw new UnsupportedDataTypeException( expectedOutputDataType );
             }
+
+			// Return the result
+			outDestiny = (T) outDestinyRaw;
             return true;
         }
         #endregion
