@@ -17,21 +17,19 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
-
 namespace RAMvader.CodeInjection
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>
+	///    Exception thrown when the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> cannot find a given
+	///    injected artifact (injection variable or code cave).
+	/// </summary>
+	public class InjectedArtifactNotFoundException : InjectorException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		/// <param name="msg">The message to be associated with the exception.</param>
+		public InjectedArtifactNotFoundException( string msg )
+			: base(msg)
+		{
+		}
+	}
 }

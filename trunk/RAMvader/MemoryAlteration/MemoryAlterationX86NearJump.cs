@@ -33,7 +33,7 @@ namespace RAMvader.CodeInjection
 		/// <param name="targetCodeCaveID">The target code cave, to which the code should be diverted.</param>
 		/// <param name="jumpInstructionType">The specific type of jump instruction that should be generated.</param>
 		/// <param name="instructionSize">The size of the instruction that is going to be replaced on the target process' memory space.</param>
-		public MemoryAlterationX86NearJump( RAMvaderTarget targetIORef, IntPtr targetAddress,
+		public MemoryAlterationX86NearJump( RAMvaderTarget targetIORef, MemoryAddress targetAddress,
 			Enum targetCodeCaveID, EJumpInstructionType jumpInstructionType, int instructionSize )
 			: base( targetIORef, targetAddress, instructionSize )
 		{
@@ -59,14 +59,15 @@ namespace RAMvader.CodeInjection
 		{
 			// This method fails if the specified code cave identifier doesn't identify one of the Injector's code caves.
 			if ( m_codeCaveID is TCodeCave == false )
-				throw new RAMvaderException( string.Format(
+				throw new UnmatchedCodeCaveIdentifierException( string.Format(
 					"[{0}] Cannot enable/disable {0}: failed to divert target process' code flow to code cave identified by '{1}' - the given {2} can only handle code caves identified by the enumerated type '{3}'!",
 					this.GetType().Name, m_codeCaveID.ToString(), injectorRef.GetType().Name, typeof( TCodeCave ).Name ) );
 
 			// When enabling: replace the original instruction with a jump instruction.
 			// When disabling: replace the instruction with its original bytes.
 			if ( bEnable )
-				return injectorRef.WriteX86NearJumpToCodeCaveInstruction( m_jumpType, this.TargetAddress, (TCodeCave) (Object) m_codeCaveID, this.TargetOriginalBytes.Length );
+				return injectorRef.WriteX86NearJumpInstruction( m_jumpType, this.TargetAddress,
+					InjectedCodeCaveMemoryAddress.Instantiate( injectorRef, (TCodeCave) (Object) m_codeCaveID), this.TargetOriginalBytes.Length );
 			return injectorRef.TargetProcess.WriteToTarget( this.TargetAddress, this.TargetOriginalBytes );
 		}
 		#endregion

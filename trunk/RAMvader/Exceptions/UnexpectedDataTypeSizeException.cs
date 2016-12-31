@@ -19,19 +19,19 @@
 
 using System;
 
-
-namespace RAMvader.CodeInjection
+namespace RAMvader
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>
+	///    Exception thrown when the compiler reports an unexpected size for a basic type handled by the RAMvader library.
+	///    This exception exists for safety purposes only, and should never be thrown on standard development environments.
+	/// </summary>
+	public class UnexpectedDataTypeSizeException : RAMvaderException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		/// <param name="msg">The message to be associated with the exception.</param>
+		public UnexpectedDataTypeSizeException( string msg )
+			: base(msg)
+		{
+		}
+	}
 }

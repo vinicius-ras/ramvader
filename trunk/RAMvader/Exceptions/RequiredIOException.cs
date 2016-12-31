@@ -17,21 +17,16 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
-
-namespace RAMvader.CodeInjection
+namespace RAMvader
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>Exception that is thrown when an I/O operation that was required to succeed returns a fail state.</summary>
+	public abstract class RequiredIOException : RAMvaderException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		/// <param name="msg">The message associated to the exception.</param>
+		public RequiredIOException( string msg )
+			: base(msg)
+		{
+		}
+	}
 }

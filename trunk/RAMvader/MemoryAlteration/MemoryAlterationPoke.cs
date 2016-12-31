@@ -27,7 +27,7 @@ namespace RAMvader.CodeInjection
 		///    The bytes which will replace the instruction(s) at the given address.
 		///    The length of this array is used to determine the size of the instructions to be replaced at that address.
 		/// </param>
-		public MemoryAlterationPoke( RAMvaderTarget targetIORef, IntPtr targetAddress, byte [] customBytes )
+		public MemoryAlterationPoke( RAMvaderTarget targetIORef, MemoryAddress targetAddress, byte [] customBytes )
 			: base( targetIORef, targetAddress, customBytes.Length )
 		{
 			m_customBytes = customBytes;

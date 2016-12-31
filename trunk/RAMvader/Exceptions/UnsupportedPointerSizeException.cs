@@ -24,8 +24,8 @@ namespace RAMvader
     {
 		#region PUBLIC METHODS
 		/// <summary>Constructor.</summary>
-		public UnsupportedPointerSizeException()
-            : base( string.Format( "RAMvader library currently does not support a 32-bits host process trying to target a 64-bits process." ) )
+		public UnsupportedPointerSizeException( string msg )
+            : base( msg )
         {
         }
         #endregion
