@@ -45,6 +45,8 @@
 		///    Near jumps allow jumps to instructions up to a distance of 0xFF bytes.
 		/// </summary>
 		public const int INSTRUCTION_SIZE_x86_NEAR_JUMP = 2;
+		/// <summary>The size of a x86 FAR JUMP instruction, given in bytes.</summary>
+		public const int INSTRUCTION_SIZE_x86_FAR_JUMP = 6;
 		#endregion
 	}
 }

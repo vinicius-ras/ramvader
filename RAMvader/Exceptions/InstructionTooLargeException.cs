@@ -17,21 +17,20 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
-
 namespace RAMvader.CodeInjection
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>
+	///    Exception thrown when the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> tries
+	///    to generate an instruction whose size (in bytes) is larger than the space given for the generation of that instruction.
+	/// </summary>
+	public class InstructionTooLargeException : InjectorException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		/// <param name="givenSize">The size given for the instruction to be generated.</param>
+		/// <param name="requiredSize">The size that is actually required to generate the instruction.</param>
+		public InstructionTooLargeException( int givenSize, int requiredSize )
+			: base(string.Format( "Instruction was given {1} bytes of space to be generated, while it requires {0} bytes." ) )
+		{
+		}
+	}
 }

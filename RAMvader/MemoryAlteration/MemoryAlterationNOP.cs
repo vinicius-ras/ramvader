@@ -16,7 +16,7 @@ namespace RAMvader.CodeInjection
 		/// </param>
 		/// <param name="targetAddress">The address of the instruction(s) that will be replaced with NOP instructions.</param>
 		/// <param name="instructionSize">The size of the instruction(s) that will be replaced with NOP instructions.</param>
-		public MemoryAlterationNOP( RAMvaderTarget targetIORef, IntPtr targetAddress, int instructionSize )
+		public MemoryAlterationNOP( RAMvaderTarget targetIORef, MemoryAddress targetAddress, int instructionSize )
 			: base( targetIORef, targetAddress, instructionSize )
 		{
 		}

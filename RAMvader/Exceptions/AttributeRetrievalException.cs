@@ -19,19 +19,18 @@
 
 using System;
 
-
 namespace RAMvader.CodeInjection
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>
+	///    An exception which is thrown when a method that retrieves an <see cref="CodeCaveDefinitionAttribute"/>
+	///    or <see cref="VariableDefinitionAttribute"/> fails for some reason.
+	/// </summary>
+	public class AttributeRetrievalException : InjectorException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		/// <param name="msg">The message associated to the exception.</param>
+		public AttributeRetrievalException( string msg ) : base( msg )
+		{
+		}
+	}
 }

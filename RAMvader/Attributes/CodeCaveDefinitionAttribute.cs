@@ -80,9 +80,8 @@ namespace RAMvader.CodeInjection
 		///    An enumerated type which specifies the identifiers for variables to be injected at the target process.
 		///    Each enumerator belonging to this enumeration should have the <see cref="VariableDefinitionAttribute"/> attribute.
 		/// </typeparam>
-		/// <exception cref="InjectorException">
-		///    Thrown when any errors are found in the definition of a given code cave.
-		///    The exception's message explain the errors that must be fixed.
+		/// <exception cref="AttributeRetrievalException">
+		///    Thrown when the code cave definition is malformed (i.e., unsupported data types have been passed to the definition).
 		/// </exception>
 		public void PerformSafetyChecks<TVariable>()
         {
@@ -92,7 +91,7 @@ namespace RAMvader.CodeInjection
             {
                 if ( curValue is TVariable == false && curValue is int == false )
                 {
-                    throw new InjectorException( string.Format(
+                    throw new AttributeRetrievalException( string.Format(
                         "[{0}] Invalid value type specified for a {0} attribute! Values must either be integers ranging from 0 to 255 or enumerators identifying variables to be injected in the target process' memory space.",
                         typeof( CodeCaveDefinitionAttribute ).Name ) );
                 }
@@ -101,7 +100,7 @@ namespace RAMvader.CodeInjection
                     int iCurValue = (int) curValue;
                     if ( iCurValue < 0 || iCurValue > 255 )
                     {
-                        throw new InjectorException( string.Format(
+                        throw new AttributeRetrievalException( string.Format(
                             "[{0}] Invalid value type specified for a {0} attribute! Values must either be integers ranging from 0 to 255 or enumerators identifying variables to be injected in the target process' memory space.",
                             typeof( CodeCaveDefinitionAttribute ).Name ) );
                     }

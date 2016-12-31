@@ -25,7 +25,7 @@ namespace RAMvader.CodeInjection
 		/// <param name="targetAddress">The address of the instruction(s) that will be replaced x86 CALL instruction.</param>
 		/// <param name="targetCodeCaveID">The target code cave, to which the code should be diverted.</param>
 		/// <param name="instructionSize">The size of the instruction(s) that will be replaced with NOP instructions.</param>
-		public MemoryAlterationX86Call( RAMvaderTarget targetIORef, IntPtr targetAddress, Enum targetCodeCaveID, int instructionSize )
+		public MemoryAlterationX86Call( RAMvaderTarget targetIORef, MemoryAddress targetAddress, Enum targetCodeCaveID, int instructionSize )
 			: base( targetIORef, targetAddress, instructionSize )
 		{
 			m_codeCaveID = targetCodeCaveID;
@@ -52,14 +52,15 @@ namespace RAMvader.CodeInjection
 		{
 			// This method fails if the specified code cave identifier doesn't identify one of the Injector's code caves.
 			if ( m_codeCaveID is TCodeCave == false )
-				throw new RAMvaderException( string.Format(
+				throw new UnmatchedCodeCaveIdentifierException( string.Format(
 					"[{0}] Cannot enable/disable {0}: failed to divert target process' code flow to code cave identified by '{1}' - the given {2} can only handle code caves identified by the enumerated type '{3}'!",
 					this.GetType().Name, m_codeCaveID.ToString(), injectorRef.GetType().Name, typeof( TCodeCave ).Name ) );
 
 			// When enabling: replace the original instruction with a CALL instruction.
 			// When disabling: replace the instruction with its original bytes.
 			if ( bEnable )
-				return injectorRef.WriteX86CallToCodeCaveInstruction( this.TargetAddress, (TCodeCave) (Object) m_codeCaveID, TargetOriginalBytes.Length );
+				return injectorRef.WriteX86CallInstruction( this.TargetAddress,
+					InjectedCodeCaveMemoryAddress.Instantiate( injectorRef, (TCodeCave) (Object) m_codeCaveID ), TargetOriginalBytes.Length );
 			return injectorRef.TargetProcess.WriteToTarget( this.TargetAddress, this.TargetOriginalBytes );
 		}
 		#endregion

@@ -17,21 +17,21 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
-
 namespace RAMvader.CodeInjection
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>
+	///    Exception thrown when a method that requires the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> instance
+	///    to be in "NOT injected" state, but this condition is not met.
+	///    The <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> is put in "injected" state when a call
+	///    to <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/>
+	///    or <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject(MemoryAddress)"/> is made.
+	/// </summary>
+	public class InstanceAlreadyInjectedException : InjectorException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		public InstanceAlreadyInjectedException()
+			: base( "The operation can only be performed if code injection procedure hasn't already happened." )
+		{
+		}
+	}
 }

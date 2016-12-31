@@ -9,7 +9,7 @@ namespace RAMvader.CodeInjection
 		/// <summary>Backs the <see cref="TargetOriginalBytes"/> property.</summary>
 		private byte [] m_targetOriginalBytes;
 		/// <summary>Backs the <see cref="TargetAddress"/> property.</summary>
-		private IntPtr m_targetAddress;
+		private MemoryAddress m_targetAddress;
 		#endregion
 
 
@@ -27,7 +27,7 @@ namespace RAMvader.CodeInjection
 			protected set { m_targetOriginalBytes = value; SendPropertyChangedNotification(); }
 		}
 		/// <summary>The address (in the target process' memory space) where the memory alteration will occur.</summary>
-		public IntPtr TargetAddress
+		public MemoryAddress TargetAddress
 		{
 			get { return m_targetAddress; }
 			protected set { m_targetAddress = value; SendPropertyChangedNotification(); }
@@ -64,18 +64,21 @@ namespace RAMvader.CodeInjection
 		/// <param name="targetIORef">A reference to the <see cref="RAMvaderTarget"/> object that will be used to read the target process' memory space.</param>
 		/// <param name="targetAddress">The address (in the target process' memory space) where the memory alteration will take place.</param>
 		/// <param name="targetSize">The size - given in bytes - of the instruction or value that the memory alteration will affect.</param>
-		protected MemoryAlterationBase( RAMvaderTarget targetIORef, IntPtr targetAddress, int targetSize )
+		/// <exception cref="InstanceNotAttachedException">Thrown when the method is called while the given <see cref="RAMvaderTarget"/> is not attached to a process.</exception>
+		/// <exception cref="RequiredReadException">
+		///    Thrown when the method cannot successfully read the target process' memory space to retrieve the original bytes
+		///    that the Memory Alteration will be replacing, once it is activated.
+		/// </exception>
+		protected MemoryAlterationBase( RAMvaderTarget targetIORef, MemoryAddress targetAddress, int targetSize )
 		{
 			// The RAMvaderTarget MUST be attached for creating a MemoryAlterationBase instance
 			if ( targetIORef.Attached == false )
-				throw new RAMvaderException( string.Format(
-					"[{0}] Failed to create a Memory Alteration instance: the given {1} instance MUST be attached to a process before creating a Memory Alteration instance!",
-					this.GetType().Name, targetIORef.GetType().Name ) );
+				throw new InstanceNotAttachedException();
 
 			// Read the original bytes from the target process' memory space
 			byte [] originalBytes = new byte[targetSize];
 			if ( targetIORef.ReadFromTarget( targetAddress, originalBytes ) == false )
-				throw new RAMvaderException( string.Format(
+				throw new RequiredReadException( string.Format(
 					"[{0}] Failed to create a Memory Alteration instance: failed to read original bytes in the target process' memory space!",
 					this.GetType().Name ) );
 

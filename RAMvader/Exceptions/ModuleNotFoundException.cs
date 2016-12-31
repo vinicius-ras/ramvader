@@ -17,21 +17,19 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
-
-namespace RAMvader.CodeInjection
+namespace RAMvader
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>
+	///    Exception thrown when the RAMvader library fails to find a module in the
+	///    target process' modules list.
+	/// </summary>
+	public class ModuleNotFoundException : RAMvaderException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		/// <param name="moduleName">The name of the module which has not been found.</param>
+		public ModuleNotFoundException( string moduleName )
+			: base( string.Format( "Cannot find a module named \"{0}\" in the target process!", moduleName ) )
+		{
+		}
+	}
 }

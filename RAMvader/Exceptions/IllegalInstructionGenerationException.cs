@@ -17,21 +17,20 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
-
 namespace RAMvader.CodeInjection
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
-    {
-		#region PUBLIC METHODS
+	/// <summary>
+	///    Exception thrown when an instruction cannot be generated, because the generated instruction would be illegal.
+	///    An example of that is trying to generate an X86 NEAR JUMP instruction that would try to perform a jump larger than
+	///    the maximum value of a byte, which is impossible.
+	/// </summary>
+	public class IllegalInstructionGenerationException : InjectorException
+	{
 		/// <summary>Constructor.</summary>
-		/// <param name="msg">The message used to initialize the Exception.</param>
-		public InjectorException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
-    }
+		/// <param name="msg">The message to be associated with the exception.</param>
+		public IllegalInstructionGenerationException( string msg )
+			: base(msg)
+		{
+		}
+	}
 }

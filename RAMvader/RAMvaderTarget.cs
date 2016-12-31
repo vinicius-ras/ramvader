@@ -77,6 +77,12 @@ namespace RAMvader
 		/// <summary>Determines the type of error handling which is used when the target process runs with a
 		/// different pointer size configuration, as compared to the process which runs RAMvader.</summary>
 		private EDifferentPointerSizeError m_diffPointerSizeError = EDifferentPointerSizeError.evThrowException;
+		/// <summary>
+		///	   For each of the modules of the <see cref="Process"/> this instance is attached to,
+		///	   maps the name of the module to its base address.
+		///	   This map might be updated by a call to <see cref="RefreshTargetProcessModulesBaseAddresses"/>
+		/// </summary>
+		private Dictionary<String,IntPtr> m_modulesBaseAddresses = null;
 		#endregion
 
 
@@ -267,7 +273,7 @@ namespace RAMvader
             else if ( IntPtr.Size == 8 )
                 return EPointerSize.evPointerSize64;
             else
-                throw new RAMvaderException( string.Format(
+                throw new UnsupportedPointerSizeException( string.Format(
                     "[{0}] The following pointer size (returned by IntPtr.Size) is not supported by RAMvader: {1} bytes.",
                     typeof( RAMvaderTarget ).Name, IntPtr.Size ) );
         }
@@ -437,7 +443,7 @@ namespace RAMvader
                 }
 
                 if ( builder != null )
-                    throw new RAMvaderException( builder.ToString() );
+                    throw new UnexpectedDataTypeSizeException( builder.ToString() );
             #endif
         }
 
@@ -663,6 +669,54 @@ namespace RAMvader
 
 
 		/// <summary>
+		///    Refreshes the internal data which keeps the base addresses of each module of the <see cref="Process"/> this instance is currently attached to.
+		///    If new modules have been loaded by the target process, this method should be called to update the internal data about these new modules, if you need to use that data.
+		/// </summary>
+		public void RefreshTargetProcessModulesBaseAddresses()
+		{
+			// This method requires an attachment to the target process
+			if ( this.IsAttached() == false )
+				throw new InstanceNotAttachedException();
+
+			// Get the list of modules of the process this instance is attached to
+			ProcessModuleCollection modules = this.TargetProcess.Modules;
+
+			// Refresh the data about the modules
+			if ( m_modulesBaseAddresses == null )
+				m_modulesBaseAddresses = new Dictionary<string, IntPtr>( modules.Count );
+			else
+				m_modulesBaseAddresses.Clear();
+
+			foreach ( ProcessModule curModule in modules )
+				m_modulesBaseAddresses.Add( curModule.ModuleName, curModule.BaseAddress );
+		}
+
+
+		/// <summary>Retrieves the base address of the given target process' module (<see cref="ProcessModule"/>).</summary>
+		/// <param name="moduleName">The name of the module of the target process whose base address is to be retrieved.</param>
+		/// <returns>
+		///    In case of success, returns the base address of the process' module whose name has been specified.
+		///    Otherwise (e.g., there is no module with the given name in the target process' list of modules, or in case of any error), this method returns <see cref="IntPtr.Zero"/>.
+		/// </returns>
+		public IntPtr GetTargetProcessModuleBaseAddress( String moduleName )
+		{
+			// This method requires attachment to a target process
+			if ( this.IsAttached() == false )
+				throw new InstanceNotAttachedException();
+
+			// Retrieve the requested data
+			IntPtr result = IntPtr.Zero;
+			if ( m_modulesBaseAddresses == null || m_modulesBaseAddresses.TryGetValue( moduleName, out result ) == false )
+			{
+				this.RefreshTargetProcessModulesBaseAddresses();
+				if ( m_modulesBaseAddresses.TryGetValue( moduleName, out result ) == false )
+					return IntPtr.Zero;
+			}
+			return result;
+		}
+
+
+		/// <summary>
 		///    Retrives a byte array representing the given numeric value as it would appear into
 		///    the target process' memory space (considering its endianness).
 		/// </summary>
@@ -688,11 +742,11 @@ namespace RAMvader
 		/// <param name="address">The address on the target process' memory where the data is to be written.</param>
 		/// <param name="writeData">The data to be written to the target process.</param>
 		/// <returns>Returns true in case of success, false in case of failure.</returns>
-		public bool WriteToTarget( IntPtr address, byte [] writeData )
+		public bool WriteToTarget( MemoryAddress address, byte [] writeData )
         {
             // RAMvader doesn't support a 32-bits host trying to target a 64-bits process.
             if ( TargetPointerSize == EPointerSize.evPointerSize64 && GetRAMvaderPointerSize() != EPointerSize.evPointerSize64 )
-                throw new UnsupportedPointerSizeException();
+                throw new UnsupportedPointerSizeException( "RAMvader library currently does not support a 32-bits host process trying to target a 64-bits process." );
 
 			// Nothing needs to be written?
 			if ( writeData.Length == 0 )
@@ -701,7 +755,7 @@ namespace RAMvader
 			// Perform the writing operation, and check its results
 			IntPtr totalBytesWritten;
 
-            bool writeResult = WinAPI.WriteProcessMemory( ProcessHandle, address, writeData,
+            bool writeResult = WinAPI.WriteProcessMemory( ProcessHandle, address.Address, writeData,
                 writeData.Length, out totalBytesWritten );
 
             return ( writeResult && totalBytesWritten == new IntPtr( writeData.Length ) );
@@ -715,7 +769,7 @@ namespace RAMvader
 		///    This data must be one of the basic data types supported by the RAMvader library.
 		/// </param>
 		/// <returns>Returns true in case of success, false in case of failure.</returns>
-		public bool WriteToTarget( IntPtr address, Object writeData )
+		public bool WriteToTarget( MemoryAddress address, Object writeData )
         {
             // Does the RAMvader library support the given data type?
             Type writeDataType = writeData.GetType();
@@ -739,16 +793,16 @@ namespace RAMvader
 		///    array determines the number of bytes that will be read from the target process.
 		/// </param>
 		/// <returns>Returns true in case of success, false in case of failure.</returns>
-		public bool ReadFromTarget( IntPtr address, byte[] outDestiny )
+		public bool ReadFromTarget( MemoryAddress address, byte[] outDestiny )
         {
             // RAMvader doesn't support a 32-bits host trying to target a 64-bits process.
             if ( TargetPointerSize == EPointerSize.evPointerSize64 && GetRAMvaderPointerSize() != EPointerSize.evPointerSize64 )
-                throw new UnsupportedPointerSizeException();
+                throw new UnsupportedPointerSizeException( "RAMvader library currently does not support a 32-bits host process trying to target a 64-bits process." );
 
             // Perform the reading operation
             IntPtr totalBytesRead;
             int expectedReadBytes = outDestiny.Length;
-            bool readResult = WinAPI.ReadProcessMemory( ProcessHandle, address, outDestiny,
+            bool readResult = WinAPI.ReadProcessMemory( ProcessHandle, address.Address, outDestiny,
                 expectedReadBytes, out totalBytesRead );
             return ( readResult && totalBytesRead == new IntPtr( expectedReadBytes ) );
         }
@@ -762,7 +816,7 @@ namespace RAMvader
 		///    The referenced variable's data must be one of the basic data types supported by the RAMvader library.
 		/// </param>
 		/// <returns>Returns true in case of success, false in case of failure.</returns>
-		public bool ReadFromTarget<T>( IntPtr address, ref T outDestiny )
+		public bool ReadFromTarget<T>( MemoryAddress address, ref T outDestiny )
         {
             // Determine the size for pointers into the target process
             EPointerSize curProcessPtrSize = RAMvaderTarget.GetRAMvaderPointerSize();
@@ -784,7 +838,7 @@ namespace RAMvader
                             destinySizeInBytes = 8;
                             break;
                         default:
-                            throw new RAMvaderException( string.Format(
+                            throw new UnsupportedPointerSizeException( string.Format(
                                 "[{0}] The following pointer size (returned by IntPtr.Size) is not supported by RAMvader: {1} bytes.",
                                 typeof( RAMvaderTarget ).Name, IntPtr.Size ) );
                     }
