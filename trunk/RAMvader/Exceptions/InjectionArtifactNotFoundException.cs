@@ -20,15 +20,15 @@
 namespace RAMvader.CodeInjection
 {
 	/// <summary>
-	///    Exception thrown when the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> cannot find a given
-	///    injected artifact (injection variable or code cave).
+	///    Exception thrown whenever an operation fails to find an injection artifact (which includes injection
+	///    variables and code caves).
 	/// </summary>
-	public class InjectedArtifactNotFoundException : InjectorException
+	public class InjectionArtifactNotFoundException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>
-		public InjectedArtifactNotFoundException( string msg )
-			: base(msg)
+		public InjectionArtifactNotFoundException( string msg )
+			: base( msg )
 		{
 		}
 	}

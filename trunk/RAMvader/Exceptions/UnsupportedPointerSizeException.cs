@@ -19,16 +19,16 @@
 
 namespace RAMvader
 {
-    /// <summary>An exception which is thrown when the user tries to attach a 32-bits process to a 64-bits target process.</summary>
-    public class UnsupportedPointerSizeException : RAMvaderException
-    {
+	/// <summary>An exception which is thrown when the user tries to attach a 32-bits process to a 64-bits target process.</summary>
+	public class UnsupportedPointerSizeException : RAMvaderException
+	{
 		#region PUBLIC METHODS
 		/// <summary>Constructor.</summary>
 		public UnsupportedPointerSizeException( string msg )
-            : base( msg )
-        {
-        }
-        #endregion
+			: base( msg )
+		{
+		}
+		#endregion
 
-    }
+	}
 }

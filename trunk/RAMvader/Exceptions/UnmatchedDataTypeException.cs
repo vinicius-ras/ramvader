@@ -18,6 +18,7 @@
  */
 
 using System;
+
 namespace RAMvader.CodeInjection
 {
 	/// <summary>

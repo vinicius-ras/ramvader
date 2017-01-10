@@ -95,11 +95,19 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Attributes\CodeCaveDefinitionAttribute.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifact.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactCodeCaveAddress.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactX86Call.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactX86FarJump.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactX86NearJump.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactSignedBytesSequence.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactUnsignedBytesSequence.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactVariableAddress.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveBuilder.cs" />
+    <Compile Include="CodeCaveDefinition.cs" />
     <Compile Include="Enumerations.cs" />
-    <Compile Include="Exceptions\AttributeRetrievalException.cs" />
     <Compile Include="Exceptions\IllegalInstructionGenerationException.cs" />
-    <Compile Include="Exceptions\InjectedArtifactNotFoundException.cs" />
+    <Compile Include="Exceptions\InjectionArtifactNotFoundException.cs" />
     <Compile Include="Exceptions\InjectorGenericParametersException.cs" />
     <Compile Include="Exceptions\InstanceAlreadyInjectedException.cs" />
     <Compile Include="Exceptions\InstanceNotInjectedException.cs" />
@@ -137,9 +145,10 @@
     <Compile Include="RAMvaderTarget.cs" />
     <Compile Include="Exceptions\UnsupportedDataTypeException.cs" />
     <Compile Include="Exceptions\UnsupportedPointerSizeException.cs" />
-    <Compile Include="Attributes\VariableDefinitionAttribute.cs" />
+    <Compile Include="VariableDefinition.cs" />
     <Compile Include="WinAPI.cs" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

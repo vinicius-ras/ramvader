@@ -25,7 +25,7 @@ namespace RAMvader
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message associated to the exception.</param>
 		public RequiredReadException( string msg )
-			: base(msg)
+			: base( msg )
 		{
 		}
 	}

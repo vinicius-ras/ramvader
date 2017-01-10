@@ -17,8 +17,6 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
 namespace RAMvader
 {
 	/// <summary>
@@ -30,7 +28,7 @@ namespace RAMvader
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>
 		public UnexpectedDataTypeSizeException( string msg )
-			: base(msg)
+			: base( msg )
 		{
 		}
 	}

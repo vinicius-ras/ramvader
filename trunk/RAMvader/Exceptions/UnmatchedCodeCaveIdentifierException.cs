@@ -28,7 +28,7 @@ namespace RAMvader
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>
 		public UnmatchedCodeCaveIdentifierException( string msg )
-			: base(msg)
+			: base( msg )
 		{
 		}
 	}

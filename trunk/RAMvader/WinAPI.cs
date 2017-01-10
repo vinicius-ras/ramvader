@@ -16,20 +16,20 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
+
 using System;
 using System.Runtime.InteropServices;
-
 
 namespace RAMvader
 {
 	/// <summary>This class is an interface that provides access to the Windows API.</summary>
 	public static class WinAPI
-    {
+	{
 		#region ENUMERATIONS
 		/// <summary>Flags used to determine the allowed access to a process.</summary>
 		[Flags]
-        public enum ProcessAccessFlags : uint
-        {
+		public enum ProcessAccessFlags : uint
+		{
 			/// <summary>Identifies the "PROCESS_ALL_ACCESS" process access right from the Windows API.</summary>
 			All = 0x001F0FFF,
 			/// <summary>Identifies the "PROCESS_TERMINATE" process access right from the Windows API.</summary>
@@ -50,13 +50,13 @@ namespace RAMvader
 			QueryInformation = 0x00000400,
 			/// <summary>Identifies the "SYNCHRONIZE" process access right from the Windows API.</summary>
 			Synchronize = 0x00100000
-        }
+		}
 
 
 		/// <summary>Flags used for determining the type of memory allocation in the function VirtualAllocEx.</summary>
 		[Flags]
-        public enum AllocationType
-        {
+		public enum AllocationType
+		{
 			/// <summary>Identifies the "MEM_COMMIT" memory allocation type from the Windows API.</summary>
 			Commit = 0x1000,
 			/// <summary>Identifies the "MEM_RESERVE" memory allocation type from the Windows API.</summary>
@@ -80,8 +80,8 @@ namespace RAMvader
 
 		/// <summary>Flags determining the type of memory protection for a region of allocated pages.</summary>
 		[Flags]
-        public enum MemoryProtection
-        {
+		public enum MemoryProtection
+		{
 			/// <summary>Identifies the "PAGE_EXECUTE" page protection type from the Windows API.</summary>
 			Execute = 0x10,
 			/// <summary>Identifies the "PAGE_EXECUTE_READ" page protection type from the Windows API.</summary>
@@ -104,18 +104,18 @@ namespace RAMvader
 			NoCacheModifierflag = 0x200,
 			/// <summary>Identifies the "PAGE_WRITECOMBINE" page protection type modifier from the Windows API.</summary>
 			WriteCombineModifierflag = 0x400
-        }
+		}
 
 
 		/// <summary>Flags used for freeing allocated memory, through the VirtualFreeEx function.</summary>
 		[Flags]
-        public enum FreeType
-        {
+		public enum FreeType
+		{
 			/// <summary>Identifies the "MEM_DECOMMIT" memory region freeing type from the Windows API.</summary>
 			Decommit = 0x4000,
 			/// <summary>Identifies the "MEM_RELEASE" memory region freeing type from the Windows API.</summary>
 			Release = 0x8000,
-        }
+		}
 		#endregion
 
 

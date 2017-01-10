@@ -19,7 +19,6 @@
 
 using System;
 
-
 namespace RAMvader
 {
 	/// <summary>
@@ -27,14 +26,14 @@ namespace RAMvader
 	///    a data type that is not supported by the library.
 	/// </summary>
 	public class UnsupportedDataTypeException : RAMvaderException
-    {
+	{
 		/// <summary>Constructor.</summary>
 		/// <param name="dataType">The data type for which RAMvader does not offer support to.</param>
 		public UnsupportedDataTypeException( Type dataType )
-            : base( string.Format(
-                "RAMvader library does not support reading/writing operations on the data type \"{0}\"!",
-                dataType.Name ) )
-        {
-        }
-    }
+			: base( string.Format(
+				"RAMvader library does not support reading/writing operations on the data type \"{0}\"!",
+				dataType.Name ) )
+		{
+		}
+	}
 }

@@ -24,8 +24,8 @@ namespace RAMvader
 	/// <summary>Defines the possible endianness options which RAMvader can operate on.</summary>
 	public enum EEndianness
 	{
-        /// <summary>A value indicating that RAMvader should operate in the same endianness as the process that RAMvader is running on.</summary>
-        evEndiannessDefault,
+		/// <summary>A value indicating that RAMvader should operate in the same endianness as the process that RAMvader is running on.</summary>
+		evEndiannessDefault,
 		/// <summary>A value indicating that RAMvader should operate in Little-Endian byte order.</summary>
 		evEndiannessLittle,
 		/// <summary>A value indicating that RAMvader should operate in Big-Endian byte order.</summary>
@@ -78,12 +78,20 @@ namespace RAMvader
 		evJMP,
 		/// <summary>Identifies the jump instruction: JA ("jump if above" - for unsigned values).</summary>
 		evJA,
+		/// <summary>Identifies the jump instruction: JAE ("jump if above or equal" - for unsigned values).</summary>
+		evJAE,
 		/// <summary>Identifies the jump instruction: JB ("jump if below" - for unsigned values).</summary>
 		evJB,
+		/// <summary>Identifies the jump instruction: JBE ("jump if below or equal" - for unsigned values).</summary>
+		evJBE,
 		/// <summary>Identifies the jump instruction: JG ("jump if greater than" - for signed values).</summary>
 		evJG,
+		/// <summary>Identifies the jump instruction: JGE ("jump if greater than or equal to" - for signed values).</summary>
+		evJGE,
 		/// <summary>Identifies the jump instruction: JL ("jump if less than" - for signed values).</summary>
 		evJL,
+		/// <summary>Identifies the jump instruction: JLE ("jump if less than or equal to" - for signed values).</summary>
+		evJLE,
 		/// <summary>Identifies the jump instruction: JE ("jump if equal").</summary>
 		evJE,
 		/// <summary>Identifies the jump instruction: JNE ("jump if not equal").</summary>
