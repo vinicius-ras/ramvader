@@ -1,4 +1,23 @@
-﻿using System;
+﻿/*
+ * Copyright (C) 2014 Vinicius Rogério Araujo Silva
+ *
+ * This file is part of RAMvader.
+ * 
+ * RAMvader is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ * 
+ * RAMvader is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU Lesser General Public License for more details.
+ * 
+ * You should have received a copy of the GNU Lesser General Public License
+ * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
+ */
+
+using System;
 using System.Diagnostics;
 
 namespace RAMvader
@@ -11,8 +30,12 @@ namespace RAMvader
 	public class ModuleOffsetMemoryAddress : MemoryAddress
 	{
 		#region PRIVATE FIELDS
-		/// <summary>Keeps the real address associated to this instance.</summary>
-		private IntPtr m_realAddress;
+		/// <summary>A reference to the object used to access the target <see cref="Process"/>' address space.</summary>
+		private RAMvaderTarget m_target;
+		/// <summary>The name of the module whose base address will be used to calculate the final (real) address.</summary>
+		private String m_moduleName;
+		/// <summary>The offset to apply to the base of the given module in order to find the final (real) address.</summary>
+		private int m_offset;
 		#endregion
 
 
@@ -24,18 +47,11 @@ namespace RAMvader
 		/// <param name="target">A reference to the object used to access the target <see cref="Process"/>' address space.</param>
 		/// <param name="moduleName">The name of the module whose base address will be used to calculate the final (real) address.</param>
 		/// <param name="offset">The offset to apply to the base of the given module in order to find the final (real) address.</param>
-		/// <exception cref="ModuleNotFoundException">Thrown when a module with the given name has not been found in the target process' modules list.</exception>
 		public ModuleOffsetMemoryAddress( RAMvaderTarget target, String moduleName, int offset )
 		{
-			// Instantiating this object requires an attachment to a target process
-			if ( target.IsAttached() == false )
-				throw new InstanceNotAttachedException();
-
-			// Request the target process' module address, and calculate the real address represented by this instance
-			IntPtr moduleBaseAddress = target.GetTargetProcessModuleBaseAddress(moduleName);
-			if ( moduleBaseAddress == IntPtr.Zero )
-				throw new ModuleNotFoundException( moduleName );
-			m_realAddress = IntPtr.Add( moduleBaseAddress, offset );
+			m_target = target;
+			m_moduleName = moduleName;
+			m_offset = offset;
 		}
 		#endregion
 
@@ -54,7 +70,13 @@ namespace RAMvader
 		/// <returns>Returns an <see cref="IntPtr"/> representing the real/calculated address associated to the <see cref="MemoryAddress"/> instance.</returns>
 		protected override IntPtr GetRealAddress()
 		{
-			return m_realAddress;
+			// Request the target process' module address, and calculate the real address represented by this instance
+			IntPtr moduleBaseAddress = m_target.GetTargetProcessModuleBaseAddress(m_moduleName);
+			if ( moduleBaseAddress == IntPtr.Zero )
+				throw new ModuleNotFoundException( m_moduleName );
+
+			IntPtr result = IntPtr.Add( moduleBaseAddress, m_offset );
+			return result;
 		}
 		#endregion
 	}

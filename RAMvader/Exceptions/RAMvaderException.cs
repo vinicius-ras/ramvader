@@ -19,7 +19,6 @@
 
 using System;
 
-
 namespace RAMvader
 {
 	/// <summary>The base class for all exceptions from the RAMvader library.</summary>

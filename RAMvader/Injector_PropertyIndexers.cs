@@ -25,7 +25,7 @@ using System;
 namespace RAMvader.CodeInjection
 {
 	public partial class Injector<TMemoryAlterationSetID, TCodeCave, TVariable>
-    {
+	{
 		#region PRIVATE CONSTANTS
 		/// <summary>
 		///    The default name of an indexer property, which is used to raise the "property changed"
@@ -42,7 +42,7 @@ namespace RAMvader.CodeInjection
 		#region NESTED CLASSES
 		/// <summary>Provides an indexer used to access code cave offsets, through the property <see cref="CodeCaveOffset"/>.</summary>
 		public class NestedPropertyIndexerCodeCaveOffset : NotifyPropertyChangedAdapter
-        {
+		{
 			#region PRIVATE FIELDS
 			/// <summary>Reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> which owns this object.</summary>
 			private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
@@ -59,21 +59,21 @@ namespace RAMvader.CodeInjection
 			/// </summary>
 			/// <param name="injector">A reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> object used to retrieve data for the indexer property.</param>
 			internal NestedPropertyIndexerCodeCaveOffset( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
-            {
-                m_injector = injector;
-            }
+			{
+				m_injector = injector;
+			}
 
 
 			/// <summary>Indexer used to retrieve the offset of a code cave, through a call to <see cref="GetCodeCaveOffset(TCodeCave)"/>.</summary>
 			/// <param name="codeCaveID">The identifier of the code cave whose offset is to be retrieved.</param>
 			/// <returns>Returns the offset of the given code cave.</returns>
 			public int this[TCodeCave codeCaveID]
-            {
-                get { return m_injector.GetCodeCaveOffset( codeCaveID ); }
-                internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
-            }
-            #endregion
-        }
+			{
+				get { return m_injector.GetCodeCaveOffset( codeCaveID ); }
+				internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
+			}
+			#endregion
+		}
 
 
 
@@ -83,7 +83,7 @@ namespace RAMvader.CodeInjection
 		///    through <see cref="InjectedCodeCaveAddress"/>.
 		/// </summary>
 		public class NestedPropertyIndexerInjectedCodeCaveAddress : NotifyPropertyChangedAdapter
-        {
+		{
 			#region PRIVATE FIELDS
 			/// <summary>Reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> which owns this object.</summary>
 			private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
@@ -100,9 +100,9 @@ namespace RAMvader.CodeInjection
 			/// </summary>
 			/// <param name="injector">A reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> object used to retrieve data for the indexer property.</param>
 			internal NestedPropertyIndexerInjectedCodeCaveAddress( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
-            {
-                m_injector = injector;
-            }
+			{
+				m_injector = injector;
+			}
 
 
 			/// <summary>
@@ -112,12 +112,12 @@ namespace RAMvader.CodeInjection
 			/// <param name="codeCaveID">The identifier of the code cave whose injected address is to be retrieved.</param>
 			/// <returns>Returns the address where the code cave has been injected.</returns>
 			public IntPtr this[TCodeCave codeCaveID]
-            {
-                get { return m_injector.GetInjectedCodeCaveAddress( codeCaveID ); }
-                internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
-            }
-            #endregion
-        }
+			{
+				get { return m_injector.GetInjectedCodeCaveAddress( codeCaveID ); }
+				internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
+			}
+			#endregion
+		}
 
 
 
@@ -125,7 +125,7 @@ namespace RAMvader.CodeInjection
 
 		/// <summary>Provides an indexer used to access variable offsets, through the property <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.VariableOffset.</summary>
 		public class NestedPropertyIndexerVariableOffset : NotifyPropertyChangedAdapter
-        {
+		{
 			#region PRIVATE FIELDS
 			/// <summary>Reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> which owns this object.</summary>
 			private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
@@ -142,21 +142,21 @@ namespace RAMvader.CodeInjection
 			/// </summary>
 			/// <param name="injector">A reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> object used to retrieve data for the indexer property.</param>
 			internal NestedPropertyIndexerVariableOffset( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
-            {
-                m_injector = injector;
-            }
+			{
+				m_injector = injector;
+			}
 
 
 			/// <summary>Indexer used to retrieve the offset of a variable, through a call to <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.GetVariableOffset().</summary>
 			/// <param name="variableID">The identifier of the variable whose offset is to be retrieved.</param>
 			/// <returns>Returns the offset of the given variable.</returns>
 			public int this[TVariable variableID]
-            {
-                get { return m_injector.GetVariableOffset( variableID ); }
-                internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
-            }
-            #endregion
-        }
+			{
+				get { return m_injector.GetVariableOffset( variableID ); }
+				internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
+			}
+			#endregion
+		}
 
 
 
@@ -167,7 +167,7 @@ namespace RAMvader.CodeInjection
 		///    through the property <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.InjectedVariableAddress.
 		/// </summary>
 		public class NestedPropertyIndexerInjectedVariableAddress : NotifyPropertyChangedAdapter
-        {
+		{
 			#region PRIVATE FIELDS
 			/// <summary>Reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> which owns this object.</summary>
 			private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
@@ -184,9 +184,9 @@ namespace RAMvader.CodeInjection
 			/// </summary>
 			/// <param name="injector">A reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> object used to retrieve data for the indexer property.</param>
 			internal NestedPropertyIndexerInjectedVariableAddress( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
-            {
-                m_injector = injector;
-            }
+			{
+				m_injector = injector;
+			}
 
 
 			/// <summary>
@@ -196,12 +196,12 @@ namespace RAMvader.CodeInjection
 			/// <param name="variableID">The identifier of the variable whose injected address is to be retrieved.</param>
 			/// <returns>Returns the address where the given variable has been injected.</returns>
 			public IntPtr this[TVariable variableID]
-            {
-                get { return m_injector.GetInjectedVariableAddress( variableID ); }
-                internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
-            }
-            #endregion
-        }
+			{
+				get { return m_injector.GetInjectedVariableAddress( variableID ); }
+				internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
+			}
+			#endregion
+		}
 
 
 
@@ -212,7 +212,7 @@ namespace RAMvader.CodeInjection
 		///    through the property <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.VariableSize.
 		/// </summary>
 		public class NestedPropertyIndexerVariableSize : NotifyPropertyChangedAdapter
-        {
+		{
 			#region PRIVATE FIELDS
 			/// <summary>Reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> which owns this object.</summary>
 			private Injector<TMemoryAlterationSetID, TCodeCave, TVariable> m_injector;
@@ -229,21 +229,21 @@ namespace RAMvader.CodeInjection
 			/// </summary>
 			/// <param name="injector">A reference to the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> object used to retrieve data for the indexer property.</param>
 			internal NestedPropertyIndexerVariableSize( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injector )
-            {
-                m_injector = injector;
-            }
+			{
+				m_injector = injector;
+			}
 
 
 			/// <summary>Indexer used to retrieve the size of a variable, through a call to <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.GetVariableSize().</summary>
 			/// <param name="variableID">The identifier of the variable whose size is to be retrieved.</param>
 			/// <returns>Returns the size of the given variable.</returns>
 			public int this[TVariable variableID]
-            {
-                get { return m_injector.GetVariableSize( variableID ); }
-                internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
-            }
-            #endregion
-        }
-        #endregion
-    }
+			{
+				get { return m_injector.GetVariableSize( variableID ); }
+				internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
+			}
+			#endregion
+		}
+		#endregion
+	}
 }

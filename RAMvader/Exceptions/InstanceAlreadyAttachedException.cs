@@ -19,7 +19,6 @@
 
 using System.Diagnostics;
 
-
 namespace RAMvader
 {
 	/// <summary>
@@ -28,15 +27,15 @@ namespace RAMvader
 	///    be detached from any other process.
 	/// </summary>
 	public class InstanceAlreadyAttachedException : RAMvaderException
-    {
+	{
 		/// <summary>Constructor.</summary>
 		/// <param name="oldProcess">The process to which the <see cref="RAMvaderTarget"/> instance is currently attached.</param>
 		public InstanceAlreadyAttachedException( Process oldProcess )
-            : base( string.Format(
-                "{0} instance already attached to process with PID {1}.",
-                typeof( RAMvaderTarget ).Name,
-                oldProcess.Id ) )
-        {
-        }
-    }
+			: base( string.Format(
+				"{0} instance already attached to process with PID {1}.",
+				typeof( RAMvaderTarget ).Name,
+				oldProcess.Id ) )
+		{
+		}
+	}
 }

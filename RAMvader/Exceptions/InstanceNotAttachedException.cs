@@ -25,11 +25,11 @@ namespace RAMvader
 	///    the <see cref="RAMvaderTarget"/> hasn't been attached to any target process yet).
 	/// </summary>
 	public class InstanceNotAttachedException : RAMvaderException
-    {
+	{
 		/// <summary>Constructor.</summary>
 		public InstanceNotAttachedException()
-            : base( "This instance is not attached to any process." )
-        {
-        }
-    }
+			: base( "This instance is not attached to any process." )
+		{
+		}
+	}
 }

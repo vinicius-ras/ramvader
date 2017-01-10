@@ -28,7 +28,7 @@ namespace RAMvader
 	///    for any class willing to provide that implementation.
 	/// </summary>
 	public abstract class NotifyPropertyChangedAdapter : INotifyPropertyChanged
-    {
+	{
 		#region INTERFACE IMPLEMENTATION: INotifyPropertyChanged Members		
 		/// <summary>Used for implementing the <see cref="INotifyPropertyChanged"/> interface.</summary>
 		public event PropertyChangedEventHandler PropertyChanged;
@@ -49,10 +49,10 @@ namespace RAMvader
 		///    inside a property-setter method.
 		/// </param>
 		protected void SendPropertyChangedNotification( [CallerMemberName] string propertyName = "" )
-        {
-            if ( PropertyChanged != null )
-                PropertyChanged( this, new PropertyChangedEventArgs( propertyName ) );
-        }
-        #endregion
-    }
+		{
+			if ( PropertyChanged != null )
+				PropertyChanged( this, new PropertyChangedEventArgs( propertyName ) );
+		}
+		#endregion
+	}
 }

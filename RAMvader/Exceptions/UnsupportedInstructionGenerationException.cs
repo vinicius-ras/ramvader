@@ -28,7 +28,7 @@ namespace RAMvader.CodeInjection
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>
 		public UnsupportedInstructionGenerationException( string msg )
-			: base(msg)
+			: base( msg )
 		{
 		}
 	}

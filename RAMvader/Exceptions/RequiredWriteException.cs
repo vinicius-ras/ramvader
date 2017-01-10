@@ -16,7 +16,7 @@
  * You should have received a copy of the GNU Lesser General Public License
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
- 
+
 namespace RAMvader
 {
 	/// <summary>Exception that is thrown when an output/write operation that was required to succeed returns a fail state.</summary>
@@ -25,7 +25,7 @@ namespace RAMvader
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message associated to the exception.</param>
 		public RequiredWriteException( string msg )
-			: base(msg)
+			: base( msg )
 		{
 		}
 	}

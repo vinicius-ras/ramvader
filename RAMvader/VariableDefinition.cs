@@ -18,21 +18,19 @@
  */
 
 using System;
-using System.Reflection;
 
 namespace RAMvader.CodeInjection
 {
 	/// <summary>Keeps the metadata related to an injection variable.</summary>
-	[AttributeUsage( AttributeTargets.Field, AllowMultiple=false )]
-    public class VariableDefinitionAttribute : Attribute
+	public class VariableDefinition
 	{
-        #region PRIVATE FIELDS
-        /// <summary>
+		#region PRIVATE FIELDS
+		/// <summary>
 		///    Stores the initial value for the variable. Used to initialize the
 		///    variable's value, when it is first injected into the target process'
 		///    memory.
 		/// </summary>
-        private Object m_initialValue;
+		private Object m_initialValue;
 		#endregion
 
 
@@ -42,28 +40,9 @@ namespace RAMvader.CodeInjection
 		#region PUBLIC PROPERTIES
 		/// <summary>Backed by the <see cref="m_initialValue"/> field.</summary>
 		public Object InitialValue
-        {
-            get { return m_initialValue; }
-        }
-		#endregion
-
-
-
-
-
-		#region PUBLIC STATIC METHODS
-		/// <summary>Utility method which retrieves the <see cref="VariableDefinitionAttribute"/> from the given enumerator value.</summary>
-		/// <param name="elm">The enumerator from which the <see cref="VariableDefinitionAttribute"/> should be retrieved.</param>
-		/// <returns>
-		///    Returns the <see cref="VariableDefinitionAttribute"/> associated with the given enumerator, if any.
-		///    Returns null if no <see cref="VariableDefinitionAttribute"/> is associated with the given enumerator.
-		/// </returns>
-		public static VariableDefinitionAttribute GetVariableDefinitionAttributeFromEnum( Enum elm )
-        {
-            Type enumType = elm.GetType();
-            FieldInfo fieldInfo = enumType.GetField( elm.ToString() );
-            return fieldInfo.GetCustomAttribute<VariableDefinitionAttribute>();
-        }
+		{
+			get { return m_initialValue; }
+		}
 		#endregion
 
 
@@ -78,10 +57,42 @@ namespace RAMvader.CodeInjection
 		///    the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> (Byte, Int32, UInt64, Single, Double, etc.). By providing these structures, you are both telling
 		///    the injector about the SIZE of the injected variable and its initial value.
 		/// </param>
-		public VariableDefinitionAttribute( Object initialValue )
-        {
-            m_initialValue = initialValue;
-        }
-        #endregion
-    }
+		/// <exception cref="NullReferenceException">Thrown when the given initial value of the variable is <code>null</code>.</exception>
+		public VariableDefinition( Object initialValue )
+		{
+			if ( initialValue == null )
+				throw new NullReferenceException( "The initial value of an injection variable cannot be null!" );
+			m_initialValue = initialValue;
+		}
+
+
+		/// <summary>
+		///    Retrieves the initial value of the variable.
+		///    When the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> injects the variable in
+		///    the target process' memory space, it initializes the variable to this value.
+		/// </summary>
+		/// <returns>Returns the initial value of the variable.</returns>
+		public Object GetInitialValue()
+		{
+			return m_initialValue;
+		}
+
+
+		/// <summary>
+		///    <para>Retrieves the <see cref="Type"/> of the injection variable.</para>
+		///    <para>
+		///       The <see cref="Type"/> of the injection variable is defined to be the same type as the 
+		///       initial value of the variable, which is passed in its definition's constructor (<see cref="VariableDefinition(object)"/>).
+		///       Thus, another way to get the injection variable's type is by calling <see cref="GetInitialValue"/> to
+		///       retrieve the initial value of the variable, and then calling <see cref="object.GetType"/> on the
+		///       returned value.
+		///    </para>
+		/// </summary>
+		/// <returns>Returns the <see cref="Type"/> of the injection variable.</returns>
+		public Type GetInjectionVariableType()
+		{
+			return m_initialValue.GetType();
+		}
+		#endregion
+	}
 }
