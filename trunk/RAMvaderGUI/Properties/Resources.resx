@@ -346,4 +346,7 @@ Please, check if the value is well formatted and if it obeys the limits of the d
   <data name="strErrorInvalidInputValueTitle" xml:space="preserve">
     <value>Invalid input!</value>
   </data>
+  <data name="strToolTipTypeToFilter" xml:space="preserve">
+    <value>Type something to filter the list.</value>
+  </data>
 </root>

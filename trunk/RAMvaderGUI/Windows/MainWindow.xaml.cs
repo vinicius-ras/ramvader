@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using System.Timers;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Data;
 using System.Windows.Threading;
 
 namespace RAMvaderGUI
@@ -34,6 +35,8 @@ namespace RAMvaderGUI
 		///    <see cref="MainWindow"/>.
 		/// </summary>
 		public ObservableCollection<AddressData> RegisteredAddresses { get; } = new ObservableCollection<AddressData>();
+		/// <summary>Keeps the list of <see cref="Process"/> instances running in the local system.</summary>
+		public ObservableCollection<Process> AvailableLocalProcesses { get; } = new ObservableCollection<Process>();
 		#endregion
 
 
@@ -71,9 +74,9 @@ namespace RAMvaderGUI
 			processes.Sort( ( p1, p2 ) => string.Compare( p1.ProcessName, p2.ProcessName, true ) );
 
 			// Clear the list and refill it with the current processes
-			m_lstProcesses.Items.Clear();
+			AvailableLocalProcesses.Clear();
 			foreach ( Process curProcess in processes )
-				m_lstProcesses.Items.Add( curProcess );
+				AvailableLocalProcesses.Add( curProcess );
 
 			// Output for the user
 			this.PrintLineToConsole( Properties.Resources.strConsoleMsgProcessesListUpdated, processes.Count );
@@ -496,11 +499,67 @@ namespace RAMvaderGUI
 						MessageBoxButton.OK, MessageBoxImage.Error );
 			}
 		}
-		#endregion
 
-		private void ButtonTeste( object sender, RoutedEventArgs e )
+
+		/// <summary>Called when the user clicks the button used to clear the processes list's filter.</summary>
+		/// <param name="sender">The object which sent the event.</param>
+		/// <param name="e">Holds data about the event.</param>
+		private void ButtonClearProcessesFilterClick( object sender, RoutedEventArgs e )
 		{
-			PrintLineToConsole( "{0}, {1}", TargetProcessIO.TargetProcessEndianness, TargetProcessIO.TargetPointerSize );
+			m_txtFilterProcesses.Clear();
 		}
+
+
+		/// <summary>
+		///    Called to filter the <see cref="CollectionView"/> which leeps the list of processes running in
+		///    the local machine.
+		/// </summary>
+		/// <param name="sender">The object which sent the event.</param>
+		/// <param name="e">Holds data about the event.</param>
+		private void FilterProcessesList( object sender, FilterEventArgs e )
+		{
+			// Generate the list of words that need to be checked
+			string [] wordsTyped = m_txtFilterProcesses.Text.Split(
+				new string [] { " " },
+				StringSplitOptions.RemoveEmptyEntries );
+
+			// If no words were typed, there's no filter to apply
+			if ( wordsTyped.Length == 0 )
+			{
+				e.Accepted = true;
+				return;
+			}
+
+			// Retrieve the name of the process and its PID, which we'll use to filter against
+			Process processToVerify = (Process) e.Item;
+			string processName = string.Format( "{0} {1}",
+				processToVerify.Id,
+				processToVerify.ProcessName.ToLowerInvariant() );
+
+			// Search and match ALL of the typed words
+			for ( int wordIndex = wordsTyped.Length - 1; wordIndex >= 0; wordIndex-- )
+			{
+				string curWordToSearch = wordsTyped[wordIndex].ToLowerInvariant();
+				if ( processName.Contains( curWordToSearch ) == false )
+				{
+					// One of the words hasn't matched... Filter that process out!
+					e.Accepted = false;
+					return;
+				}
+			}
+			
+			e.Accepted = true;
+		}
+
+
+		/// <summary>Called when the user types something into the "processes filter" text box.</summary>
+		/// <param name="sender">The object which sent the event.</param>
+		/// <param name="e">Holds data about the event.</param>
+		private void TextBoxProcessesFilterTextChanged( object sender, TextChangedEventArgs e )
+		{
+			CollectionView collView = (CollectionView) m_lstProcesses.GetBindingExpression( ListBox.ItemsSourceProperty ).ResolvedSource;
+			collView.Refresh();
+		}
+		#endregion
 	}
 }
