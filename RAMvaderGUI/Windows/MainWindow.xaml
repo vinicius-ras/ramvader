@@ -41,6 +41,8 @@
 			</ObjectDataProvider.MethodParameters>
 		</ObjectDataProvider>
 
+		<CollectionViewSource x:Key="collectionViewSourceRegisteredAddresses" Source="{Binding Path=AvailableLocalProcesses}" Filter="FilterProcessesList" />
+
 		<!-- Define styles used in this dialog -->
 		<Style TargetType="Grid">
 			<Setter Property="Margin" Value="3" />
@@ -136,17 +138,23 @@
 				<!-- Rows and columns definition -->
 				<Grid.RowDefinitions>
 					<RowDefinition Height="auto" />
+					<RowDefinition Height="auto" />
 					<RowDefinition Height="*" />
 					<RowDefinition Height="auto" />
 					<RowDefinition Height="auto" />
 				</Grid.RowDefinitions>
 				<Grid.ColumnDefinitions>
 					<ColumnDefinition Width="*" />
+					<ColumnDefinition Width="auto" />
 				</Grid.ColumnDefinitions>
 
 				<!-- Top-left grid controls -->
-				<Label Grid.Row="0" Grid.Column="0" Content="{x:Static props:Resources.lblProcesses}" />
-				<ListBox Name="m_lstProcesses" Grid.Row="1" Grid.Column="0">
+				<Label Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2" Content="{x:Static props:Resources.lblProcesses}" />
+
+				<TextBox x:Name="m_txtFilterProcesses" Grid.Row="1" Grid.Column="0" ToolTip="{x:Static props:Resources.strToolTipTypeToFilter}" Margin="0,0,5,0" VerticalContentAlignment="Center" TextChanged="TextBoxProcessesFilterTextChanged" />
+				<Button Grid.Row="1" Grid.Column="1" Content="X" Style="{StaticResource buttonStyle}" Click="ButtonClearProcessesFilterClick" VerticalAlignment="Stretch" Margin="0" Padding="4,1" />
+
+				<ListBox Name="m_lstProcesses" Grid.Row="2" Grid.Column="0" Grid.ColumnSpan="2" Margin="0,2" ItemsSource="{Binding Source={StaticResource collectionViewSourceRegisteredAddresses}}">
 					<ListBox.ItemTemplate>
 						<DataTemplate>
 							<TextBlock Text="{Binding Converter={StaticResource processToStringConverter}}" />
@@ -154,8 +162,8 @@
 					</ListBox.ItemTemplate>
 				</ListBox>
 
-				<Button Grid.Row="2" Grid.Column="0" Content="{x:Static props:Resources.btRefresh}" Click="ButtonRefreshProcessesClick" />
-				<Button Grid.Row="3" Grid.Column="0" Click="ButtonAttachDetachClick">
+				<Button Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2" Content="{x:Static props:Resources.btRefresh}" Click="ButtonRefreshProcessesClick" />
+				<Button Grid.Row="4" Grid.Column="0" Grid.ColumnSpan="2" Click="ButtonAttachDetachClick" Margin="0,2">
 					<Button.Style>
 						<Style TargetType="Button" BasedOn="{StaticResource buttonStyle}">
 							<Setter Property="Content" Value="{x:Static props:Resources.btAttach}" />

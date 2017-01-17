@@ -656,6 +656,15 @@ namespace RAMvaderGUI.Properties {
         }
         
         /// <summary>
+        ///   Looks up a localized string similar to Type something to filter the list..
+        /// </summary>
+        public static string strToolTipTypeToFilter {
+            get {
+                return ResourceManager.GetString("strToolTipTypeToFilter", resourceCulture);
+            }
+        }
+        
+        /// <summary>
         ///   Looks up a localized string similar to Edit address.
         /// </summary>
         public static string wndTitleEditAddress {
