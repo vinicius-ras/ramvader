@@ -837,26 +837,25 @@ namespace RAMvader
 		}
 
 
-		/// <summary>Reads a value from the target process' memory.</summary>
-		/// <typeparam name="T">The data type expected to be read from the target process' memory space.</typeparam>
+		/// <summary>Reads a value from the target process' memory, given the type of the object to be read.</summary>
 		/// <param name="address">The address on the target process' memory where the data will be read from.</param>
+		/// <param name="typeToRead">The type to be read from the target process' memory space.</param>
 		/// <param name="outDestiny">
 		///    The result of the reading will be stored in this variable.
-		///    The referenced variable's data must be one of the basic data types supported by the RAMvader library.
+		///    The output data will be one of the basic data types supported by the RAMvader library.
 		/// </param>
 		/// <returns>Returns true in case of success, false in case of failure.</returns>
-		public bool ReadFromTarget<T>( MemoryAddress address, ref T outDestiny )
+		public bool ReadFromTarget(MemoryAddress address, Type typeToRead, ref object outDestiny )
 		{
 			// Determine the size for pointers into the target process
 			EPointerSize curProcessPtrSize = RAMvaderTarget.GetRAMvaderPointerSize();
 			EPointerSize targetProcessPtrSize = GetActualTargetPointerSize();
 
 			// Does the RAMvader library support the given data type?
-			Type expectedOutputDataType = typeof(T);
 			int destinySizeInBytes;
-			if ( SUPPORTED_DATA_TYPES_SIZE.ContainsKey( expectedOutputDataType ) == false )
+			if ( SUPPORTED_DATA_TYPES_SIZE.ContainsKey( typeToRead ) == false )
 			{
-				if ( expectedOutputDataType == typeof( IntPtr ) )
+				if ( typeToRead == typeof( IntPtr ) )
 				{
 					switch ( targetProcessPtrSize )
 					{
@@ -873,10 +872,10 @@ namespace RAMvader
 					}
 				}
 				else
-					throw new UnsupportedDataTypeException( expectedOutputDataType );
+					throw new UnsupportedDataTypeException( typeToRead );
 			}
 			else
-				destinySizeInBytes = SUPPORTED_DATA_TYPES_SIZE[expectedOutputDataType];
+				destinySizeInBytes = SUPPORTED_DATA_TYPES_SIZE[typeToRead];
 
 			// Try to perform the reading operation
 			byte [] byteBuff = new byte[destinySizeInBytes];
@@ -887,25 +886,25 @@ namespace RAMvader
 
 			// Convert the read bytes to their corresponding format
 			Object outDestinyRaw = null;
-			if ( expectedOutputDataType == typeof( Byte ) )
+			if ( typeToRead == typeof( Byte ) )
 				outDestinyRaw = byteBuff[0];
-			else if ( expectedOutputDataType == typeof( Int16 ) )
+			else if ( typeToRead == typeof( Int16 ) )
 				outDestinyRaw = BitConverter.ToInt16( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( Int32 ) )
+			else if ( typeToRead == typeof( Int32 ) )
 				outDestinyRaw = BitConverter.ToInt32( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( Int64 ) )
+			else if ( typeToRead == typeof( Int64 ) )
 				outDestinyRaw = BitConverter.ToInt64( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( UInt16 ) )
+			else if ( typeToRead == typeof( UInt16 ) )
 				outDestinyRaw = BitConverter.ToUInt16( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( UInt32 ) )
+			else if ( typeToRead == typeof( UInt32 ) )
 				outDestinyRaw = BitConverter.ToUInt32( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( UInt64 ) )
+			else if ( typeToRead == typeof( UInt64 ) )
 				outDestinyRaw = BitConverter.ToUInt64( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( Single ) )
+			else if ( typeToRead == typeof( Single ) )
 				outDestinyRaw = BitConverter.ToSingle( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( Double ) )
+			else if ( typeToRead == typeof( Double ) )
 				outDestinyRaw = BitConverter.ToDouble( byteBuff, 0 );
-			else if ( expectedOutputDataType == typeof( IntPtr ) )
+			else if ( typeToRead == typeof( IntPtr ) )
 			{
 				// Handle the cases where the size of pointers in the processes are different
 				if ( curProcessPtrSize != targetProcessPtrSize )
@@ -960,12 +959,35 @@ namespace RAMvader
 				// Code should never really reach this point...
 				// If it does, this means an "else if" statement needs to be written to
 				// treat the data type given by the "readDataType" variable
-				throw new UnsupportedDataTypeException( expectedOutputDataType );
+				throw new UnsupportedDataTypeException( typeToRead );
 			}
 
 			// Return the result
-			outDestiny = (T) outDestinyRaw;
+			outDestiny = outDestinyRaw;
 			return true;
+		}
+
+
+		/// <summary>Reads a value from the target process' memory.</summary>
+		/// <typeparam name="T">The data type expected to be read from the target process' memory space.</typeparam>
+		/// <param name="address">The address on the target process' memory where the data will be read from.</param>
+		/// <param name="outDestiny">
+		///    The result of the reading will be stored in this variable.
+		///    The referenced variable's data must be one of the basic data types supported by the RAMvader library.
+		/// </param>
+		/// <returns>Returns true in case of success, false in case of failure.</returns>
+		public bool ReadFromTarget<T>( MemoryAddress address, ref T outDestiny )
+		{
+			// Try to perform the read on a temporary object
+			object tempBuffer = null;
+			bool readResult = ReadFromTarget( address, typeof( T ), ref tempBuffer );
+
+			// Upon read success, cast the read object and use it as the output for outDestiny
+			if ( readResult )
+				outDestiny = (T) tempBuffer;
+
+			// Return the result
+			return readResult;
 		}
 		#endregion
 
