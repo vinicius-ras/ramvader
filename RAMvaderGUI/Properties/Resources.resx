@@ -1,0 +1,349 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="btAttach" xml:space="preserve">
+    <value>Attach</value>
+  </data>
+  <data name="btClear" xml:space="preserve">
+    <value>Clear</value>
+  </data>
+  <data name="btDetach" xml:space="preserve">
+    <value>Detach</value>
+  </data>
+  <data name="btRefresh" xml:space="preserve">
+    <value>Refresh now!</value>
+  </data>
+  <data name="chkAutomaticRefresh" xml:space="preserve">
+    <value>Automatically refresh?</value>
+  </data>
+  <data name="colAddress" xml:space="preserve">
+    <value>Address</value>
+  </data>
+  <data name="colFreeze" xml:space="preserve">
+    <value>Freeze?</value>
+  </data>
+  <data name="colIdentifier" xml:space="preserve">
+    <value>Identifier</value>
+  </data>
+  <data name="colType" xml:space="preserve">
+    <value>Type</value>
+  </data>
+  <data name="colValue" xml:space="preserve">
+    <value>Value</value>
+  </data>
+  <data name="lblAddressesPrompt" xml:space="preserve">
+    <value>Addresses:</value>
+  </data>
+  <data name="lblConsole" xml:space="preserve">
+    <value>CONSOLE</value>
+  </data>
+  <data name="lblProcessEndianness" xml:space="preserve">
+    <value>Target process' endianness:</value>
+  </data>
+  <data name="lblProcesses" xml:space="preserve">
+    <value>Processes</value>
+  </data>
+  <data name="lblProcessPointerSize" xml:space="preserve">
+    <value>Target process' pointer size:</value>
+  </data>
+  <data name="lblTypeByte" xml:space="preserve">
+    <value>Byte</value>
+  </data>
+  <data name="lblTypeDouble" xml:space="preserve">
+    <value>Double</value>
+  </data>
+  <data name="lblTypeInt32" xml:space="preserve">
+    <value>Int32</value>
+  </data>
+  <data name="lblTypeInt64" xml:space="preserve">
+    <value>Int64</value>
+  </data>
+  <data name="lblTypeIntPtr" xml:space="preserve">
+    <value>IntPtr</value>
+  </data>
+  <data name="lblTypeSingle" xml:space="preserve">
+    <value>Single</value>
+  </data>
+  <data name="lblTypeUint16" xml:space="preserve">
+    <value>UInt16</value>
+  </data>
+  <data name="lblTypeUint64" xml:space="preserve">
+    <value>UInt64</value>
+  </data>
+  <data name="lblTypeUint642" xml:space="preserve">
+    <value>UInt64</value>
+  </data>
+  <data name="wndTitleMainWindow" xml:space="preserve">
+    <value>RAMvader GUI</value>
+  </data>
+  <data name="mnuAddAddress" xml:space="preserve">
+    <value>Add address</value>
+  </data>
+  <data name="mnuDeleteAddress" xml:space="preserve">
+    <value>Delete selected address</value>
+  </data>
+  <data name="mnuRAMvaderTestTargetAdd" xml:space="preserve">
+    <value>Add RAMvaderTestTarget addresses</value>
+  </data>
+  <data name="mnuRAMvaderTestTargetFreeze" xml:space="preserve">
+    <value>Freeze using predefined test values</value>
+  </data>
+  <data name="mnuRAMvaderTestTargetOptions" xml:space="preserve">
+    <value>RAMvaderTestTarget</value>
+  </data>
+  <data name="btCancel" xml:space="preserve">
+    <value>Cancel</value>
+  </data>
+  <data name="btOk" xml:space="preserve">
+    <value>OK!</value>
+  </data>
+  <data name="chkFreezeValueQuestion" xml:space="preserve">
+    <value>Freeze value?</value>
+  </data>
+  <data name="lblAddressPrompt" xml:space="preserve">
+    <value>Address:</value>
+  </data>
+  <data name="lblDescriptionPrompt" xml:space="preserve">
+    <value>Description:</value>
+  </data>
+  <data name="lblRAMvaderTestTargetAddInstructions" xml:space="preserve">
+    <value>Please, paste all addresses of the variables of the RAMvaderTarget application in the order they appear when you type the "print" command in that program (starting from Byte and ending in Double).
+Addresses should be separated by new lines.</value>
+  </data>
+  <data name="lblRefreshTime" xml:space="preserve">
+    <value>time (ms)</value>
+  </data>
+  <data name="lblTypePrompt" xml:space="preserve">
+    <value>Type:</value>
+  </data>
+  <data name="lblValuePrompt" xml:space="preserve">
+    <value>Value:</value>
+  </data>
+  <data name="wndTitleEditAddress" xml:space="preserve">
+    <value>Edit address</value>
+  </data>
+  <data name="wndTitleRAMvaderTestTargetAdd" xml:space="preserve">
+    <value>Add RAMvaderTestTarget addresses</value>
+  </data>
+  <data name="strErrorDuringAttachmentMsg" xml:space="preserve">
+    <value>Failed to attach to the specified process!
+Please, refresh and verify if the process is still running.</value>
+  </data>
+  <data name="strErrorDuringAttachmentTitle" xml:space="preserve">
+    <value>Failed to attach!</value>
+  </data>
+  <data name="strErrorDuringDetachmentMsg" xml:space="preserve">
+    <value>Failed to detach from the target process!
+It is recommended to restart the application.</value>
+  </data>
+  <data name="strErrorDuringDetachmentTitle" xml:space="preserve">
+    <value>Failed to detach!</value>
+  </data>
+  <data name="strConsoleMsgAppStarted" xml:space="preserve">
+    <value>Application has started.</value>
+  </data>
+  <data name="strErrorMalformedInput" xml:space="preserve">
+    <value>Malformed input!</value>
+  </data>
+  <data name="strErrorRAMvaderTestTargetInvalidLine" xml:space="preserve">
+    <value>Line {0} is not an hexadecimal address: {1}.</value>
+    <comment>{0}: the number of the line where the parser has failed.
+{1}: the contents of the line which caused the failure.</comment>
+  </data>
+  <data name="strErrorRAMvaderTestTargetNotEnoughLinesInInputMsg" xml:space="preserve">
+    <value>You must copy {0} addresses from RAMvaderTestTarget application for this utility to work!
+{1} addresses were copied from the application.</value>
+    <comment>{0}: the number of addresses that were expected to be read on user's input.
+{1}: the actual number of addresses the user has input.</comment>
+  </data>
+  <data name="strNewAddressId" xml:space="preserve">
+    <value>Unnamed</value>
+  </data>
+  <data name="strErrorRAMvaderTestTargetFreezeCountUnmatchedMsg" xml:space="preserve">
+    <value>The number of registered address entries ({0}) is different from the expected number of entries ({1})!
+
+Please, right click the grid of registered addresses and go to:
+RAMvaderTestTarget &gt; Add RAMvaderTestTarget addresses
+
+There, you can add the test addresses in the right order.</value>
+    <comment>{0}: number of address entries the user has registered.
+{1}: number of expected registered address entries.</comment>
+  </data>
+  <data name="strErrorRAMvaderTestTargetFreezeCountUnmatchedTitle" xml:space="preserve">
+    <value>Wrong number of registered addresses</value>
+  </data>
+  <data name="strErrorRAMvaderTestTargetFreezeTypesUnmatchedMsg" xml:space="preserve">
+    <value>The type of the registered address entry with index {0} identified by "{1}" is {2}, while it was expected to be of type {3}!</value>
+    <comment>{0}: index of the entry which caused the error.
+{1}: identifier of the entry which caused the error.
+{2}: the Type of the entry which caused the error.
+{3}: the expected Type of the entry.</comment>
+  </data>
+  <data name="strErrorRAMvaderTestTargetFreezeTypesUnmatchedTitle" xml:space="preserve">
+    <value>Wrong type of entry</value>
+  </data>
+  <data name="strConsoleMsgAttachedToProcess" xml:space="preserve">
+    <value>Attached to process "{0}" (PID = {1}).</value>
+    <comment>{0}: the name of the target process.
+{1}: the identifier of the target process.</comment>
+  </data>
+  <data name="strConsoleMsgAutomaticRefreshmentOff" xml:space="preserve">
+    <value>Automatic refreshment of the list of registered addresses has been turned off.</value>
+  </data>
+  <data name="strConsoleMsgAutomaticRefreshmentOn" xml:space="preserve">
+    <value>Automatically refreshing the list of registered addresses.</value>
+  </data>
+  <data name="strConsoleMsgDeletedEntries" xml:space="preserve">
+    <value>Deleted selected entry(ies).</value>
+  </data>
+  <data name="strConsoleMsgDetachedFromProcess" xml:space="preserve">
+    <value>Detached from process "{0}" (PID = {1}).</value>
+    <comment>{0}: the name of the target process.
+{1}: the identifier of the target process.</comment>
+  </data>
+  <data name="strConsoleMsgManualRefreshment" xml:space="preserve">
+    <value>Manually refreshed addresses list.</value>
+  </data>
+  <data name="strConsoleMsgProcessesListUpdated" xml:space="preserve">
+    <value>Processes list updated ({0} processes found).</value>
+    <comment>{0}: the number of found processes.</comment>
+  </data>
+  <data name="strConsoleMsgRAMvaderTestTargetAddressesAdded" xml:space="preserve">
+    <value>RAMvaderTestTarget addresses have been successfully added.</value>
+  </data>
+  <data name="strConsoleMsgRAMvaderTestTargetAddressesFrozen" xml:space="preserve">
+    <value>RAMvaderTestTarget addresses have frozen with test values.</value>
+  </data>
+  <data name="strConsoleMsgRegisteredNewEntry" xml:space="preserve">
+    <value>Registered a new (empty) entry.</value>
+  </data>
+  <data name="strErrorCannotUpdateValueMsg" xml:space="preserve">
+    <value>Failed to write the value to the target process' memory space!</value>
+  </data>
+  <data name="strErrorCannotUpdateValueTitle" xml:space="preserve">
+    <value>Cannot update value!</value>
+  </data>
+  <data name="strErrorInvalidInputValueMsg" xml:space="preserve">
+    <value>The input value is invalid for this data type!
+Please, check if the value is well formatted and if it obeys the limits of the data type of the registered address.</value>
+  </data>
+  <data name="strErrorInvalidInputValueTitle" xml:space="preserve">
+    <value>Invalid input!</value>
+  </data>
+</root>
