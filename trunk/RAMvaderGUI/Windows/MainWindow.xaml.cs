@@ -333,6 +333,7 @@ namespace RAMvaderGUI
 					new AddressData( "Var UInt64", dialog.RetrieveTypedAddress( typeof(UInt64) ), (UInt64) 0, false ),
 					new AddressData( "Var Single", dialog.RetrieveTypedAddress( typeof(Single) ), (Single) 0, false ),
 					new AddressData( "Var Double", dialog.RetrieveTypedAddress( typeof(Double) ), (Double) 0, false ),
+					new AddressData( "Var IntPtr", dialog.RetrieveTypedAddress( typeof(IntPtr) ), IntPtr.Zero, false ),
 				};
 
 				// Add the addresses to the list
@@ -460,14 +461,28 @@ namespace RAMvaderGUI
 			{
 				// Retrieve the new value from the textbox used to update the data grid cell
 				TextBox editElement = (TextBox) e.EditingElement;
-				object newValueRaw = editElement.Text;   // this will be a string
+				string newValueRaw = editElement.Text.ToLowerInvariant().Trim();
 
 				// Try to convert the typed value to the type expected for the registered address
 				Type expectedDataType = editedData.Type;
 				object newValue = null;
 				try
 				{
-					newValue = Convert.ChangeType( newValueRaw, expectedDataType );
+					// Conversion to IntPtr is done in an special way
+					if ( expectedDataType == typeof( IntPtr ) )
+					{
+						// Parse the number as an hex string, converting it to an Int64
+						string stringToParse = newValueRaw;
+						if ( stringToParse.StartsWith( "0x" ) )
+							stringToParse = stringToParse.Substring( 2 );
+
+						Int64 valueAsLong = Convert.ToInt64( stringToParse, 16 );
+
+						// Perform value conversion on the Int64 value directly to IntPtr
+						newValue = new IntPtr( valueAsLong );
+					}
+					else
+						newValue = Convert.ChangeType( newValueRaw, expectedDataType );
 				}
 				catch ( OverflowException )
 				{

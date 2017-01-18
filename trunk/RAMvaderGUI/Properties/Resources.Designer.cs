@@ -241,7 +241,7 @@ namespace RAMvaderGUI.Properties {
         }
         
         /// <summary>
-        ///   Looks up a localized string similar to Please, paste all addresses of the variables of the RAMvaderTarget application in the order they appear when you type the &quot;print&quot; command in that program (starting from Byte and ending in Double).
+        ///   Looks up a localized string similar to Please, paste all addresses of the variables of the RAMvaderTarget application in the order they appear when you type the &quot;print&quot; command in that program (starting from Byte and ending in IntPtr).
         ///Addresses should be separated by new lines..
         /// </summary>
         public static string lblRAMvaderTestTargetAddInstructions {
@@ -499,6 +499,15 @@ namespace RAMvaderGUI.Properties {
         public static string strConsoleMsgRegisteredNewEntry {
             get {
                 return ResourceManager.GetString("strConsoleMsgRegisteredNewEntry", resourceCulture);
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized string similar to &lt;CONVERSION ERROR&gt;.
+        /// </summary>
+        public static string strConversionError {
+            get {
+                return ResourceManager.GetString("strConversionError", resourceCulture);
             }
         }
         

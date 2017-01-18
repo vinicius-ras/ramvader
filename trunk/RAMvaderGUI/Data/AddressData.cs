@@ -54,7 +54,8 @@ namespace RAMvaderGUI
 
 				// Update the Value property accordingly, preventing it from recursivelly re-updating the Type property again.
 				Type newType = value;
-				if ( m_lockValueTypeRecursion == false && newType != Value.GetType() )
+				Type oldType = Value.GetType();
+				if ( m_lockValueTypeRecursion == false && newType != oldType )
 				{
 					// Block the recursion from happening
 					m_lockValueTypeRecursion = true;
@@ -66,7 +67,23 @@ namespace RAMvaderGUI
 					{
 						try
 						{
-							newValue = Convert.ChangeType( Value, newType );
+							// Now we need to convert the value to the target type.
+							// Conversion to/from IntPtr type is done in an special way.
+							if ( newType == typeof( IntPtr ) )
+							{
+								long valueAsLong = (long) Convert.ChangeType( Value, typeof( long ) );
+								newValue = new IntPtr( valueAsLong );
+							}
+							else
+							{
+								if ( oldType == typeof( IntPtr ) )
+								{
+									Int64 oldValueAsLong = ((IntPtr) Value).ToInt64();
+									newValue = Convert.ChangeType( oldValueAsLong, newType );
+								}
+								else
+									newValue = Convert.ChangeType( Value, newType );
+							}
 						}
 						catch ( InvalidCastException ex )
 						{
@@ -121,7 +138,34 @@ namespace RAMvaderGUI
 					bool revertToOldValue = false;
 					try
 					{
-						m_value = Convert.ChangeType( value, this.Type );
+						// Changing type to IntPtr is done differently
+						if ( this.Type == typeof( IntPtr ) )
+						{
+							Type givenValueType = value.GetType();
+							if ( givenValueType == typeof( IntPtr ) )
+								m_value = value;
+							else
+							{
+								Int64 valueAsInt64;
+								if ( givenValueType == typeof( string ) )
+								{
+									// Convert the hex string to an Int64
+									string rawValue = (string) value;
+									rawValue = rawValue.ToLowerInvariant().Trim();
+									if ( rawValue.StartsWith( "0x" ) )
+										rawValue = rawValue.Substring( 2 );
+
+									valueAsInt64 = Convert.ToInt64( rawValue, 16 );
+								}
+								else
+									valueAsInt64 = (Int64) Convert.ChangeType( value, typeof( Int64 ) );
+
+								// Use the Int64 to create the IntPtr value
+								m_value = new IntPtr( valueAsInt64 );
+							}
+						}
+						else
+							m_value = Convert.ChangeType( value, this.Type );
 					}
 					catch ( OverflowException )
 					{
@@ -136,7 +180,7 @@ namespace RAMvaderGUI
 					if ( revertToOldValue )
 						this.Value = oldValue;
 				}
-				else 
+				else
 				{
 					// If the code falls here, it means the user has updted the "Type" of the AddressData object.
 					// We must forcivelly update the value to the new value, which was already correctly set by
@@ -159,11 +203,14 @@ namespace RAMvaderGUI
 		///    A "frozen" value means that the application periodically replaces that value with another previously
 		///    specified value.
 		/// </summary>
-		public Boolean Freeze {
-			get {
+		public Boolean Freeze
+		{
+			get
+			{
 				return m_freeze;
 			}
-			set {
+			set
+			{
 				m_freeze = value;
 				SendPropertyChangedNotification();
 			}

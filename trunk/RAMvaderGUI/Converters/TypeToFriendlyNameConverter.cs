@@ -24,6 +24,7 @@ namespace RAMvaderGUI
 			{ typeof( UInt64 ), "UInt64 (Unsigned QWORD)" },
 			{ typeof( Single ), "Single (Float)" },
 			{ typeof( Double ), "Double" },
+			{ typeof( IntPtr ), "IntPtr" },
 		};
 		#endregion
 
