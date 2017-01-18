@@ -1,0 +1,160 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<!--
+ - Copyright (C) 2014 Vinicius Rogério Araujo Silva
+ -
+ - This file is part of RAMvader.
+ - 
+ - RAMvader is free software: you can redistribute it and/or modify
+ - it under the terms of the GNU General Public License as published by
+ - the Free Software Foundation, either version 3 of the License, or
+ - (at your option) any later version.
+ - 
+ - RAMvader is distributed in the hope that it will be useful,
+ - but WITHOUT ANY WARRANTY; without even the implied warranty of
+ - MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ - GNU General Public License for more details.
+ - 
+ - You should have received a copy of the GNU General Public License
+ - along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
+ -->
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{C7F0E9C9-DE25-4146-9A23-961E12AFA66A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>RAMvader</RootNamespace>
+    <AssemblyName>RAMvader</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\AnyCPU\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Debug\AnyCPU\RAMvaderDocumentation.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\AnyCPU\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <DocumentationFile>bin\Release\AnyCPU\RAMvaderDocumentation.XML</DocumentationFile>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x86'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\x86\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x86'">
+    <OutputPath>bin\Release\x86\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x86</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\Debug\x64\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\Release\x64\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>ManagedMinimumRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifact.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactCodeCaveAddress.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactX86Call.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactX86FarJump.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactX86NearJump.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactSignedBytesSequence.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactUnsignedBytesSequence.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveArtifactVariableAddress.cs" />
+    <Compile Include="CodeCaveArtifact\CodeCaveBuilder.cs" />
+    <Compile Include="CodeCaveDefinition.cs" />
+    <Compile Include="Enumerations.cs" />
+    <Compile Include="Exceptions\IllegalInstructionGenerationException.cs" />
+    <Compile Include="Exceptions\InjectionArtifactNotFoundException.cs" />
+    <Compile Include="Exceptions\InjectorGenericParametersException.cs" />
+    <Compile Include="Exceptions\InstanceAlreadyInjectedException.cs" />
+    <Compile Include="Exceptions\InstanceNotInjectedException.cs" />
+    <Compile Include="Exceptions\InstructionTooLargeException.cs" />
+    <Compile Include="Exceptions\ModuleNotFoundException.cs" />
+    <Compile Include="Exceptions\RequiredIOException.cs" />
+    <Compile Include="Exceptions\RequiredReadException.cs" />
+    <Compile Include="Exceptions\RequiredWriteException.cs" />
+    <Compile Include="Exceptions\UnexpectedDataTypeSizeException.cs" />
+    <Compile Include="Exceptions\UnmatchedCodeCaveIdentifierException.cs" />
+    <Compile Include="Exceptions\UnmatchedDataTypeException.cs" />
+    <Compile Include="Exceptions\UnsupportedInstructionGenerationException.cs" />
+    <Compile Include="Exceptions\VirtualMemoryAllocationException.cs" />
+    <Compile Include="Injector.cs" />
+    <Compile Include="Exceptions\InjectorException.cs" />
+    <Compile Include="Exceptions\InstanceAlreadyAttachedException.cs" />
+    <Compile Include="Exceptions\InstanceNotAttachedException.cs" />
+    <Compile Include="Exceptions\PointerDataLostException.cs" />
+    <Compile Include="Injector_PropertyIndexers.cs" />
+    <Compile Include="LowLevel.cs" />
+    <Compile Include="MemoryAddress\AbsoluteMemoryAddress.cs" />
+    <Compile Include="MemoryAddress\InjectedCodeCaveMemoryAddress.cs" />
+    <Compile Include="MemoryAddress\InjectedVariableMemoryAddress.cs" />
+    <Compile Include="MemoryAddress\MemoryAddress.cs" />
+    <Compile Include="MemoryAddress\ModuleOffsetMemoryAddress.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationBase.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationX86Call.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationX86NearJump.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationX86FarJump.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationNOP.cs" />
+    <Compile Include="MemoryAlteration\MemoryAlterationPoke.cs" />
+    <Compile Include="NotifyPropertyChangedAdapter.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Exceptions\RAMvaderException.cs" />
+    <Compile Include="RAMvaderTarget.cs" />
+    <Compile Include="Exceptions\UnsupportedDataTypeException.cs" />
+    <Compile Include="Exceptions\UnsupportedPointerSizeException.cs" />
+    <Compile Include="VariableDefinition.cs" />
+    <Compile Include="WinAPI.cs" />
+  </ItemGroup>
+  <ItemGroup />
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>
