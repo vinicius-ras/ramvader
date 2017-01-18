@@ -24,6 +24,7 @@ namespace RAMvaderGUI
 			( UInt64 ) 777,
 			( Single ) 888.888f,
 			( Double ) 999.999,
+			new IntPtr( 0x1A2B3C4D ),
 		};
 		/// <summary>
 		///    Caches the Type of expected input values for the RAMvaderTestTarget program.

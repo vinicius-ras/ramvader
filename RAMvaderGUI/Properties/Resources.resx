@@ -223,7 +223,7 @@
     <value>Description:</value>
   </data>
   <data name="lblRAMvaderTestTargetAddInstructions" xml:space="preserve">
-    <value>Please, paste all addresses of the variables of the RAMvaderTarget application in the order they appear when you type the "print" command in that program (starting from Byte and ending in Double).
+    <value>Please, paste all addresses of the variables of the RAMvaderTarget application in the order they appear when you type the "print" command in that program (starting from Byte and ending in IntPtr).
 Addresses should be separated by new lines.</value>
   </data>
   <data name="lblRefreshTime" xml:space="preserve">
@@ -348,5 +348,8 @@ Please, check if the value is well formatted and if it obeys the limits of the d
   </data>
   <data name="strToolTipTypeToFilter" xml:space="preserve">
     <value>Type something to filter the list.</value>
+  </data>
+  <data name="strConversionError" xml:space="preserve">
+    <value>&lt;CONVERSION ERROR&gt;</value>
   </data>
 </root>

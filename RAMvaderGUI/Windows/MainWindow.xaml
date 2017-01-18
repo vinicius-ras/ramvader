@@ -16,18 +16,7 @@
 		<local:ProcessToStringConverter x:Key="processToStringConverter" />
 		<local:IntPtrToStringConverter x:Key="intPtrToStringConverter" />
 		<local:TypeToFriendlyNameConverter x:Key="typeToFriendlyNameConverter" />
-
-		<x:Array x:Key="arrAvailableAddressTypes" Type="{x:Type sys:Type}">
-			<x:Type Type="{x:Type sys:Byte}" />
-			<x:Type Type="{x:Type sys:Int16}" />
-			<x:Type Type="{x:Type sys:Int32}" />
-			<x:Type Type="{x:Type sys:Int64}" />
-			<x:Type Type="{x:Type sys:UInt16}" />
-			<x:Type Type="{x:Type sys:UInt32}" />
-			<x:Type Type="{x:Type sys:UInt64}" />
-			<x:Type Type="{x:Type sys:Single}" />
-			<x:Type Type="{x:Type sys:Double}" />
-		</x:Array>
+		<local:GenericRAMvaderValuesConverter x:Key="genericRAMvaderValuesConverter" />
 
 		<ObjectDataProvider x:Key="enumValuesEPointerSize" ObjectType="{x:Type sys:Enum}" MethodName="GetValues">
 			<ObjectDataProvider.MethodParameters>
@@ -278,7 +267,7 @@
 						<DataGridTemplateColumn Header="{x:Static props:Resources.colType}">
 							<DataGridTemplateColumn.CellTemplate>
 								<DataTemplate>
-									<ComboBox ItemsSource="{StaticResource arrAvailableAddressTypes}" SelectedValue="{Binding Path=Type,UpdateSourceTrigger=PropertyChanged}">
+									<ComboBox ItemsSource="{x:Static local:RAMvaderTestTargetData.ExpectedAddressesInputTypeOrder}" SelectedValue="{Binding Path=Type,UpdateSourceTrigger=PropertyChanged}">
 										<ComboBox.ItemTemplate>
 											<DataTemplate>
 												<TextBlock Text="{Binding Converter={StaticResource typeToFriendlyNameConverter}}" />
@@ -288,7 +277,7 @@
 								</DataTemplate>
 							</DataGridTemplateColumn.CellTemplate>
 						</DataGridTemplateColumn>
-						<DataGridTextColumn x:Name="m_registeredAddressesDataGridValueColumn" Header="{x:Static props:Resources.colValue}" Binding="{Binding Path=Value}" />
+						<DataGridTextColumn x:Name="m_registeredAddressesDataGridValueColumn" Header="{x:Static props:Resources.colValue}" Binding="{Binding Path=Value,Converter={StaticResource genericRAMvaderValuesConverter}}" />
 						<DataGridCheckBoxColumn Header="{x:Static props:Resources.colFreeze}" Binding="{Binding Path=Freeze,UpdateSourceTrigger=PropertyChanged}" />
 					</DataGrid.Columns>
 				</DataGrid>

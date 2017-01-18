@@ -1,6 +1,5 @@
 ﻿using System;
 using System.Globalization;
-using System.Windows;
 using System.Windows.Data;
 
 namespace RAMvaderGUI
@@ -11,6 +10,34 @@ namespace RAMvaderGUI
 	[ValueConversion( typeof( IntPtr ), typeof( string ) )]
 	public class IntPtrToStringConverter : IValueConverter
 	{
+		#region PUBLIC STATIC METHODS
+		/// <summary>Performs the conversion from <see cref="IntPtr"/> to <see cref="string"/>.</summary>
+		/// <param name="val">The value to be converted to string.</param>
+		/// <returns>Returns a string representation of the value.</returns>
+		public static string ConvertIntPtrToString( IntPtr val )
+		{
+			return string.Format( "0x{0}", val.ToString( "X8" ) );
+		}
+
+
+		/// <summary>Performs the conversion from <see cref="string"/> to <see cref="IntPtr"/>.</summary>
+		/// <param name="val">The value to be converted to <see cref="IntPtr"/>.</param>
+		/// <returns>Returns an <see cref="IntPtr"/> representation of the value.</returns>
+		public static IntPtr ConvertStringToIntPtr( string val )
+		{
+			val = val.ToLowerInvariant().Trim();
+			if ( val.StartsWith( "0x" ) )
+				val = val.Substring( 2 );
+
+			Int64 valAsLong = System.Convert.ToInt64( val, 16 );
+			return new IntPtr(valAsLong);
+		}
+		#endregion
+
+
+
+
+
 		#region INTERFACE IMPLEMENTATION: IValueConverter
 		public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
 		{
@@ -18,7 +45,7 @@ namespace RAMvaderGUI
 				return Binding.DoNothing;
 
 			IntPtr intPtrVal = (IntPtr) value;
-			return string.Format( "0x{0}", intPtrVal.ToString("X8") );
+			return ConvertIntPtrToString( intPtrVal );
 		}
 
 
