@@ -80,7 +80,7 @@ namespace RAMvader
 		/// <returns>Returns an <see cref="IntPtr"/> representing the real/calculated address associated to the <see cref="MemoryAddress"/> instance.</returns>
 		protected override IntPtr GetRealAddress()
 		{
-			IntPtr injectedCodeCaveAddress = m_injector.GetInjectedCodeCaveAddress( m_codeCaveId );
+			IntPtr injectedCodeCaveAddress = m_injector.GetInjectedCodeCaveAddress( m_codeCaveId ).Address;
 			return injectedCodeCaveAddress;
 		}
 		#endregion

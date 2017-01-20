@@ -113,7 +113,7 @@ namespace RAMvader.CodeInjection
 			/// <returns>Returns the address where the code cave has been injected.</returns>
 			public IntPtr this[TCodeCave codeCaveID]
 			{
-				get { return m_injector.GetInjectedCodeCaveAddress( codeCaveID ); }
+				get { return m_injector.GetInjectedCodeCaveAddress( codeCaveID ).Address; }
 				internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
 			}
 			#endregion
@@ -197,7 +197,7 @@ namespace RAMvader.CodeInjection
 			/// <returns>Returns the address where the given variable has been injected.</returns>
 			public IntPtr this[TVariable variableID]
 			{
-				get { return m_injector.GetInjectedVariableAddress( variableID ); }
+				get { return m_injector.GetInjectedVariableAddress( variableID ).Address; }
 				internal set { this.SendPropertyChangedNotification( DEFAULT_INDEXER_PROPERTY_NAME ); }
 			}
 			#endregion

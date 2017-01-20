@@ -405,6 +405,47 @@ namespace RAMvader
 			if ( ramVaderEndianness != endianness )
 				Array.Reverse( bytesArray );
 		}
+
+
+		/// <summary>Verifies if a given data type is supported by the RAMvader library.</summary>
+		/// <param name="type">The type to be verified.</param>
+		/// <returns>Returns a flag indicating if the given type is supported by the RAMvader library.</returns>
+		public static bool IsDataTypeSupported( Type type )
+		{
+			return SUPPORTED_DATA_TYPES_SIZE.ContainsKey( type ) || type == typeof( IntPtr );
+		}
+
+
+		/// <summary>
+		///    <para>
+		///       Retrieves the size (as considered by the RAMvader library) of a specific data type that is
+		///       supported by the library, given in bytes.
+		///    </para>
+		///    <para>ATTENTION: this method does NOT support the <see cref="IntPtr"/> (see remarks).</para>
+		/// </summary>
+		/// <param name="type">The type to be verified.</param>
+		/// <returns>Retrieves the size of the type, in bytes, as considered by the RAMvader library.</returns>
+		/// <exception cref="UnsupportedDataTypeException">
+		///    Thrown when the given data type is <see cref="IntPtr"/> or when the given type is not supported by the
+		///    library.
+		///    To check if a type is supported (except for the <see cref="IntPtr"/> type), please refer
+		///    to <see cref="IsDataTypeSupported(Type)"/>.
+		/// </exception>
+		/// <remarks>
+		///    The <see cref="IntPtr"/> type is not supported by this method, as it is a type whose size changes might
+		///    change depending on the process being a 32-bit or 64-bit process.
+		///    To retrieve the size considered for an <see cref="IntPtr"/>, you must use the
+		///    method <see cref="RAMvaderTarget.GetActualTargetPointerSizeInBytes()"/>, which requires an
+		///    already-configured <see cref="RAMvaderTarget"/> object.
+		/// </remarks>
+		/// 
+		public static int GetSupportedDataTypeSizeInBytes( Type type )
+		{
+			int returnedSize;
+			if ( SUPPORTED_DATA_TYPES_SIZE.TryGetValue( type, out returnedSize ) == false )
+				throw new UnsupportedDataTypeException( type );
+			return returnedSize;
+		}
 		#endregion
 
 
