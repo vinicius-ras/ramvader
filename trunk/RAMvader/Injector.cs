@@ -38,33 +38,6 @@ namespace RAMvader.CodeInjection
 	/// </typeparam>
 	public partial class Injector<TMemoryAlterationSetID, TCodeCave, TVariable> : NotifyPropertyChangedAdapter
 	{
-		#region PRIVATE CONSTANTS
-		/// <summary>
-		///    Keeps both the supported types of variables that can be injected into the
-		///    target process' memory space and their corresponding sizes, given in number
-		///    of bytes.
-		/// </summary>
-		private static readonly Dictionary<Type, int> SUPPORTED_VARIABLE_TYPES_SIZE = new Dictionary<Type, int>()
-		{
-			{ typeof( Byte ), sizeof( Byte ) },
-			{ typeof( Int16 ), sizeof( Int16 ) },
-			{ typeof( Int32 ), sizeof( Int32 ) },
-			{ typeof( Int64 ), sizeof( Int64 ) },
-			{ typeof( UInt16 ), sizeof( UInt16 ) },
-			{ typeof( UInt32 ), sizeof( UInt32 ) },
-			{ typeof( UInt64 ), sizeof( UInt64 ) },
-			{ typeof( Single ), sizeof( Single ) },
-			{ typeof( Double ), sizeof( Double ) },
-
-            // IntPtr type is also supported, but it is treated as a special type because its size might vary depending on the target
-            // process' platform (32 or 64 bits)
-        };
-		#endregion
-
-
-
-
-
 		#region PRIVATE FIELDS
 		/// <summary>
 		///    The object used to attach to the target process, so that the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> can
@@ -783,16 +756,16 @@ namespace RAMvader.CodeInjection
 		/// <param name="codeCaveID">The identifier of the target code cave.</param>
 		/// <returns>Returns the address of the given code cave, into the target process' memory space.</returns>
 		/// <exception cref="InjectionArtifactNotFoundException">Thrown when the artifact (injection variable or code cave) could not be found by the method.</exception>
-		public IntPtr GetInjectedCodeCaveAddress( TCodeCave codeCaveID )
+		public AbsoluteMemoryAddress GetInjectedCodeCaveAddress( TCodeCave codeCaveID )
 		{
-			if ( IsInjected == false )
+			if ( this.IsInjected == false )
 			{
 				throw new InjectionArtifactNotFoundException( string.Format(
 					"[{0}] Cannot retrieve injected code cave's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
 					GetInjectorNameWithTemplateParameters(), codeCaveID.ToString() ) );
 			}
 
-			return BaseInjectionAddress + GetCodeCaveOffset( codeCaveID );
+			return new AbsoluteMemoryAddress( BaseInjectionAddress + GetCodeCaveOffset( codeCaveID ) );
 		}
 
 
@@ -820,7 +793,7 @@ namespace RAMvader.CodeInjection
 
 			// Retrive the address (in the target process' memory space) of the injected code cave and then use
 			// the RAMvaderTarget object to retrieve its byte-representation into the target process' memory space
-			IntPtr caveAddress = this.GetInjectedCodeCaveAddress( codeCaveID );
+			IntPtr caveAddress = this.GetInjectedCodeCaveAddress( codeCaveID ).Address;
 			return TargetProcess.GetValueAsBytesArrayInTargetProcess( caveAddress );
 		}
 
@@ -892,15 +865,15 @@ namespace RAMvader.CodeInjection
 		/// <param name="varID">The identifier of the target variable.</param>
 		/// <returns>Returns the address of the given variable, into the target process' memory space.</returns>
 		/// <exception cref="InjectionArtifactNotFoundException">Thrown when the artifact (injection variable or code cave) could not be found by the method.</exception>
-		public IntPtr GetInjectedVariableAddress( TVariable varID )
+		public AbsoluteMemoryAddress GetInjectedVariableAddress( TVariable varID )
 		{
-			if ( IsInjected == false )
+			if ( this.IsInjected == false )
 			{
 				throw new InjectionArtifactNotFoundException( string.Format(
 					"[{0}] Cannot retrieve injected variable's address (\"{1}\"): the {0} has not allocated memory into the target process yet!",
 					GetInjectorNameWithTemplateParameters(), varID.ToString() ) );
 			}
-			return BaseInjectionAddress + GetVariableOffset( varID );
+			return new AbsoluteMemoryAddress( BaseInjectionAddress + GetVariableOffset( varID ) );
 		}
 
 
@@ -928,7 +901,7 @@ namespace RAMvader.CodeInjection
 
 			// Retrive the address (in the target process' memory space) of the injected variable and then use
 			// the RAMvaderTarget object to retrieve its byte-representation into the target process' memory space
-			IntPtr varAddress = this.GetInjectedVariableAddress( varID );
+			IntPtr varAddress = this.GetInjectedVariableAddress( varID ).Address;
 			return TargetProcess.GetValueAsBytesArrayInTargetProcess( varAddress );
 		}
 
@@ -965,7 +938,7 @@ namespace RAMvader.CodeInjection
 
 				return this.TargetProcess.GetActualTargetPointerSizeInBytes();
 			}
-			return SUPPORTED_VARIABLE_TYPES_SIZE[varType];
+			return RAMvaderTarget.GetSupportedDataTypeSizeInBytes( varType );
 		}
 
 
@@ -1678,7 +1651,7 @@ namespace RAMvader.CodeInjection
 
 			// Verify if the RAMvader library supports the given variable's type
 			Type varType = definition.GetInjectionVariableType();
-			if ( SUPPORTED_VARIABLE_TYPES_SIZE.ContainsKey( varType ) == false && varType != typeof( IntPtr ) )
+			if ( RAMvaderTarget.IsDataTypeSupported( varType ) == false )
 				throw new UnsupportedDataTypeException( varType );
 
 			// Update the variable's definition
