@@ -798,6 +798,41 @@ namespace RAMvader.CodeInjection
 		}
 
 
+		/// <summary>
+		///    Verifies if a given code cave has been injected by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> on
+		///    the target process' memory space.
+		/// </summary>
+		/// <param name="caveID">The code cave whose injection needs to be verified.</param>
+		/// <returns>
+		///    If the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> hasn't performed the injection procedure yet, or if
+		///    its associated <see cref="TargetProcess"/> object isn't attached, this method returns <code>false</code>.
+		///    Else, this method returns a flag specifying if the code cave has been injected. This method returns false for all code caves without
+		///    a definition, as undefined injection artifacts are never injected.
+		/// </returns>
+		/// <exception cref="NullReferenceException">Thrown when the <see cref="TargetProcess"/> hasn't been set for this <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.</exception>
+		public bool IsCodeCaveInjected( TCodeCave caveID )
+		{
+			// Verify if the injector has an associated target process
+			if ( TargetProcess == null )
+				throw new NullReferenceException( string.Format( "The {0} instance is not associated to a {1} object!", GetInjectorNameWithTemplateParameters(), typeof( RAMvaderTarget ).Name ) );
+
+			// Verify if the target process is attached, and if the injection has been performed already
+			if ( TargetProcess.Attached == false || this.IsInjected == false )
+				return false;
+
+			// Try to retrieve the code cave's injection address. If an InjectionArtifactException is thrown, this means the artifact is NOT injected.
+			try
+			{
+				this.GetInjectedCodeCaveAddress( caveID );
+			}
+			catch ( InjectionArtifactNotFoundException )
+			{
+				return false;
+			}
+			return true;
+		}
+
+
 		/// <summary>Retrieves the offset of a given variable, relative to the base injection address into the target process' memory space.</summary>
 		/// <param name="varID">The identifier of the variable whose offset is to be retrieved.</param>
 		/// <returns>Returns the offset to given variable.</returns>
@@ -903,6 +938,41 @@ namespace RAMvader.CodeInjection
 			// the RAMvaderTarget object to retrieve its byte-representation into the target process' memory space
 			IntPtr varAddress = this.GetInjectedVariableAddress( varID ).Address;
 			return TargetProcess.GetValueAsBytesArrayInTargetProcess( varAddress );
+		}
+
+
+		/// <summary>
+		///    Verifies if a given variable has been injected by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> on
+		///    the target process' memory space.
+		/// </summary>
+		/// <param name="varID">The variable whose injection needs to be verified.</param>
+		/// <returns>
+		///    If the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> hasn't performed the injection procedure yet, or if
+		///    its associated <see cref="TargetProcess"/> object isn't attached, this method returns <code>false</code>.
+		///    Else, this method returns a flag specifying if the variable has been injected. This method returns false for all variables without
+		///    a definition, as undefined injection artifacts are never injected.
+		/// </returns>
+		/// <exception cref="NullReferenceException">Thrown when the <see cref="TargetProcess"/> hasn't been set for this <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.</exception>
+		public bool IsVariableInjected( TVariable varID )
+		{
+			// Verify if the injector has an associated target process
+			if ( TargetProcess == null )
+				throw new NullReferenceException( string.Format( "The {0} instance is not associated to a {1} object!", GetInjectorNameWithTemplateParameters(), typeof( RAMvaderTarget ).Name ) );
+
+			// Verify if the target process is attached, and if the injection has been performed already
+			if ( TargetProcess.Attached == false || this.IsInjected == false )
+				return false;
+
+			// Try to retrieve the variable's injection address. If an InjectionArtifactException is thrown, this means the artifact is NOT injected.
+			try
+			{
+				this.GetInjectedVariableAddress( varID );
+			}
+			catch ( InjectionArtifactNotFoundException )
+			{
+				return false;
+			}
+			return true;
 		}
 
 
@@ -1046,7 +1116,7 @@ namespace RAMvader.CodeInjection
 		public IEnumerable<MemoryAlterationBase> GetMemoryAlterations( TMemoryAlterationSetID memoryAlterationSetID )
 		{
 			if ( m_memoryAlterationSets.ContainsKey( memoryAlterationSetID ) == false )
-				return null;
+				return new List<MemoryAlterationBase>(0);   // return an empty list
 			return m_memoryAlterationSets[memoryAlterationSetID];
 		}
 
