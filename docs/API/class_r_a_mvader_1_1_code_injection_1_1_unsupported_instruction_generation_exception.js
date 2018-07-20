@@ -1,0 +1,4 @@
+var class_r_a_mvader_1_1_code_injection_1_1_unsupported_instruction_generation_exception =
+[
+    [ "UnsupportedInstructionGenerationException", "class_r_a_mvader_1_1_code_injection_1_1_unsupported_instruction_generation_exception.html#ad87312a127650ff0fe4dce098d21fc26", null ]
+];
