@@ -2,17 +2,17 @@
  * Copyright (C) 2014 Vinicius Rogério Araujo Silva
  *
  * This file is part of RAMvader.
- * 
+ *
  * RAMvader is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
  * the Free Software Foundation, either version 3 of the License, or
  * (at your option) any later version.
- * 
+ *
  * RAMvader is distributed in the hope that it will be useful,
  * but WITHOUT ANY WARRANTY; without even the implied warranty of
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU Lesser General Public License for more details.
- * 
+ *
  * You should have received a copy of the GNU Lesser General Public License
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
@@ -104,7 +104,7 @@ namespace RAMvaderGUI
 
 		/// <summary>
 		///    Called to read the contents on all registered addresses on the target process' memory space, and update
-		///    their values to be displayed to the user in the <see cref="DataGrid"/> containing 
+		///    their values to be displayed to the user in the <see cref="DataGrid"/> containing
 		///    the registered addresses.
 		///    Notice that frozen values are NEVER updated, as they must remain unchanged (with the contents typed by
 		///    the user).
@@ -581,7 +581,7 @@ namespace RAMvaderGUI
 					return;
 				}
 			}
-			
+
 			e.Accepted = true;
 		}
 

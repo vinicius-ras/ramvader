@@ -10,8 +10,8 @@
 
 namespace RAMvaderGUI.Properties {
     using System;
-    
-    
+
+
     /// <summary>
     ///   A strongly-typed resource class, for looking up localized strings, etc.
     /// </summary>
@@ -23,15 +23,15 @@ namespace RAMvaderGUI.Properties {
     [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
     [global::System.Runtime.CompilerServices.CompilerGeneratedAttribute()]
     public class Resources {
-        
+
         private static global::System.Resources.ResourceManager resourceMan;
-        
+
         private static global::System.Globalization.CultureInfo resourceCulture;
-        
+
         [global::System.Diagnostics.CodeAnalysis.SuppressMessageAttribute("Microsoft.Performance", "CA1811:AvoidUncalledPrivateCode")]
         internal Resources() {
         }
-        
+
         /// <summary>
         ///   Returns the cached ResourceManager instance used by this class.
         /// </summary>
@@ -45,7 +45,7 @@ namespace RAMvaderGUI.Properties {
                 return resourceMan;
             }
         }
-        
+
         /// <summary>
         ///   Overrides the current thread's CurrentUICulture property for all
         ///   resource lookups using this strongly typed resource class.
@@ -59,7 +59,7 @@ namespace RAMvaderGUI.Properties {
                 resourceCulture = value;
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Attach.
         /// </summary>
@@ -68,7 +68,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("btAttach", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Cancel.
         /// </summary>
@@ -77,7 +77,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("btCancel", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Clear.
         /// </summary>
@@ -86,7 +86,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("btClear", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Detach.
         /// </summary>
@@ -95,7 +95,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("btDetach", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to OK!.
         /// </summary>
@@ -104,7 +104,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("btOk", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Refresh now!.
         /// </summary>
@@ -113,7 +113,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("btRefresh", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Automatically refresh?.
         /// </summary>
@@ -122,7 +122,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("chkAutomaticRefresh", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Freeze value?.
         /// </summary>
@@ -131,7 +131,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("chkFreezeValueQuestion", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Address.
         /// </summary>
@@ -140,7 +140,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("colAddress", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Freeze?.
         /// </summary>
@@ -149,7 +149,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("colFreeze", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Identifier.
         /// </summary>
@@ -158,7 +158,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("colIdentifier", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Type.
         /// </summary>
@@ -167,7 +167,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("colType", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Value.
         /// </summary>
@@ -176,7 +176,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("colValue", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Addresses:.
         /// </summary>
@@ -185,7 +185,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblAddressesPrompt", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Address:.
         /// </summary>
@@ -194,7 +194,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblAddressPrompt", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to CONSOLE.
         /// </summary>
@@ -203,7 +203,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblConsole", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Description:.
         /// </summary>
@@ -212,7 +212,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblDescriptionPrompt", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Target process&apos; endianness:.
         /// </summary>
@@ -221,7 +221,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblProcessEndianness", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Processes.
         /// </summary>
@@ -230,7 +230,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblProcesses", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Target process&apos; pointer size:.
         /// </summary>
@@ -239,7 +239,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblProcessPointerSize", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Please, paste all addresses of the variables of the RAMvaderTarget application in the order they appear when you type the &quot;print&quot; command in that program (starting from Byte and ending in IntPtr).
         ///Addresses should be separated by new lines..
@@ -249,7 +249,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblRAMvaderTestTargetAddInstructions", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to time (ms).
         /// </summary>
@@ -258,7 +258,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblRefreshTime", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Byte.
         /// </summary>
@@ -267,7 +267,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeByte", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Double.
         /// </summary>
@@ -276,7 +276,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeDouble", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Int32.
         /// </summary>
@@ -285,7 +285,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeInt32", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Int64.
         /// </summary>
@@ -294,7 +294,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeInt64", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to IntPtr.
         /// </summary>
@@ -303,7 +303,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeIntPtr", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Type:.
         /// </summary>
@@ -312,7 +312,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypePrompt", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Single.
         /// </summary>
@@ -321,7 +321,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeSingle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to UInt16.
         /// </summary>
@@ -330,7 +330,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeUint16", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to UInt64.
         /// </summary>
@@ -339,7 +339,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeUint64", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to UInt64.
         /// </summary>
@@ -348,7 +348,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblTypeUint642", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Value:.
         /// </summary>
@@ -357,7 +357,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("lblValuePrompt", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add address.
         /// </summary>
@@ -366,7 +366,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("mnuAddAddress", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Delete selected address.
         /// </summary>
@@ -375,7 +375,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("mnuDeleteAddress", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add RAMvaderTestTarget addresses.
         /// </summary>
@@ -384,7 +384,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("mnuRAMvaderTestTargetAdd", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Freeze using predefined test values.
         /// </summary>
@@ -393,7 +393,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("mnuRAMvaderTestTargetFreeze", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to RAMvaderTestTarget.
         /// </summary>
@@ -402,7 +402,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("mnuRAMvaderTestTargetOptions", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Application has started..
         /// </summary>
@@ -411,7 +411,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgAppStarted", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Attached to process &quot;{0}&quot; (PID = {1})..
         /// </summary>
@@ -420,7 +420,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgAttachedToProcess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Automatic refreshment of the list of registered addresses has been turned off..
         /// </summary>
@@ -429,7 +429,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgAutomaticRefreshmentOff", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Automatically refreshing the list of registered addresses..
         /// </summary>
@@ -438,7 +438,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgAutomaticRefreshmentOn", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Deleted selected entry(ies)..
         /// </summary>
@@ -447,7 +447,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgDeletedEntries", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Detached from process &quot;{0}&quot; (PID = {1})..
         /// </summary>
@@ -456,7 +456,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgDetachedFromProcess", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Manually refreshed addresses list..
         /// </summary>
@@ -465,7 +465,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgManualRefreshment", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Processes list updated ({0} processes found)..
         /// </summary>
@@ -474,7 +474,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgProcessesListUpdated", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to RAMvaderTestTarget addresses have been successfully added..
         /// </summary>
@@ -483,7 +483,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgRAMvaderTestTargetAddressesAdded", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to RAMvaderTestTarget addresses have frozen with test values..
         /// </summary>
@@ -492,7 +492,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgRAMvaderTestTargetAddressesFrozen", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Registered a new (empty) entry..
         /// </summary>
@@ -501,7 +501,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConsoleMsgRegisteredNewEntry", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to &lt;CONVERSION ERROR&gt;.
         /// </summary>
@@ -510,7 +510,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strConversionError", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to write the value to the target process&apos; memory space!.
         /// </summary>
@@ -519,7 +519,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorCannotUpdateValueMsg", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Cannot update value!.
         /// </summary>
@@ -528,7 +528,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorCannotUpdateValueTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to attach to the specified process!
         ///Please, refresh and verify if the process is still running..
@@ -538,7 +538,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorDuringAttachmentMsg", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to attach!.
         /// </summary>
@@ -547,7 +547,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorDuringAttachmentTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to detach from the target process!
         ///It is recommended to restart the application..
@@ -557,7 +557,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorDuringDetachmentMsg", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Failed to detach!.
         /// </summary>
@@ -566,7 +566,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorDuringDetachmentTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The input value is invalid for this data type!
         ///Please, check if the value is well formatted and if it obeys the limits of the data type of the registered address..
@@ -576,7 +576,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorInvalidInputValueMsg", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Invalid input!.
         /// </summary>
@@ -585,7 +585,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorInvalidInputValueTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Malformed input!.
         /// </summary>
@@ -594,7 +594,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorMalformedInput", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The number of registered address entries ({0}) is different from the expected number of entries ({1})!
         ///
@@ -608,7 +608,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorRAMvaderTestTargetFreezeCountUnmatchedMsg", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Wrong number of registered addresses.
         /// </summary>
@@ -617,7 +617,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorRAMvaderTestTargetFreezeCountUnmatchedTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to The type of the registered address entry with index {0} identified by &quot;{1}&quot; is {2}, while it was expected to be of type {3}!.
         /// </summary>
@@ -626,7 +626,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorRAMvaderTestTargetFreezeTypesUnmatchedMsg", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Wrong type of entry.
         /// </summary>
@@ -635,7 +635,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorRAMvaderTestTargetFreezeTypesUnmatchedTitle", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Line {0} is not an hexadecimal address: {1}..
         /// </summary>
@@ -644,7 +644,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorRAMvaderTestTargetInvalidLine", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to You must copy {0} addresses from RAMvaderTestTarget application for this utility to work!
         ///{1} addresses were copied from the application..
@@ -654,7 +654,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strErrorRAMvaderTestTargetNotEnoughLinesInInputMsg", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Unnamed.
         /// </summary>
@@ -663,7 +663,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strNewAddressId", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Type something to filter the list..
         /// </summary>
@@ -672,7 +672,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("strToolTipTypeToFilter", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Edit address.
         /// </summary>
@@ -681,7 +681,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("wndTitleEditAddress", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to RAMvader GUI.
         /// </summary>
@@ -690,7 +690,7 @@ namespace RAMvaderGUI.Properties {
                 return ResourceManager.GetString("wndTitleMainWindow", resourceCulture);
             }
         }
-        
+
         /// <summary>
         ///   Looks up a localized string similar to Add RAMvaderTestTarget addresses.
         /// </summary>
