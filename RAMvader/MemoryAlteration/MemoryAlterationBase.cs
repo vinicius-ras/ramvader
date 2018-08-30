@@ -19,8 +19,8 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>Base class for all memory alterations that can be performed through the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class MemoryAlterationBase : NotifyPropertyChangedAdapter
+    /// <summary>Base class for all memory alterations that can be performed through the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
+    public abstract class MemoryAlterationBase : NotifyPropertyChangedAdapter
 	{
 		#region PRIVATE FIELDS
 		/// <summary>Backs the <see cref="TargetOriginalBytes"/> property.</summary>
@@ -78,15 +78,15 @@ namespace RAMvader.CodeInjection
 		///    constructor is called. When a memory alteration gets disabled, this "snapshot" will be used to restore the original
 		///    bytes of the instruction or value that was in the target process' memory space before it was activated.
 		/// </summary>
-		/// <param name="targetIORef">A reference to the <see cref="RAMvaderTarget"/> object that will be used to read the target process' memory space.</param>
+		/// <param name="targetIORef">A reference to the <see cref="Target"/> object that will be used to read the target process' memory space.</param>
 		/// <param name="targetAddress">The address (in the target process' memory space) where the memory alteration will take place.</param>
 		/// <param name="targetSize">The size - given in bytes - of the instruction or value that the memory alteration will affect.</param>
-		/// <exception cref="InstanceNotAttachedException">Thrown when the method is called while the given <see cref="RAMvaderTarget"/> is not attached to a process.</exception>
+		/// <exception cref="InstanceNotAttachedException">Thrown when the method is called while the given <see cref="Target"/> is not attached to a process.</exception>
 		/// <exception cref="RequiredReadException">
 		///    Thrown when the method cannot successfully read the target process' memory space to retrieve the original bytes
 		///    that the Memory Alteration will be replacing, once it is activated.
 		/// </exception>
-		protected MemoryAlterationBase( RAMvaderTarget targetIORef, MemoryAddress targetAddress, int targetSize )
+		protected MemoryAlterationBase( Target targetIORef, MemoryAddress targetAddress, int targetSize )
 		{
 			// The RAMvaderTarget MUST be attached for creating a MemoryAlterationBase instance
 			if ( targetIORef.Attached == false )
@@ -95,9 +95,7 @@ namespace RAMvader.CodeInjection
 			// Read the original bytes from the target process' memory space
 			byte [] originalBytes = new byte[targetSize];
 			if ( targetIORef.ReadFromTarget( targetAddress, originalBytes ) == false )
-				throw new RequiredReadException( string.Format(
-					"[{0}] Failed to create a Memory Alteration instance: failed to read original bytes in the target process' memory space!",
-					this.GetType().Name ) );
+				throw new RequiredReadException($"[{this.GetType().Name}] Failed to create a Memory Alteration instance: failed to read original bytes in the target process' memory space!");
 
 			// Update internal data
 			this.TargetAddress = targetAddress;

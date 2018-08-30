@@ -19,11 +19,11 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add the address
-	///    of an injected variable to a code cave.
-	/// </summary>
-	public class CodeCaveArtifactVariableAddress<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
+    /// <summary>
+    ///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add the address
+    ///    of an injected variable to a code cave.
+    /// </summary>
+    public class CodeCaveArtifactVariableAddress<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
 		#region PRIVATE FIELDS
 		/// <summary>The identifier of the variable to be added through this artifact.</summary>
@@ -67,11 +67,11 @@ namespace RAMvader.CodeInjection
 
 		/// <summary>Retrieves the total size of a given artifact, in bytes.</summary>
 		/// <param name="target">
-		///    The instance of <see cref="RAMvaderTarget"/> that is setup to access the target process' memory space.
+		///    The instance of <see cref="Target"/> that is setup to access the target process' memory space.
 		///    This instance is used to know properties of the target process, such as its pointers size.
 		/// </param>
 		/// <returns>Returns the total size of the artifact, in bytes.</returns>
-		public override int GetTotalSize( RAMvaderTarget target )
+		public override int GetTotalSize( Target target )
 		{
 			int targetProcessPointerSize = target.GetActualTargetPointerSizeInBytes();
 			return targetProcessPointerSize;

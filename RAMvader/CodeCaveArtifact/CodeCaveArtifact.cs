@@ -21,16 +21,16 @@ using System;
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    This class represents the artifacts that can be added to a code cave.
-	///    Artifacts may include: byte sequences, addresses of injected variables, assembly instructions, etc.
-	///    Futurely, new kinds of artifacts might be created for making the process of building of code caves easier,
-	///    more flexible and more powerful.
-	///    During the injection process, the <see cref="CodeInjection.Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
-	///    will use the artifacts of each code cave to build the byte codes of each one of the code caves that need to be
-	///    injected.
-	/// </summary>
-	public abstract class CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
+    /// <summary>
+    ///    This class represents the artifacts that can be added to a code cave.
+    ///    Artifacts may include: byte sequences, addresses of injected variables, assembly instructions, etc.
+    ///    Futurely, new kinds of artifacts might be created for making the process of building of code caves easier,
+    ///    more flexible and more powerful.
+    ///    During the injection process, the <see cref="CodeInjection.Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
+    ///    will use the artifacts of each code cave to build the byte codes of each one of the code caves that need to be
+    ///    injected.
+    /// </summary>
+    public abstract class CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
 		#region PRIVATE FIELDS
 		/// <summary>This field is set to a reference of the injector</summary>
@@ -60,10 +60,7 @@ namespace RAMvader.CodeInjection
 		public void LockWithInjector( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injectorRef )
 		{
 			if ( m_injector != null )
-				throw new InvalidOperationException( string.Format(
-					"The {0} instance is alrady locked by a {1} object!",
-					typeof( CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> ).Name,
-					typeof( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> ).Name ) );
+				throw new InvalidOperationException($"The {typeof( CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> ).Name} instance is already locked by a {typeof( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> ).Name} object!");
 			m_injector = injectorRef;
 		}
 
@@ -96,10 +93,7 @@ namespace RAMvader.CodeInjection
 		public void ReleaseFromInjector()
 		{
 			if ( m_injector == null )
-				throw new InvalidOperationException( string.Format(
-					"There is currently no {0} instance locking this {1} object!",
-					typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).Name,
-					typeof(CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>).Name ) );
+				throw new InvalidOperationException($"There is currently no {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).Name} instance locking this {typeof(CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>).Name} object!");
 			m_injector = null;
 		}
 		#endregion
@@ -122,11 +116,11 @@ namespace RAMvader.CodeInjection
 		public abstract byte[] GenerateArtifactBytes();
 		/// <summary>Retrieves the total size of a given artifact, in bytes.</summary>
 		/// <param name="target">
-		///    The instance of <see cref="RAMvaderTarget"/> that is setup to access the target process' memory space.
+		///    The instance of <see cref="Target"/> that is setup to access the target process' memory space.
 		///    This instance is used to know properties of the target process, such as its pointers size.
 		/// </param>
 		/// <returns>Returns the total size of the artifact, in bytes.</returns>
-		public abstract int GetTotalSize( RAMvaderTarget target );
+		public abstract int GetTotalSize( Target target );
 		#endregion
 	}
 }

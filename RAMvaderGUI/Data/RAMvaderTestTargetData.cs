@@ -98,9 +98,7 @@ namespace RAMvaderGUI
 				if ( sm_expectedInputAddressesFreezeValue[totalTypes].GetType() == t )
 					return sm_expectedInputAddressesFreezeValue[totalTypes];
 			}
-			throw new NotImplementedException( string.Format(
-				"Cannot retrieve the freeze value of type \"{0}\" on the RAMvaderTestTarget program: the given type's freeze value has not been implemented!",
-				t.Name ) );
+			throw new NotImplementedException($"Cannot retrieve the freeze value of type \"{t.Name}\" on the RAMvaderTestTarget program: the given type's freeze value has not been implemented!");
 		}
 		#endregion
 	}

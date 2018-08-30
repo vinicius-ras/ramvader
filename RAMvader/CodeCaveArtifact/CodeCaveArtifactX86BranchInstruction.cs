@@ -17,29 +17,38 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using RAMvader.Attributes;
+using System;
+
 namespace RAMvader.CodeInjection
 {
     /// <summary>
-    ///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add the address
-    ///    of an injected code cave to a code cave.
+    ///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add
+    ///    an x86 branch instruction to a code cave. Such instructions include jumps, both conditional ("JMP") and
+    ///    unconditional (instructions like "JA", "JNE", "JL", etc... collectively known as "JCC" instructions), and procedure
+    ///    calling instructions ("CALL").
     /// </summary>
-    public class CodeCaveArtifactCodeCaveAddress<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
+    public class CodeCaveArtifactX86BranchInstruction<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
-		#region PRIVATE FIELDS
-		/// <summary>The identifier of the code cave to be added through this artifact.</summary>
-		private TCodeCave m_codeCaveId;
-		#endregion
+        #region PRIVATE FIELDS
+        /// <summary>The specific branch instruction type which needs to be written.</summary>
+        private EX86BranchInstructionType m_branchInstructionType;
+		/// <summary>The target address to where the branching will be made.</summary>
+		private MemoryAddress m_targetAddress;
+        #endregion
 
 
 
 
 
-		#region PUBLIC METHODS
-		/// <summary>Constructor.</summary>
-		/// <param name="codeCaveId">The identifier of the code cave to be added through this artifact.</param>
-		public CodeCaveArtifactCodeCaveAddress( TCodeCave codeCaveId )
+        #region PUBLIC METHODS
+        /// <summary>Constructor.</summary>
+        /// <param name="instructionType">The specific type of branch instruction to be generated.</param>
+        /// <param name="targetAddress">The address to where the branch will divert the target process' execution flow.</param>
+        public CodeCaveArtifactX86BranchInstruction(EX86BranchInstructionType instructionType, MemoryAddress targetAddress )
 		{
-			m_codeCaveId = codeCaveId;
+            m_branchInstructionType = instructionType;
+            m_targetAddress = targetAddress;
 		}
 		#endregion
 
@@ -60,7 +69,11 @@ namespace RAMvader.CodeInjection
 		public override byte[] GenerateArtifactBytes()
 		{
 			Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injectorRef = this.GetLockingInjector();
-			byte [] result = injectorRef.GetInjectedCodeCaveAddressAsBytes( m_codeCaveId );
+			IntPtr curInjectionAddress = injectorRef.GetCurrentInjectionAddress();
+			MemoryAddress currentInjectionAddress = new AbsoluteMemoryAddress( curInjectionAddress );
+
+			byte [] result = Injector<TMemoryAlterationSetID, TCodeCave, TVariable>.GetX86BranchInstructionBytes(
+                m_branchInstructionType, currentInjectionAddress, m_targetAddress );
 			return result;
 		}
 
@@ -73,8 +86,8 @@ namespace RAMvader.CodeInjection
 		/// <returns>Returns the total size of the artifact, in bytes.</returns>
 		public override int GetTotalSize( Target target )
 		{
-			int targetProcessPointerSize = target.GetActualTargetPointerSizeInBytes();
-			return targetProcessPointerSize;
+            var instructionMetadata = m_branchInstructionType.GetAttribute<X86BranchInstructionMetadata>();
+            return instructionMetadata.TotalInstructionSize;
 		}
 		#endregion
 	}

@@ -24,7 +24,7 @@
 using System;
 namespace RAMvader.CodeInjection
 {
-	public partial class Injector<TMemoryAlterationSetID, TCodeCave, TVariable>
+    public partial class Injector<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
 		#region PRIVATE CONSTANTS
 		/// <summary>

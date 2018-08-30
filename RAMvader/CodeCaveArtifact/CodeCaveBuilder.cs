@@ -22,20 +22,20 @@ using System.Collections.Generic;
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    <para>
-	///       A class specialized in building <see cref="CodeCaveDefinition{TMemoryAlterationSetID, TCodeCave, TVariable}"/> objects.
-	///       This class follows a fluid design pattern, allowing calls to its code cave construction-related methods to
-	///       be cascaded, making code easier to read and maintain.
-	///    </para>
-	///    <para>
-	///       Under the hoods, this class generates <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> objects,
-	///       which are kept in a list that can be used to generate the code cave definition.
-	///    </para>
-	///    <para>
-	///    </para>
-	/// </summary>
-	public class CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable>
+    /// <summary>
+    ///    <para>
+    ///       A class specialized in building <see cref="CodeCaveDefinition{TMemoryAlterationSetID, TCodeCave, TVariable}"/> objects.
+    ///       This class follows a fluid design pattern, allowing calls to its code cave construction-related methods to
+    ///       be cascaded, making code easier to read and maintain.
+    ///    </para>
+    ///    <para>
+    ///       Under the hoods, this class generates <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> objects,
+    ///       which are kept in a list that can be used to generate the code cave definition.
+    ///    </para>
+    ///    <para>
+    ///    </para>
+    /// </summary>
+    public class CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
 		#region PRIVATE FIELDS
 		/// <summary>
@@ -109,74 +109,45 @@ namespace RAMvader.CodeInjection
 
 		/// <summary>
 		///    Adds the given sequence of signed bytes (<see cref="SByte"/>) to the code cave being built.
-		///    This effectivelly adds a <see cref="CodeCaveArtifactSignedBytesSequence{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
+		///    This effectivelly adds a <see cref="CodeCaveArtifactSByteSequence{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
 		///    artifact to the list of generated artifacts.
 		/// </summary>
 		/// <param name="bytes">The sequence of (signed) bytes which will be added.</param>
 		/// <returns>Returns a reference to the object used to call the method.</returns>
 		public CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable> SBytes( params sbyte[] bytes )
 		{
-			m_artifacts.Add( new CodeCaveArtifactSignedBytesSequence<TMemoryAlterationSetID, TCodeCave, TVariable>( bytes ) );
+			m_artifacts.Add( new CodeCaveArtifactSByteSequence<TMemoryAlterationSetID, TCodeCave, TVariable>( bytes ) );
 			return this;
 		}
 
 
 		/// <summary>
 		///    Adds the given sequence of unsigned bytes (<see cref="Byte"/>) to the code cave being built.
-		///    This effectivelly adds a <see cref="CodeCaveArtifactUnsignedBytesSequence{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
+		///    This effectivelly adds a <see cref="CodeCaveArtifactByteSequence{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
 		///    artifact to the list of generated artifacts.
 		/// </summary>
 		/// <param name="bytes">The sequence of (unsigned) bytes which will be added.</param>
 		/// <returns>Returns a reference to the object used to call the method.</returns>
 		public CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable> Bytes( params byte[] bytes )
 		{
-			m_artifacts.Add( new CodeCaveArtifactUnsignedBytesSequence<TMemoryAlterationSetID, TCodeCave, TVariable>( bytes ) );
+			m_artifacts.Add( new CodeCaveArtifactByteSequence<TMemoryAlterationSetID, TCodeCave, TVariable>( bytes ) );
 			return this;
 		}
 
 
-		/// <summary>
-		///    Adds the bytes corresponding to a CALL instruction to the code cave being built.
-		///    This effectivelly adds a <see cref="CodeCaveArtifactX86Call{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
-		///    artifact to the list of generated artifacts.
-		/// </summary>
-		/// <param name="targetAddress">The address to be CALLed.</param>
-		/// <returns>Returns a reference to the object used to call the method.</returns>
-		public CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable> X86Call( MemoryAddress targetAddress )
-		{
-			m_artifacts.Add( new CodeCaveArtifactX86Call<TMemoryAlterationSetID, TCodeCave, TVariable>( targetAddress ) );
-			return this;
-		}
-
-
-		/// <summary>
-		///    Adds the bytes corresponding to a NEAR JUMP instruction to the code cave being built.
-		///    This effectivelly adds a <see cref="CodeCaveArtifactX86NearJump{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
-		///    artifact to the list of generated artifacts.
-		/// </summary>
-		/// <param name="jumpInstructionType">The specific type of jump instruction to be generated.</param>
-		/// <param name="targetAddress">The address to which the instruction will jump.</param>
-		/// <returns>Returns a reference to the object used to call the method.</returns>
-		public CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable> X86NearJump( EJumpInstructionType jumpInstructionType, MemoryAddress targetAddress )
-		{
-			m_artifacts.Add( new CodeCaveArtifactX86NearJump<TMemoryAlterationSetID, TCodeCave, TVariable>( jumpInstructionType, targetAddress ) );
-			return this;
-		}
-
-
-		/// <summary>
-		///    Adds the bytes corresponding to a FAR JUMP instruction to the code cave being built.
-		///    This effectivelly adds a <see cref="CodeCaveArtifactX86FarJump{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
-		///    artifact to the list of generated artifacts.
-		/// </summary>
-		/// <param name="jumpInstructionType">The specific type of jump instruction to be generated.</param>
-		/// <param name="targetAddress">The address to which the instruction will jump.</param>
-		/// <returns>Returns a reference to the object used to call the method.</returns>
-		public CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable> X86FarJump( EJumpInstructionType jumpInstructionType, MemoryAddress targetAddress )
-		{
-			m_artifacts.Add( new CodeCaveArtifactX86FarJump<TMemoryAlterationSetID, TCodeCave, TVariable>( jumpInstructionType, targetAddress ) );
-			return this;
-		}
+        /// <summary>
+        ///    Adds the bytes corresponding to an x86 branch instruction to the code cave being built.
+        ///    This effectivelly adds a <see cref="CodeCaveArtifactX86BranchInstruction{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
+        ///    artifact to the list of generated artifacts.
+        /// </summary>
+        /// <param name="instructionType">The type of branch instruction to be generated.</param>
+        /// <param name="targetAddress">The target address of the branching instruction.</param>
+        /// <returns>Returns a reference to the object used to call the method.</returns>
+        public CodeCaveBuilder<TMemoryAlterationSetID, TCodeCave, TVariable> X86Branch(EX86BranchInstructionType instructionType, MemoryAddress targetAddress)
+        {
+            m_artifacts.Add(new CodeCaveArtifactX86BranchInstruction<TMemoryAlterationSetID, TCodeCave, TVariable>(instructionType, targetAddress));
+            return this;
+        }
 		#endregion
 	}
 }

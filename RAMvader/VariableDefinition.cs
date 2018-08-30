@@ -21,8 +21,8 @@ using System;
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>Keeps the metadata related to an injection variable.</summary>
-	public class VariableDefinition
+    /// <summary>Keeps the metadata related to an injection variable.</summary>
+    public class VariableDefinition
 	{
 		#region PRIVATE FIELDS
 		/// <summary>

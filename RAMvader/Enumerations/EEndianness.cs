@@ -17,17 +17,16 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace RAMvader.CodeInjection
+namespace RAMvader
 {
-    /// <summary>An exception thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/> method
-    /// to indicate that it was unable to allocate virtual memory in the target process' memory space.</summary>
-    public class VirtualMemoryAllocationException : InjectorException
-	{
-		/// <summary>Constructor.</summary>
-		public VirtualMemoryAllocationException()
-			: base( "Unable to allocate virtual memory in the target process' memory space." )
-		{
-
-		}
-	}
+    /// <summary>Defines the possible endianness options which RAMvader can operate on.</summary>
+    public enum EEndianness
+    {
+        /// <summary>A value indicating that RAMvader should operate in the same endianness as the process that RAMvader is running on.</summary>
+        evEndiannessDefault,
+        /// <summary>A value indicating that RAMvader should operate in Little-Endian byte order.</summary>
+        evEndiannessLittle,
+        /// <summary>A value indicating that RAMvader should operate in Big-Endian byte order.</summary>
+        evEndiannessBig,
+    }
 }

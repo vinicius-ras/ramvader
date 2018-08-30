@@ -22,8 +22,8 @@ using System.Runtime.InteropServices;
 
 namespace RAMvader
 {
-	/// <summary>This class is an interface that provides access to the Windows API.</summary>
-	public static class WinAPI
+    /// <summary>This class is an interface that provides access to the Windows API.</summary>
+    public static class WinAPI
 	{
 		#region ENUMERATIONS
 		/// <summary>Flags used to determine the allowed access to a process.</summary>

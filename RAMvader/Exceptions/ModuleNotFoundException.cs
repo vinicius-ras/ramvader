@@ -19,16 +19,16 @@
 
 namespace RAMvader
 {
-	/// <summary>
-	///    Exception thrown when the RAMvader library fails to find a module in the
-	///    target process' modules list.
-	/// </summary>
-	public class ModuleNotFoundException : RAMvaderException
+    /// <summary>
+    ///    Exception thrown when the RAMvader library fails to find a module in the
+    ///    target process' modules list.
+    /// </summary>
+    public class ModuleNotFoundException : RAMvaderException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="moduleName">The name of the module which has not been found.</param>
 		public ModuleNotFoundException( string moduleName )
-			: base( string.Format( "Cannot find a module named \"{0}\" in the target process!", moduleName ) )
+			: base($"Cannot find a module named \"{moduleName}\" in the target process!")
 		{
 		}
 	}

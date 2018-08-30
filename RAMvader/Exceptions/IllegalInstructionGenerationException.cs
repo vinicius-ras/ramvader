@@ -19,12 +19,12 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Exception thrown when an instruction cannot be generated, because the generated instruction would be illegal.
-	///    An example of that is trying to generate an X86 NEAR JUMP instruction that would try to perform a jump larger than
-	///    the maximum value of a byte, which is impossible.
-	/// </summary>
-	public class IllegalInstructionGenerationException : InjectorException
+    /// <summary>
+    ///    Exception thrown when an instruction cannot be generated, because the generated instruction would be illegal.
+    ///    An example of that is trying to generate a "short" branching instruction that would try to perform a jump larger than
+    ///    the maximum value of a byte, which is impossible.
+    /// </summary>
+    public class IllegalInstructionGenerationException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>

@@ -21,8 +21,8 @@ using System;
 
 namespace RAMvader
 {
-	/// <summary>The base class for all exceptions from the RAMvader library.</summary>
-	public abstract class RAMvaderException : Exception
+    /// <summary>The base class for all exceptions from the RAMvader library.</summary>
+    public abstract class RAMvaderException : Exception
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message associated to the exception.</param>

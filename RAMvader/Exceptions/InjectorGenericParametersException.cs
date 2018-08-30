@@ -19,12 +19,12 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Exception thrown when trying to instantiate an <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
-	///    whose generic parameters are illegal for some reason.
-	///    All <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>'s generic parameters should be enumerations.
-	/// </summary>
-	public class InjectorGenericParametersException : InjectorException
+    /// <summary>
+    ///    Exception thrown when trying to instantiate an <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
+    ///    whose generic parameters are illegal for some reason.
+    ///    All <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>'s generic parameters should be enumerations.
+    /// </summary>
+    public class InjectorGenericParametersException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>

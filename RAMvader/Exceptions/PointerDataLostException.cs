@@ -19,19 +19,17 @@
 
 namespace RAMvader
 {
-	/// <summary>
-	///    An exception which is thrown when trying to perform an I/O operation with pointers between
-	///    two processes with different pointer sizes.
-	/// </summary>
-	public class PointerDataLostException : RAMvaderException
+    /// <summary>
+    ///    An exception which is thrown when trying to perform an I/O operation with pointers between
+    ///    two processes with different pointer sizes.
+    /// </summary>
+    public class PointerDataLostException : RAMvaderException
 	{
 		#region PUBLIC METHODS
 		/// <summary>Constructor.</summary>
 		/// <param name="bIsReadOperation">A flag specifying if the exception has been thrown during a read operation (true) or a write operation (false).</param>
 		public PointerDataLostException( bool bIsReadOperation )
-			: base( string.Format(
-				"{0} operation failed: the size of pointers on the target process is different from the size of pointers on the process which runs RAMvader!",
-				bIsReadOperation ? "READ" : "WRITE" ) )
+			: base($"{(bIsReadOperation ? "READ" : "WRITE")} operation failed: the size of pointers on the target process is different from the size of pointers on the process which runs RAMvader!")
 		{
 		}
 		#endregion

@@ -19,17 +19,17 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Exception thrown when the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> tries
-	///    to generate an instruction whose size (in bytes) is larger than the space given for the generation of that instruction.
-	/// </summary>
-	public class InstructionTooLargeException : InjectorException
+    /// <summary>
+    ///    Exception thrown when the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> tries
+    ///    to generate an instruction whose size (in bytes) is larger than the space given for the generation of that instruction.
+    /// </summary>
+    public class InstructionTooLargeException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="givenSize">The size given for the instruction to be generated.</param>
 		/// <param name="requiredSize">The size that is actually required to generate the instruction.</param>
 		public InstructionTooLargeException( int givenSize, int requiredSize )
-			: base( string.Format( "Instruction was given {1} bytes of space to be generated, while it requires {0} bytes." ) )
+			: base( $"Instruction was given {givenSize} bytes of space to be generated, while it requires {requiredSize} bytes." )
 		{
 		}
 	}

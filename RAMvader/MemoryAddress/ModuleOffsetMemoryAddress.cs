@@ -22,16 +22,16 @@ using System.Diagnostics;
 
 namespace RAMvader
 {
-	/// <summary>
-	///    A specialization for the <see cref="MemoryAddress"/> class, used to represent
-	///    addresses that are calculated as offsets from a given module of the process to which
-	///    the <see cref="RAMvaderTarget"/> is attached.
-	/// </summary>
-	public class ModuleOffsetMemoryAddress : MemoryAddress
+    /// <summary>
+    ///    A specialization for the <see cref="MemoryAddress"/> class, used to represent
+    ///    addresses that are calculated as offsets from a given module of the process to which
+    ///    the <see cref="Target"/> is attached.
+    /// </summary>
+    public class ModuleOffsetMemoryAddress : MemoryAddress
 	{
 		#region PRIVATE FIELDS
 		/// <summary>A reference to the object used to access the target <see cref="Process"/>' address space.</summary>
-		private RAMvaderTarget m_target;
+		private Target m_target;
 		/// <summary>The name of the module whose base address will be used to calculate the final (real) address.</summary>
 		private String m_moduleName;
 		/// <summary>The offset to apply to the base of the given module in order to find the final (real) address.</summary>
@@ -47,7 +47,7 @@ namespace RAMvader
 		/// <param name="target">A reference to the object used to access the target <see cref="Process"/>' address space.</param>
 		/// <param name="moduleName">The name of the module whose base address will be used to calculate the final (real) address.</param>
 		/// <param name="offset">The offset to apply to the base of the given module in order to find the final (real) address.</param>
-		public ModuleOffsetMemoryAddress( RAMvaderTarget target, String moduleName, int offset )
+		public ModuleOffsetMemoryAddress( Target target, String moduleName, int offset )
 		{
 			m_target = target;
 			m_moduleName = moduleName;

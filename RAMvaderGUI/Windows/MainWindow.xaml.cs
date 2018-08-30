@@ -48,7 +48,7 @@ namespace RAMvaderGUI
 
 		#region PUBLIC PROPERTIES
 		/// <summary>Reference to the object used to access and operate on the target process' memory space.</summary>
-		public RAMvaderTarget TargetProcessIO { get; set; } = new RAMvaderTarget();
+		public Target TargetProcessIO { get; set; } = new Target();
 		/// <summary>
 		///    The list of addresses that are displayed in the <see cref="DataGrid"/> of the
 		///    <see cref="MainWindow"/>.
@@ -64,7 +64,7 @@ namespace RAMvaderGUI
 
 		#region PRIVATE METHODS
 		/// <summary>
-		///    Makes the program detach from the target process, by calling <see cref="RAMvaderTarget.DetachFromProcess()"/> on
+		///    Makes the program detach from the target process, by calling <see cref="Target.DetachFromProcess()"/> on
 		///    the object <see cref="TargetProcessIO"/>.
 		/// </summary>
 		private void DetachFromTargetProcess()
@@ -210,7 +210,7 @@ namespace RAMvaderGUI
 
 			string strTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
 			string strPayload = string.Format( format, args );
-			m_txtConsole.AppendText( string.Format( "[{0}] {1}", strTime, strPayload ) );
+			m_txtConsole.AppendText( $"[{strTime}] {strPayload}" );
 			m_txtConsole.ScrollToEnd();
 		}
 
@@ -566,9 +566,7 @@ namespace RAMvaderGUI
 
 			// Retrieve the name of the process and its PID, which we'll use to filter against
 			Process processToVerify = (Process) e.Item;
-			string processName = string.Format( "{0} {1}",
-				processToVerify.Id,
-				processToVerify.ProcessName.ToLowerInvariant() );
+			string processName = $"{processToVerify.Id} {processToVerify.ProcessName.ToLowerInvariant()}";
 
 			// Search and match ALL of the typed words
 			for ( int wordIndex = wordsTyped.Length - 1; wordIndex >= 0; wordIndex-- )

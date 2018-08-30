@@ -21,20 +21,20 @@ using System.Linq;
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>Represents a memory alteration that overwrites instructions of the target process' memory space with NOP instructions.</summary>
-	public class MemoryAlterationNOP : MemoryAlterationBase
+    /// <summary>Represents a memory alteration that overwrites instructions of the target process' memory space with NOP instructions.</summary>
+    public class MemoryAlterationNOP : MemoryAlterationBase
 	{
 		#region PUBLIC METHODS
 		/// <summary>Constructor.</summary>
 		/// <param name="targetIORef">
-		///    A reference to the <see cref="RAMvaderTarget"/> object that will be used to read the target process' memory space.
-		///    This <see cref="RAMvaderTarget"/> MUST be attached to a process, as it will be used in this constructor method to read the process'
+		///    A reference to the <see cref="Target"/> object that will be used to read the target process' memory space.
+		///    This <see cref="Target"/> MUST be attached to a process, as it will be used in this constructor method to read the process'
 		///    memory and keep a snapshot of the original bytes at the given 'targetAddress' for restoring their values,
 		///    whenever <see cref="MemoryAlterationNOP.SetEnabled{TMemoryAlterationID, TCodeCave, TVariable}(Injector{TMemoryAlterationID, TCodeCave, TVariable}, bool)"/> is called to deactivate a memory alteration.
 		/// </param>
 		/// <param name="targetAddress">The address of the instruction(s) that will be replaced with NOP instructions.</param>
 		/// <param name="instructionSize">The size of the instruction(s) that will be replaced with NOP instructions.</param>
-		public MemoryAlterationNOP( RAMvaderTarget targetIORef, MemoryAddress targetAddress, int instructionSize )
+		public MemoryAlterationNOP( Target targetIORef, MemoryAddress targetAddress, int instructionSize )
 			: base( targetIORef, targetAddress, instructionSize )
 		{
 		}
@@ -59,7 +59,7 @@ namespace RAMvader.CodeInjection
 			// When disabling: replace the instruction with its original bytes.
 			byte [] bytesToWrite;
 			if ( bEnable )
-				bytesToWrite = Enumerable.Repeat<byte>( LowLevel.OPCODE_x86_NOP, this.TargetOriginalBytes.Length ).ToArray();
+				bytesToWrite = Enumerable.Repeat<byte>( X86Constants.OPCODE_NOP, this.TargetOriginalBytes.Length ).ToArray();
 			else
 				bytesToWrite = this.TargetOriginalBytes;
 

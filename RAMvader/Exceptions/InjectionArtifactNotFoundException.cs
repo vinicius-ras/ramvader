@@ -19,11 +19,11 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Exception thrown whenever an operation fails to find an injection artifact (which includes injection
-	///    variables and code caves).
-	/// </summary>
-	public class InjectionArtifactNotFoundException : InjectorException
+    /// <summary>
+    ///    Exception thrown whenever an operation fails to find an injection artifact (which includes injection
+    ///    variables and code caves).
+    /// </summary>
+    public class InjectionArtifactNotFoundException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>

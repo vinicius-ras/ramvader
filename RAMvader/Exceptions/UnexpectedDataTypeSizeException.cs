@@ -19,11 +19,11 @@
 
 namespace RAMvader
 {
-	/// <summary>
-	///    Exception thrown when the compiler reports an unexpected size for a basic type handled by the RAMvader library.
-	///    This exception exists for safety purposes only, and should never be thrown on standard development environments.
-	/// </summary>
-	public class UnexpectedDataTypeSizeException : RAMvaderException
+    /// <summary>
+    ///    Exception thrown when the compiler reports an unexpected size for a basic type handled by the RAMvader library.
+    ///    This exception exists for safety purposes only, and should never be thrown on standard development environments.
+    /// </summary>
+    public class UnexpectedDataTypeSizeException : RAMvaderException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>

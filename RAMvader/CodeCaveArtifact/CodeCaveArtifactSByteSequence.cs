@@ -21,17 +21,15 @@ using System;
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add
-	///    a FAR JUMP instruction to a code cave.
-	/// </summary>
-	public class CodeCaveArtifactX86FarJump<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
+    /// <summary>
+    ///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add raw, signed bytes
+    ///    to a code cave.
+    /// </summary>
+    public class CodeCaveArtifactSByteSequence<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
 		#region PRIVATE FIELDS
-		/// <summary>The type of jump instruction to be generated.</summary>
-		private EJumpInstructionType m_jumpInstructionType;
-		/// <summary>The target address to where the jump will be made.</summary>
-		private MemoryAddress m_targetJumpAddress;
+		/// <summary>The raw bytes to be added through this artifact.</summary>
+		private byte [] m_bytes;
 		#endregion
 
 
@@ -40,12 +38,13 @@ namespace RAMvader.CodeInjection
 
 		#region PUBLIC METHODS
 		/// <summary>Constructor.</summary>
-		/// <param name="jumpInstructionType">The specific type of jump instruction to be generated.</param>
-		/// <param name="targetJumpAddress">The address to which the JUMP instruction should jump.</param>
-		public CodeCaveArtifactX86FarJump( EJumpInstructionType jumpInstructionType, MemoryAddress targetJumpAddress )
+		/// <param name="bytes">The raw bytes to be added through this artifact.</param>
+		public CodeCaveArtifactSByteSequence( params sbyte[] bytes )
 		{
-			m_jumpInstructionType = jumpInstructionType;
-			m_targetJumpAddress = targetJumpAddress;
+			// Copy the signed bytes to a new unsigned/"normal" bytes buffer
+			int totalBytes = bytes.Length;
+			m_bytes = new byte[totalBytes];
+			Buffer.BlockCopy( bytes, 0, m_bytes, 0, totalBytes );
 		}
 		#endregion
 
@@ -65,25 +64,19 @@ namespace RAMvader.CodeInjection
 		/// </returns>
 		public override byte[] GenerateArtifactBytes()
 		{
-			Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injectorRef = this.GetLockingInjector();
-			IntPtr curInjectionAddress = injectorRef.GetCurrentInjectionAddress();
-			MemoryAddress absoluteInjectionAddress = new AbsoluteMemoryAddress( curInjectionAddress );
-
-			byte [] result = Injector<TMemoryAlterationSetID, TCodeCave, TVariable>.GetX86FarJumpOpcode(
-				m_jumpInstructionType, absoluteInjectionAddress, m_targetJumpAddress );
-			return result;
+			return m_bytes;
 		}
 
 
 		/// <summary>Retrieves the total size of a given artifact, in bytes.</summary>
 		/// <param name="target">
-		///    The instance of <see cref="RAMvaderTarget"/> that is setup to access the target process' memory space.
+		///    The instance of <see cref="Target"/> that is setup to access the target process' memory space.
 		///    This instance is used to know properties of the target process, such as its pointers size.
 		/// </param>
 		/// <returns>Returns the total size of the artifact, in bytes.</returns>
-		public override int GetTotalSize( RAMvaderTarget target )
+		public override int GetTotalSize(Target target)
 		{
-			return LowLevel.INSTRUCTION_SIZE_x86_FAR_JUMP;
+			return m_bytes.Length;
 		}
 		#endregion
 	}

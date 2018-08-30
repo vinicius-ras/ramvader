@@ -23,11 +23,11 @@ using System.Runtime.CompilerServices;
 
 namespace RAMvader
 {
-	/// <summary>
-	///    An adapter class to make the implementation of the INotifyPropertyChanged interface easier
-	///    for any class willing to provide that implementation.
-	/// </summary>
-	public abstract class NotifyPropertyChangedAdapter : INotifyPropertyChanged
+    /// <summary>
+    ///    An adapter class to make the implementation of the INotifyPropertyChanged interface easier
+    ///    for any class willing to provide that implementation.
+    /// </summary>
+    public abstract class NotifyPropertyChangedAdapter : INotifyPropertyChanged
 	{
 		#region INTERFACE IMPLEMENTATION: INotifyPropertyChanged Members
 		/// <summary>Used for implementing the <see cref="INotifyPropertyChanged"/> interface.</summary>

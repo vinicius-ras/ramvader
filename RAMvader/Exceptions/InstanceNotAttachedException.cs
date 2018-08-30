@@ -19,12 +19,12 @@
 
 namespace RAMvader
 {
-	/// <summary>
-	///    Exception thrown when a method that requires the <see cref="RAMvaderTarget"/> instance to be attached
-	///    is called, while the <see cref="RAMvaderTarget"/> is in a "not attached" state (i.e.,
-	///    the <see cref="RAMvaderTarget"/> hasn't been attached to any target process yet).
-	/// </summary>
-	public class InstanceNotAttachedException : RAMvaderException
+    /// <summary>
+    ///    Exception thrown when a method that requires the <see cref="Target"/> instance to be attached
+    ///    is called, while the <see cref="Target"/> is in a "not attached" state (i.e.,
+    ///    the <see cref="Target"/> hasn't been attached to any target process yet).
+    /// </summary>
+    public class InstanceNotAttachedException : RAMvaderException
 	{
 		/// <summary>Constructor.</summary>
 		public InstanceNotAttachedException()

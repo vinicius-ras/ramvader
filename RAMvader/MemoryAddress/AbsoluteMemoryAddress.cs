@@ -21,11 +21,11 @@ using System;
 
 namespace RAMvader
 {
-	/// <summary>
-	///    A specialization for the <see cref="MemoryAddress"/> class, used to represent
-	///    absolute/static/constant addresses.
-	/// </summary>
-	public class AbsoluteMemoryAddress : MemoryAddress
+    /// <summary>
+    ///    A specialization for the <see cref="MemoryAddress"/> class, used to represent
+    ///    absolute/static/constant addresses.
+    /// </summary>
+    public class AbsoluteMemoryAddress : MemoryAddress
 	{
 		#region PRIVATE FIELDS
 		/// <summary>Represents the actual absolute/static/constant address represented by this instance.</summary>

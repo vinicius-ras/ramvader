@@ -34,7 +34,7 @@ namespace RAMvaderGUI
 		public object Convert( object value, Type targetType, object parameter, CultureInfo culture )
 		{
 			Process proc = (Process) value;
-			return string.Format( "[{0}] {1}", proc.Id.ToString("D6"), proc.ProcessName );
+			return $"[{proc.Id.ToString("D").PadLeft(6, '0')}] {proc.ProcessName}";
 		}
 
 

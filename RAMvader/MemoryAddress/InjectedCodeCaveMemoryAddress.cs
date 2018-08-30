@@ -23,21 +23,21 @@ using System.Diagnostics;
 
 namespace RAMvader
 {
-	/// <summary>
-	///    A specialization for the <see cref="MemoryAddress"/> class, used to represent
-	///    addresses of code caves that get injected by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
-	///    into a target process' memory space.
-	/// </summary>
-	/// <typeparam name="TMemoryAlterationSetID">
-	///    An enumerated type which specifies the identifiers for Memory Alteration Sets
-	///    that can be enabled or disabled into the target process' memory space.
-	/// </typeparam>
-	/// <typeparam name="TCodeCave">An enumerated type which specifies the identifiers for code caves.</typeparam>
-	/// <typeparam name="TVariable">
-	///    An enumerated type which specifies the identifiers for variables to be injected at the
-	///    target process.
-	/// </typeparam>
-	public class InjectedCodeCaveMemoryAddress<TMemoryAlterationSetID, TCodeCave, TVariable> : MemoryAddress
+    /// <summary>
+    ///    A specialization for the <see cref="MemoryAddress"/> class, used to represent
+    ///    addresses of code caves that get injected by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>
+    ///    into a target process' memory space.
+    /// </summary>
+    /// <typeparam name="TMemoryAlterationSetID">
+    ///    An enumerated type which specifies the identifiers for Memory Alteration Sets
+    ///    that can be enabled or disabled into the target process' memory space.
+    /// </typeparam>
+    /// <typeparam name="TCodeCave">An enumerated type which specifies the identifiers for code caves.</typeparam>
+    /// <typeparam name="TVariable">
+    ///    An enumerated type which specifies the identifiers for variables to be injected at the
+    ///    target process.
+    /// </typeparam>
+    public class InjectedCodeCaveMemoryAddress<TMemoryAlterationSetID, TCodeCave, TVariable> : MemoryAddress
 	{
 		#region PRIVATE FIELDS
 		/// <summary>

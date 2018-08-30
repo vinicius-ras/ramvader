@@ -21,21 +21,19 @@ using System;
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Exception thrown when trying to perform an operation involving injection variables, and the data type used
-	///    is different from the data type of the injection variable.
-	///    Read/write operations on injection variables must ALWAYS match the exact type declared for the injection variable.
-	/// </summary>
-	public class UnmatchedDataTypeException : InjectorException
+    /// <summary>
+    ///    Exception thrown when trying to perform an operation involving injection variables, and the data type used
+    ///    is different from the data type of the injection variable.
+    ///    Read/write operations on injection variables must ALWAYS match the exact type declared for the injection variable.
+    /// </summary>
+    public class UnmatchedDataTypeException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="givenType">The incorrect type used in the operation wich was tried against the injection variable.</param>
 		/// <param name="requiredType">The actual type of the injection variable, which was required for the operation to succeed.</param>
 		/// <param name="variableID">The identifier of the variable.</param>
 		public UnmatchedDataTypeException( Type givenType, Type requiredType, Enum variableID )
-			: base( string.Format(
-				"Operation failed because type \"{0}\" does not match the type \"{1}\" required by the injection variable identified by \"{2}\".",
-				givenType.Name, requiredType.Name, variableID.ToString() ) )
+			: base($"Operation failed because type \"{givenType.Name}\" does not match the type \"{requiredType.Name}\" required by the injection variable identified by \"{variableID.ToString()}\".")
 		{
 		}
 	}

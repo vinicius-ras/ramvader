@@ -19,8 +19,8 @@
 
 namespace RAMvader
 {
-	/// <summary>Exception that is thrown when an I/O operation that was required to succeed returns a fail state.</summary>
-	public abstract class RequiredIOException : RAMvaderException
+    /// <summary>Exception that is thrown when an I/O operation that was required to succeed returns a fail state.</summary>
+    public abstract class RequiredIOException : RAMvaderException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message associated to the exception.</param>

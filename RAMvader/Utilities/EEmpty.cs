@@ -17,17 +17,14 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace RAMvader.CodeInjection
+namespace RAMvader
 {
-    /// <summary>An exception thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/> method
-    /// to indicate that it was unable to allocate virtual memory in the target process' memory space.</summary>
-    public class VirtualMemoryAllocationException : InjectorException
-	{
-		/// <summary>Constructor.</summary>
-		public VirtualMemoryAllocationException()
-			: base( "Unable to allocate virtual memory in the target process' memory space." )
-		{
-
-		}
-	}
+    /// <summary>
+    ///    An empty enumeration, provided for utility purposes (e.g. you can use it to specify the generic enumeration type(s) for
+    ///    the <see cref="CodeInjection.Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> whenever you don't need to use memory
+    ///    alteration sets, code caves, and/or injection variables.
+    /// </summary>
+    public enum EEmpty
+    {
+    }
 }

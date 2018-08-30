@@ -17,19 +17,17 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
-
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add
-	///    a CALL instruction to a code cave.
-	/// </summary>
-	public class CodeCaveArtifactX86Call<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
+    /// <summary>
+    ///    Specialization of the <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class used to add raw, unsigned bytes
+    ///    to a code cave.
+    /// </summary>
+    public class CodeCaveArtifactByteSequence<TMemoryAlterationSetID, TCodeCave, TVariable> : CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
 		#region PRIVATE FIELDS
-		/// <summary>The target address to where the call will be made.</summary>
-		private MemoryAddress m_targetCallAddress;
+		/// <summary>The raw bytes to be added through this artifact.</summary>
+		private byte [] m_bytes;
 		#endregion
 
 
@@ -38,10 +36,10 @@ namespace RAMvader.CodeInjection
 
 		#region PUBLIC METHODS
 		/// <summary>Constructor.</summary>
-		/// <param name="targetCallAddress">The address to be CALLed.</param>
-		public CodeCaveArtifactX86Call( MemoryAddress targetCallAddress )
+		/// <param name="bytes">The raw bytes to be added through this artifact.</param>
+		public CodeCaveArtifactByteSequence( params byte[] bytes )
 		{
-			m_targetCallAddress = targetCallAddress;
+			m_bytes = bytes;
 		}
 		#endregion
 
@@ -61,25 +59,19 @@ namespace RAMvader.CodeInjection
 		/// </returns>
 		public override byte[] GenerateArtifactBytes()
 		{
-			Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injectorRef = this.GetLockingInjector();
-			IntPtr curInjectionAddress = injectorRef.GetCurrentInjectionAddress();
-			MemoryAddress absoluteInjectionAddress = new AbsoluteMemoryAddress( curInjectionAddress );
-
-			byte [] result = Injector<TMemoryAlterationSetID, TCodeCave, TVariable>.GetX86CallOpcode(
-				absoluteInjectionAddress, m_targetCallAddress );
-			return result;
+			return m_bytes;
 		}
 
 
 		/// <summary>Retrieves the total size of a given artifact, in bytes.</summary>
 		/// <param name="target">
-		///    The instance of <see cref="RAMvaderTarget"/> that is setup to access the target process' memory space.
+		///    The instance of <see cref="Target"/> that is setup to access the target process' memory space.
 		///    This instance is used to know properties of the target process, such as its pointers size.
 		/// </param>
 		/// <returns>Returns the total size of the artifact, in bytes.</returns>
-		public override int GetTotalSize( RAMvaderTarget target )
+		public override int GetTotalSize( Target target )
 		{
-			return LowLevel.INSTRUCTION_SIZE_x86_CALL;
+			return m_bytes.Length;
 		}
 		#endregion
 	}

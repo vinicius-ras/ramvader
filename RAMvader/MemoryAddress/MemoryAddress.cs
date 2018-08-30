@@ -21,20 +21,20 @@ using System;
 
 namespace RAMvader
 {
-	/// <summary>
-	///    <para>
-	///       Represents a memory address for the RAMvader library.
-	///       Memory addresses should be READ-ONLY: once they're created, the real memory address they
-	///       represent internally must not be changed.
-	///    </para>
-	///    <para>
-	///       Although they're read-only, the real addresses they represent are dynamically calculated
-	///       when a call to <see cref="GetRealAddress"/>, and are recalculated everytime this method gets called.
-	///       The only exception to this rececalculation rule is for the <see cref="AbsoluteMemoryAddress"/> class,
-	///       which represent an absolute address that never changes (and thus is cached inside the instance of this class).
-	///    </para>
-	/// </summary>
-	public abstract class MemoryAddress
+    /// <summary>
+    ///    <para>
+    ///       Represents a memory address for the RAMvader library.
+    ///       Memory addresses should be READ-ONLY: once they're created, the real memory address they
+    ///       represent internally must not be changed.
+    ///    </para>
+    ///    <para>
+    ///       Although they're read-only, the real addresses they represent are dynamically calculated
+    ///       when a call to <see cref="GetRealAddress"/>, and are recalculated everytime this method gets called.
+    ///       The only exception to this rececalculation rule is for the <see cref="AbsoluteMemoryAddress"/> class,
+    ///       which represent an absolute address that never changes (and thus is cached inside the instance of this class).
+    ///    </para>
+    /// </summary>
+    public abstract class MemoryAddress
 	{
 		#region PUBLIC PROPERTIES
 		/// <summary>

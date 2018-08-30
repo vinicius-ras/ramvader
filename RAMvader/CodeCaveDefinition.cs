@@ -17,19 +17,18 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-using System;
 using System.Collections.Generic;
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    This class holds the definition of a Code Cave that can be injected into a process' memory space
-	///    by using the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.
-	///    A code cave is made up of a list of <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> objects,
-	///    which hold all the information used by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> to
-	///    generate the bytes of the code cave, which are then injected into the target process' memory space.
-	/// </summary>
-	public class CodeCaveDefinition<TMemoryAlterationSetID, TCodeCave, TVariable>
+    /// <summary>
+    ///    This class holds the definition of a Code Cave that can be injected into a process' memory space
+    ///    by using the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.
+    ///    A code cave is made up of a list of <see cref="CodeCaveArtifact{TMemoryAlterationSetID, TCodeCave, TVariable}"/> objects,
+    ///    which hold all the information used by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> to
+    ///    generate the bytes of the code cave, which are then injected into the target process' memory space.
+    /// </summary>
+    public class CodeCaveDefinition<TMemoryAlterationSetID, TCodeCave, TVariable>
 	{
 		#region PRIVATE FIELDS
 		/// <summary>The artifacts that compose the code cave.</summary>
@@ -94,12 +93,17 @@ namespace RAMvader.CodeInjection
 			List<byte> result = new List<byte>();
 			foreach ( CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> curCodeCaveArtifact in m_codeCaveArtifacts )
 			{
+                // Lock the artifact being injected and set its internal reference to the injector
 				curCodeCaveArtifact.LockWithInjector( injector );
 
+                // Generate the artifact's bytes
 				byte [] curArtifactGeneratedBytes = curCodeCaveArtifact.GenerateArtifactBytes();
 				result.AddRange( curArtifactGeneratedBytes );
 
-				curCodeCaveArtifact.ReleaseFromInjector();
+                // Tell the injector how many bytes have been generated, increasing the internal "injection offset" of the injector,
+                // and then release the artifact's injector reference
+                injector.IncreaseCurrentInjectionOffset(curArtifactGeneratedBytes.Length);
+                curCodeCaveArtifact.ReleaseFromInjector();
 			}
 
 			return result.ToArray();
@@ -108,11 +112,11 @@ namespace RAMvader.CodeInjection
 
 		/// <summary>Calculates and retrieves the size of the code cave.</summary>
 		/// <param name="target">
-		///    The instance of <see cref="RAMvaderTarget"/> that is setup to access the target process' memory space.
+		///    The instance of <see cref="Target"/> that is setup to access the target process' memory space.
 		///    This instance is used to know properties of the target process, such as its pointers size.
 		/// </param>
 		/// <returns>Returns the number of bytes of size for the code cave.</returns>
-		public int GetCodeCaveSize( RAMvaderTarget target )
+		public int GetCodeCaveSize( Target target )
 		{
 			if ( m_codeCaveArtifacts == null )
 				return 0;

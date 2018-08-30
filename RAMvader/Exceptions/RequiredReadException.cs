@@ -19,8 +19,8 @@
 
 namespace RAMvader
 {
-	/// <summary>Exception that is thrown when an input/read operation that was required to succeed returns a fail state.</summary>
-	public class RequiredReadException : RequiredIOException
+    /// <summary>Exception that is thrown when an input/read operation that was required to succeed returns a fail state.</summary>
+    public class RequiredReadException : RequiredIOException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message associated to the exception.</param>

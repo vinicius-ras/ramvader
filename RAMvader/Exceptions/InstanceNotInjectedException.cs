@@ -19,14 +19,14 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Exception thrown when a method that requires the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> instance
-	///    to be in "injected" state, but this condition is not met.
-	///    The <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> is put in "injected" state when a call
-	///    to <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/>
-	///    or <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject(MemoryAddress)"/> is made.
-	/// </summary>
-	public class InstanceNotInjectedException : InjectorException
+    /// <summary>
+    ///    Exception thrown when a method that requires the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> instance
+    ///    to be in "injected" state, but this condition is not met.
+    ///    The <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> is put in "injected" state when a call
+    ///    to <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/>
+    ///    or <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject(MemoryAddress)"/> is made.
+    /// </summary>
+    public class InstanceNotInjectedException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		public InstanceNotInjectedException()

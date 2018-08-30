@@ -17,17 +17,19 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace RAMvader.CodeInjection
+namespace RAMvader
 {
-    /// <summary>An exception thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/> method
-    /// to indicate that it was unable to allocate virtual memory in the target process' memory space.</summary>
-    public class VirtualMemoryAllocationException : InjectorException
-	{
-		/// <summary>Constructor.</summary>
-		public VirtualMemoryAllocationException()
-			: base( "Unable to allocate virtual memory in the target process' memory space." )
-		{
-
-		}
-	}
+    /// <summary>Defines the supported pointer sizes for the target process.</summary>
+    public enum EPointerSize
+    {
+        /// <summary>
+        ///    The default pointer size configuration, where the target process' pointer size is assumed to be the same as the pointer
+        ///    size of the process which runs RAMvader. The pointer size can be retrieved through IntPtr.Size.
+        /// </summary>
+        evPointerSizeDefault,
+        /// <summary>Explicitly identifies a 32-bit pointer.</summary>
+        evPointerSize32,
+        /// <summary>Explicitly identifies a 64-bit pointer.</summary>
+        evPointerSize64,
+    }
 }

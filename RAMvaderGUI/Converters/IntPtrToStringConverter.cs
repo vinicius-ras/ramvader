@@ -35,7 +35,7 @@ namespace RAMvaderGUI
 		/// <returns>Returns a string representation of the value.</returns>
 		public static string ConvertIntPtrToString( IntPtr val )
 		{
-			return string.Format( "0x{0}", val.ToString( "X8" ) );
+			return $"0x{val.ToString( "X" ).PadLeft(8, '0')}";
 		}
 
 

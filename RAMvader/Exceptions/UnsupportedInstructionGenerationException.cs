@@ -19,11 +19,11 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>
-	///    Exception thrown when the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> is unable
-	///    to generate a given instruction, for some reason.
-	/// </summary>
-	public class UnsupportedInstructionGenerationException : InjectorException
+    /// <summary>
+    ///    Exception thrown when the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> is unable
+    ///    to generate a given instruction, for some reason.
+    /// </summary>
+    public class UnsupportedInstructionGenerationException : InjectorException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>

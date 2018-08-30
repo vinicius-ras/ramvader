@@ -17,17 +17,18 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace RAMvader.CodeInjection
+namespace RAMvader
 {
-    /// <summary>An exception thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}.Inject()"/> method
-    /// to indicate that it was unable to allocate virtual memory in the target process' memory space.</summary>
-    public class VirtualMemoryAllocationException : InjectorException
+    /// <summary>
+    ///    Exception thrown whenever there is a given feature has not been implemented in the library's code.
+    /// </summary>
+    public class NotImplementedException : RAMvaderException
 	{
 		/// <summary>Constructor.</summary>
-		public VirtualMemoryAllocationException()
-			: base( "Unable to allocate virtual memory in the target process' memory space." )
+		/// <param name="msg">The message to be associated with the exception.</param>
+		public NotImplementedException( string msg )
+			: base( msg )
 		{
-
 		}
 	}
 }

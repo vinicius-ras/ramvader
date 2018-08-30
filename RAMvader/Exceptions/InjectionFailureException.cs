@@ -78,7 +78,7 @@ namespace RAMvader.CodeInjection
 		/// <summary>Constructor.</summary>
 		/// <param name="failureType">The type of failure which caused the exception to be thrown.</param>
 		public InjectionFailureException( EFailureType failureType )
-            : base( string.Format( "Injection process has failed with code: {0}.", failureType.ToString() ) )
+            : base($"Injection process has failed with code: {failureType.ToString()}.")
         {
             m_failureType = failureType;
         }

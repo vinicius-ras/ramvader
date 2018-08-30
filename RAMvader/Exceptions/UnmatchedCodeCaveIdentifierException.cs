@@ -19,11 +19,11 @@
 
 namespace RAMvader
 {
-	/// <summary>
-	///    Exception thrown when the identifier given for a code cave does not match the expected enumeration type of identifiers
-	///    for code caves of an <see cref="CodeInjection.Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.
-	/// </summary>
-	public class UnmatchedCodeCaveIdentifierException : RAMvaderException
+    /// <summary>
+    ///    Exception thrown when the identifier given for a code cave does not match the expected enumeration type of identifiers
+    ///    for code caves of an <see cref="CodeInjection.Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/>.
+    /// </summary>
+    public class UnmatchedCodeCaveIdentifierException : RAMvaderException
 	{
 		/// <summary>Constructor.</summary>
 		/// <param name="msg">The message to be associated with the exception.</param>

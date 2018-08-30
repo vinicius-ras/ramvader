@@ -19,8 +19,8 @@
 
 namespace RAMvader.CodeInjection
 {
-	/// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
-	public abstract class InjectorException : RAMvaderException
+    /// <summary>A generic expection that might be thrown by the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class.</summary>
+    public abstract class InjectorException : RAMvaderException
 	{
 		#region PUBLIC METHODS
 		/// <summary>Constructor.</summary>
