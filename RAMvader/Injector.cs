@@ -18,6 +18,7 @@
  */
 
 using RAMvader.Attributes;
+using RAMvader.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -233,36 +234,6 @@ namespace RAMvader.CodeInjection
 
 
 
-		#region PRIVATE STATIC METHODS
-		/// <summary>
-		///    Utility method for retrieving a human-readable name for the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class,
-		///    including the name of its generic parameters.
-		/// </summary>
-		/// <returns>Returns a string containing the name of the <see cref="Injector{TMemoryAlterationSetID, TCodeCave, TVariable}"/> class and its generic parameters.</returns>
-		private static string GetInjectorNameWithTemplateParameters()
-		{
-			Type injectorType = typeof( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> );
-			Type [] genericArguments = injectorType.GetGenericArguments();
-			int totalGenericArguments = genericArguments.Length;
-
-			StringBuilder builder = new StringBuilder( injectorType.Name.Remove( injectorType.Name.IndexOf('`') ) );
-			builder.Append( '<' );
-			for ( int a = 0; a < totalGenericArguments; a++ )
-			{
-				if ( a > 0 )
-					builder.Append( ", " );
-				builder.Append( genericArguments[a].Name );
-			}
-			builder.Append( '>' );
-
-			return builder.ToString();
-		}
-        #endregion
-
-
-
-
-
         #region PUBLIC STATIC METHODS
         /// <summary>
         ///    Utility method for retrieving a sequence of bytes which represent the machine-level opcode corresponding
@@ -296,7 +267,7 @@ namespace RAMvader.CodeInjection
                 isShortBranch = false;
             else
                 throw new UnsupportedInstructionGenerationException(
-                    $"[{GetInjectorNameWithTemplateParameters()}] Failed to retrieve branch instruction bytes: instruction of type \"{nameof(EX86BranchInstructionType)}.{instructionType.ToString()}\" is" +
+                    $"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Failed to retrieve branch instruction bytes: instruction of type \"{nameof(EX86BranchInstructionType)}.{instructionType.ToString()}\" is" +
                     $" currently unsupported.");
 
             string propertyNameMinValue = nameof(Decimal.MinValue),
@@ -318,7 +289,7 @@ namespace RAMvader.CodeInjection
 
             if (relativeOffset < minRelativeOffset || relativeOffset > maxRelativeOffset)
                 throw new IllegalInstructionGenerationException(
-                    $"[{GetInjectorNameWithTemplateParameters()}] Failed to retrieve branch instruction bytes: instruction of type \"{nameof(EX86BranchInstructionType)}.{instructionType.ToString()}\" cannot" +
+                    $"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Failed to retrieve branch instruction bytes: instruction of type \"{nameof(EX86BranchInstructionType)}.{instructionType.ToString()}\" cannot" +
                     $" be generated for an instruction which is {relativeOffset} bytes away from the branching instruction's address (limits must be in the range [{minRelativeOffset}, {maxRelativeOffset}]).");
 
             byte[] relativeOffsetBytes;
@@ -369,13 +340,13 @@ namespace RAMvader.CodeInjection
 		{
 			// Check the template parameters used to create the Injector instance: both must represent enumeration types.
 			if ( typeof( TMemoryAlterationSetID ).IsEnum == false )
-				throw new InjectorGenericParametersException($"[{GetInjectorNameWithTemplateParameters()}] Failed to create instance. The type defined for memory alteration set identifiers was \"{typeof( TMemoryAlterationSetID ).Name}\", while it MUST be an enumerated type!");
+				throw new InjectorGenericParametersException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Failed to create instance. The type defined for memory alteration set identifiers was \"{typeof( TMemoryAlterationSetID ).Name}\", while it MUST be an enumerated type!");
 
 			if ( typeof( TCodeCave ).IsEnum == false )
-				throw new InjectorGenericParametersException($"[{GetInjectorNameWithTemplateParameters()}] Failed to create instance. The type defined for code cave identifiers was \"{typeof( TCodeCave ).Name}\", while it MUST be an enumerated type!");
+				throw new InjectorGenericParametersException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Failed to create instance. The type defined for code cave identifiers was \"{typeof( TCodeCave ).Name}\", while it MUST be an enumerated type!");
 
 			if ( typeof( TVariable ).IsEnum == false )
-				throw new InjectorGenericParametersException($"[{GetInjectorNameWithTemplateParameters()}] Failed to create instance. The type defined for variable identifiers was \"{typeof( TVariable ).Name}\", while it MUST be an enumerated type!");
+				throw new InjectorGenericParametersException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Failed to create instance. The type defined for variable identifiers was \"{typeof( TVariable ).Name}\", while it MUST be an enumerated type!");
 
 			// Initialize indexers.
 			// IMPORTANT: That is the ONLY point where indexers are initialized. Their respective properties'
@@ -468,13 +439,13 @@ namespace RAMvader.CodeInjection
 		public int GetCodeCaveOffset( TCodeCave codeCaveID )
 		{
 			int offset = 0;
-			TCodeCave [] codeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
+			var codeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
 
 			Target targetRef = this.TargetProcess;
 			for ( int c = 0; c < codeCaves.Length; c++ )
 			{
 				// Ignore code caves that are not defined (they're considered "size zero")
-				CodeCaveDefinition<TMemoryAlterationSetID,TCodeCave,TVariable> codeCaveSpecs = this.GetCodeCaveDefinition( codeCaves[c] );
+				var codeCaveSpecs = this.GetCodeCaveDefinition( codeCaves[c] );
 				if ( codeCaveSpecs == null )
 					continue;
 
@@ -490,7 +461,7 @@ namespace RAMvader.CodeInjection
 				offset += m_codeCavesSeparator.Length;
 			}
 
-			throw new InjectionArtifactNotFoundException($"[{GetInjectorNameWithTemplateParameters()}] Cannot retrieve offset for code cave identified by \"{codeCaveID.ToString()}\"!");
+			throw new InjectionArtifactNotFoundException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot retrieve offset for code cave identified by \"{codeCaveID.ToString()}\"!");
 		}
 
 
@@ -505,7 +476,7 @@ namespace RAMvader.CodeInjection
 		public AbsoluteMemoryAddress GetInjectedCodeCaveAddress( TCodeCave codeCaveID )
 		{
 			if ( this.IsInjected == false )
-				throw new InjectionArtifactNotFoundException($"[{GetInjectorNameWithTemplateParameters()}] Cannot retrieve injected code cave's address (\"{codeCaveID.ToString()}\"): the {GetInjectorNameWithTemplateParameters()} has not allocated memory into the target process yet!");
+				throw new InjectionArtifactNotFoundException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot retrieve injected code cave's address (\"{codeCaveID.ToString()}\"): the {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()} has not allocated memory into the target process yet!");
 
 			return new AbsoluteMemoryAddress( BaseInjectionAddress + GetCodeCaveOffset( codeCaveID ) );
 		}
@@ -527,7 +498,7 @@ namespace RAMvader.CodeInjection
 			// The target process HAS to be specified, because it is the only one who knows the target process'
 			// pointers size and endianness
 			if ( TargetProcess == null )
-				throw new NullReferenceException($"Cannot retrieve the address (bytes-form) of a injected code cave: the {GetInjectorNameWithTemplateParameters()} object has not been initialized with a {typeof( Target ).Name}!");
+				throw new NullReferenceException($"Cannot retrieve the address (bytes-form) of a injected code cave: the {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()} object has not been initialized with a {typeof( Target ).Name}!");
 
 			// Retrive the address (in the target process' memory space) of the injected code cave and then use
 			// the RAMvaderTarget object to retrieve its byte-representation into the target process' memory space
@@ -552,7 +523,7 @@ namespace RAMvader.CodeInjection
 		{
 			// Verify if the injector has an associated target process
 			if ( TargetProcess == null )
-				throw new NullReferenceException($"The {GetInjectorNameWithTemplateParameters()} instance is not associated to a {typeof( Target ).Name} object!");
+				throw new NullReferenceException($"The {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()} instance is not associated to a {typeof( Target ).Name} object!");
 
 			// Verify if the target process is attached, and if the injection has been performed already
 			if ( TargetProcess.Attached == false || this.IsInjected == false )
@@ -580,7 +551,7 @@ namespace RAMvader.CodeInjection
 			Target targetRef = this.TargetProcess;
 
 			// Get the offset for the injected variables region in memory...
-			TCodeCave [] codeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
+			var codeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
 			int lastDefinedCodeCaveIndex = codeCaves.Length - 1;
 			int lastDefinedCodeCaveOffset = 0, lastDefinedCodeCaveSize = 0;
 			if ( codeCaves.Length > 0 )
@@ -624,7 +595,7 @@ namespace RAMvader.CodeInjection
 				varOffset += this.GetVariableSize( curVar );
 			}
 
-			throw new InjectionArtifactNotFoundException($"[{GetInjectorNameWithTemplateParameters()}] Cannot retrieve offset for variable identified by \"{varID.ToString()}\"!");
+			throw new InjectionArtifactNotFoundException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot retrieve offset for variable identified by \"{varID.ToString()}\"!");
 		}
 
 
@@ -639,9 +610,7 @@ namespace RAMvader.CodeInjection
 		public AbsoluteMemoryAddress GetInjectedVariableAddress( TVariable varID )
 		{
 			if ( this.IsInjected == false )
-			{
-				throw new InjectionArtifactNotFoundException( $"[{GetInjectorNameWithTemplateParameters()}] Cannot retrieve injected variable's address (\"{varID.ToString()}\"): the {GetInjectorNameWithTemplateParameters()} has not allocated memory into the target process yet!");
-			}
+				throw new InjectionArtifactNotFoundException( $"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot retrieve injected variable's address (\"{varID.ToString()}\"): the {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()} has not allocated memory into the target process yet!");
 			return new AbsoluteMemoryAddress( BaseInjectionAddress + GetVariableOffset( varID ) );
 		}
 
@@ -662,7 +631,7 @@ namespace RAMvader.CodeInjection
 			// The target process HAS to be specified, because it is the only one who knows the target process'
 			// pointers size and endianness
 			if ( TargetProcess == null )
-				throw new NullReferenceException($"Cannot retrieve the address (bytes-form) of a injected variable: the {GetInjectorNameWithTemplateParameters()} object has not been initialized with a {typeof( Target ).Name}!");
+				throw new NullReferenceException($"Cannot retrieve the address (bytes-form) of a injected variable: the {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()} object has not been initialized with a {typeof( Target ).Name}!");
 
 			// Retrive the address (in the target process' memory space) of the injected variable and then use
 			// the RAMvaderTarget object to retrieve its byte-representation into the target process' memory space
@@ -687,7 +656,7 @@ namespace RAMvader.CodeInjection
 		{
 			// Verify if the injector has an associated target process
 			if ( TargetProcess == null )
-				throw new NullReferenceException($"The {GetInjectorNameWithTemplateParameters()} instance is not associated to a {typeof( Target ).Name} object!");
+				throw new NullReferenceException($"The {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()} instance is not associated to a {typeof( Target ).Name} object!");
 
 			// Verify if the target process is attached, and if the injection has been performed already
 			if ( TargetProcess.Attached == false || this.IsInjected == false )
@@ -730,7 +699,7 @@ namespace RAMvader.CodeInjection
 			{
 				// Pointer types need the target process to be initialized
 				if ( TargetProcess == null )
-					throw new NullReferenceException($"The {GetInjectorNameWithTemplateParameters()} class cannot retrieve the size of an injection variable of type IntPtr before its target process is initialized!");
+					throw new NullReferenceException($"The {typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()} class cannot retrieve the size of an injection variable of type IntPtr before its target process is initialized!");
 
 				return this.TargetProcess.GetActualTargetPointerSizeInBytes();
 			}
@@ -750,11 +719,11 @@ namespace RAMvader.CodeInjection
 			Target targetRef = this.TargetProcess;
 
 			// Calculate space required for all code caves
-			TCodeCave [] allCodeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
+			var allCodeCaves = (TCodeCave[]) Enum.GetValues( typeof( TCodeCave ) );
 			int totalDefinedCodeCaves = 0;
 			foreach ( TCodeCave curCodeCave in allCodeCaves )
 			{
-				CodeCaveDefinition<TMemoryAlterationSetID, TCodeCave, TVariable> curCodeCaveSpecs = this.GetCodeCaveDefinition( curCodeCave );
+				var curCodeCaveSpecs = this.GetCodeCaveDefinition( curCodeCave );
 				if ( curCodeCaveSpecs == null )
 					continue;
 
@@ -763,7 +732,7 @@ namespace RAMvader.CodeInjection
 			}
 
 			// Calculate space required for variables
-			TVariable [] allVariables = (TVariable[]) Enum.GetValues( typeof( TVariable ) );
+			var allVariables = (TVariable[]) Enum.GetValues( typeof( TVariable ) );
 			bool hasDefinedVariables = false;
 			foreach ( TVariable curVariable in allVariables )
 			{
@@ -1238,16 +1207,14 @@ namespace RAMvader.CodeInjection
 		{
 			// Error checking...
 			if ( TargetProcess == null )
-			{
-				throw new NullReferenceException($"[{GetInjectorNameWithTemplateParameters()}] Cannot update variable's value: target process has not been initialized yet!");
-			}
+				throw new NullReferenceException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot update variable's value: target process has not been initialized yet!");
 
 			if ( TargetProcess.IsAttached() == false )
 				throw new InstanceNotAttachedException();
 
 			VariableDefinition varSpecs = this.GetVariableDefinition( variableID );
 			if ( varSpecs == null )
-				throw new InjectionArtifactNotFoundException($"[{GetInjectorNameWithTemplateParameters()}] Cannot update variable's value: variable identified by \"{variableID.ToString()}\" has no variable definition associated to it!");
+				throw new InjectionArtifactNotFoundException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot update variable's value: variable identified by \"{variableID.ToString()}\" has no variable definition associated to it!");
 
 			Type injectedVariableType = varSpecs.InitialValue.GetType();
 			Type givenValueType = newValue.GetType();
@@ -1289,16 +1256,14 @@ namespace RAMvader.CodeInjection
 		{
 			// Error checking...
 			if ( TargetProcess == null )
-			{
-				throw new NullReferenceException($"[{GetInjectorNameWithTemplateParameters()}] Cannot read injected variable's value: target process has not been initialized yet!");
-			}
+				throw new NullReferenceException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot read injected variable's value: target process has not been initialized yet!");
 
 			if ( TargetProcess.IsAttached() == false )
 				throw new InstanceNotAttachedException();
 
 			VariableDefinition varSpecs = this.GetVariableDefinition( variableID );
 			if ( varSpecs == null )
-				throw new InjectionArtifactNotFoundException($"[{GetInjectorNameWithTemplateParameters()}] Cannot update variable's value: variable identified by \"{variableID.ToString()}\" has no variable definition associated to it!");
+				throw new InjectionArtifactNotFoundException($"[{typeof(Injector<TMemoryAlterationSetID, TCodeCave, TVariable>).ExpandedName()}] Cannot update variable's value: variable identified by \"{variableID.ToString()}\" has no variable definition associated to it!");
 
 			Type injectedVariableType = varSpecs.InitialValue.GetType();
 			Type outputValueType = typeof(T);

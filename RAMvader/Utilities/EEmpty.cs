@@ -17,7 +17,7 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-namespace RAMvader
+namespace RAMvader.Utilities
 {
     /// <summary>
     ///    An empty enumeration, provided for utility purposes (e.g. you can use it to specify the generic enumeration type(s) for

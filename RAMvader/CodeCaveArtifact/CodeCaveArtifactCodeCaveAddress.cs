@@ -59,7 +59,7 @@ namespace RAMvader.CodeInjection
 		/// </returns>
 		public override byte[] GenerateArtifactBytes()
 		{
-			Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injectorRef = this.GetLockingInjector();
+			var injectorRef = this.GetLockingInjector();
 			byte [] result = injectorRef.GetInjectedCodeCaveAddressAsBytes( m_codeCaveId );
 			return result;
 		}

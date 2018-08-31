@@ -70,9 +70,9 @@ namespace RAMvader.CodeInjection
 		/// <returns>Returns the created <see cref="CodeCaveDefinition{TMemoryAlterationSetID, TCodeCave, TVariable}"/> instance.</returns>
 		public CodeCaveDefinition<TMemoryAlterationSetID, TCodeCave, TVariable> Build()
 		{
-			CodeCaveDefinition<TMemoryAlterationSetID, TCodeCave, TVariable> result = new CodeCaveDefinition<TMemoryAlterationSetID, TCodeCave, TVariable>();
+			var result = new CodeCaveDefinition<TMemoryAlterationSetID, TCodeCave, TVariable>();
 
-			CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> [] artifactsList = this.m_artifacts.ToArray();
+			var artifactsList = this.m_artifacts.ToArray();
 			result.SetArtifactsArray( artifactsList );
 
 			return result;

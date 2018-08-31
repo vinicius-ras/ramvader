@@ -91,7 +91,7 @@ namespace RAMvader.CodeInjection
 
 			// Generate the array of bytes representing the code cave
 			List<byte> result = new List<byte>();
-			foreach ( CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> curCodeCaveArtifact in m_codeCaveArtifacts )
+			foreach ( var curCodeCaveArtifact in m_codeCaveArtifacts )
 			{
                 // Lock the artifact being injected and set its internal reference to the injector
 				curCodeCaveArtifact.LockWithInjector( injector );
@@ -122,7 +122,7 @@ namespace RAMvader.CodeInjection
 				return 0;
 
 			int sizeCount = 0;
-			foreach ( CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> curArtifact in m_codeCaveArtifacts )
+			foreach ( var curArtifact in m_codeCaveArtifacts )
 				sizeCount += curArtifact.GetTotalSize( target );
 
 			return sizeCount;

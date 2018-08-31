@@ -17,6 +17,7 @@
  * along with RAMvader.  If not, see <http://www.gnu.org/licenses/>.
  */
 
+using RAMvader.Utilities;
 using System;
 
 namespace RAMvader.CodeInjection
@@ -60,7 +61,7 @@ namespace RAMvader.CodeInjection
 		public void LockWithInjector( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injectorRef )
 		{
 			if ( m_injector != null )
-				throw new InvalidOperationException($"The {typeof( CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> ).Name} instance is already locked by a {typeof( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> ).Name} object!");
+				throw new InvalidOperationException($"The {typeof( CodeCaveArtifact<TMemoryAlterationSetID, TCodeCave, TVariable> ).ExpandedName()} instance is already locked by a {typeof( Injector<TMemoryAlterationSetID, TCodeCave, TVariable> ).ExpandedName()} object!");
 			m_injector = injectorRef;
 		}
 

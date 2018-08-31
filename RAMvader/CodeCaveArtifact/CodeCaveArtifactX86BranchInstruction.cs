@@ -18,6 +18,7 @@
  */
 
 using RAMvader.Attributes;
+using RAMvader.Utilities;
 using System;
 
 namespace RAMvader.CodeInjection
@@ -68,7 +69,7 @@ namespace RAMvader.CodeInjection
 		/// </returns>
 		public override byte[] GenerateArtifactBytes()
 		{
-			Injector<TMemoryAlterationSetID, TCodeCave, TVariable> injectorRef = this.GetLockingInjector();
+			var injectorRef = this.GetLockingInjector();
 			IntPtr curInjectionAddress = injectorRef.GetCurrentInjectionAddress();
 			MemoryAddress currentInjectionAddress = new AbsoluteMemoryAddress( curInjectionAddress );
 

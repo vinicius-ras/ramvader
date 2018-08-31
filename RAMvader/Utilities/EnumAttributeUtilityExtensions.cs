@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Reflection;
 
-namespace RAMvader.Attributes
+namespace RAMvader.Utilities
 {
     /// <summary>
     ///    Provides utilities for accessing <see cref="Attribute"/>s from enumerated types in an easier manner,
