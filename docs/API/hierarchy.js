@@ -1,13 +1,14 @@
 var hierarchy =
 [
+    [ "Attribute", null, [
+      [ "RAMvader.Attributes.X86BranchInstructionMetadata", "class_r_a_mvader_1_1_attributes_1_1_x86_branch_instruction_metadata.html", null ]
+    ] ],
     [ "RAMvader.CodeInjection.CodeCaveArtifact< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact.html", [
+      [ "RAMvader.CodeInjection.CodeCaveArtifactByteSequence< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_byte_sequence.html", null ],
       [ "RAMvader.CodeInjection.CodeCaveArtifactCodeCaveAddress< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_code_cave_address.html", null ],
-      [ "RAMvader.CodeInjection.CodeCaveArtifactSignedBytesSequence< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_signed_bytes_sequence.html", null ],
-      [ "RAMvader.CodeInjection.CodeCaveArtifactUnsignedBytesSequence< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_unsigned_bytes_sequence.html", null ],
+      [ "RAMvader.CodeInjection.CodeCaveArtifactSByteSequence< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_s_byte_sequence.html", null ],
       [ "RAMvader.CodeInjection.CodeCaveArtifactVariableAddress< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_variable_address.html", null ],
-      [ "RAMvader.CodeInjection.CodeCaveArtifactX86Call< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_x86_call.html", null ],
-      [ "RAMvader.CodeInjection.CodeCaveArtifactX86FarJump< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_x86_far_jump.html", null ],
-      [ "RAMvader.CodeInjection.CodeCaveArtifactX86NearJump< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_x86_near_jump.html", null ]
+      [ "RAMvader.CodeInjection.CodeCaveArtifactX86BranchInstruction< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_artifact_x86_branch_instruction.html", null ]
     ] ],
     [ "RAMvader.CodeInjection.CodeCaveBuilder< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_builder.html", null ],
     [ "RAMvader.CodeInjection.CodeCaveDefinition< TMemoryAlterationSetID, TCodeCave, TVariable >", "class_r_a_mvader_1_1_code_injection_1_1_code_cave_definition.html", null ],
@@ -28,6 +29,7 @@ var hierarchy =
         [ "RAMvader.InstanceAlreadyAttachedException", "class_r_a_mvader_1_1_instance_already_attached_exception.html", null ],
         [ "RAMvader.InstanceNotAttachedException", "class_r_a_mvader_1_1_instance_not_attached_exception.html", null ],
         [ "RAMvader.ModuleNotFoundException", "class_r_a_mvader_1_1_module_not_found_exception.html", null ],
+        [ "RAMvader.NotImplementedException", "class_r_a_mvader_1_1_not_implemented_exception.html", null ],
         [ "RAMvader.PointerDataLostException", "class_r_a_mvader_1_1_pointer_data_lost_exception.html", null ],
         [ "RAMvader.RequiredIOException", "class_r_a_mvader_1_1_required_i_o_exception.html", [
           [ "RAMvader.RequiredReadException", "class_r_a_mvader_1_1_required_read_exception.html", null ],
@@ -45,11 +47,9 @@ var hierarchy =
         [ "RAMvader.CodeInjection.MemoryAlterationBase", "class_r_a_mvader_1_1_code_injection_1_1_memory_alteration_base.html", [
           [ "RAMvader.CodeInjection.MemoryAlterationNOP", "class_r_a_mvader_1_1_code_injection_1_1_memory_alteration_n_o_p.html", null ],
           [ "RAMvader.CodeInjection.MemoryAlterationPoke", "class_r_a_mvader_1_1_code_injection_1_1_memory_alteration_poke.html", null ],
-          [ "RAMvader.CodeInjection.MemoryAlterationX86Call", "class_r_a_mvader_1_1_code_injection_1_1_memory_alteration_x86_call.html", null ],
-          [ "RAMvader.CodeInjection.MemoryAlterationX86FarJump", "class_r_a_mvader_1_1_code_injection_1_1_memory_alteration_x86_far_jump.html", null ],
-          [ "RAMvader.CodeInjection.MemoryAlterationX86NearJump", "class_r_a_mvader_1_1_code_injection_1_1_memory_alteration_x86_near_jump.html", null ]
+          [ "RAMvader.CodeInjection.MemoryAlterationX86BranchInstruction", "class_r_a_mvader_1_1_code_injection_1_1_memory_alteration_x86_branch_instruction.html", null ]
         ] ],
-        [ "RAMvader.RAMvaderTarget", "class_r_a_mvader_1_1_r_a_mvader_target.html", null ]
+        [ "RAMvader.Target", "class_r_a_mvader_1_1_target.html", null ]
       ] ]
     ] ],
     [ "RAMvader.MemoryAddress", "class_r_a_mvader_1_1_memory_address.html", [
