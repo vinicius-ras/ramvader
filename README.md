@@ -7,7 +7,7 @@ RAMvader currently supports **.NET Framework 4.5** and superior, being able to r
 
 # Quickstart
 
-After installing the library (steps are described in [this page](InstallingNuget) of our wiki), first thing you have to do is find the target process, whose memory will be the target for your read/write operations. There are several ways to do that. Two snippets that might help you finding the target process are shown below:
+After installing the library (steps are described in [this page](https://github.com/vinicius-ras/ramvader/wiki/InstallingNuget) of our wiki), first thing you have to do is find the target process, whose memory will be the target for your read/write operations. There are several ways to do that. Two snippets that might help you finding the target process are shown below:
 
 ~~~
 // NOTE: "Process" class is part of the "System.Diagnostics" namespace
