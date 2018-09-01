@@ -1081,6 +1081,7 @@ namespace RAMvader.CodeInjection
         ///    mainly to allow for the generation branching instructions (which need to know their exact address when they
         ///    need to be generated).
         /// </summary>
+        /// <param name="increase">The amount of bytes to increase for the internal count of the injection offset value.</param>
         /// <seealso cref="GetCurrentInjectionOffset"/>
         /// <seealso cref="GetCurrentInjectionAddress"/>
         public void IncreaseCurrentInjectionOffset(int increase)

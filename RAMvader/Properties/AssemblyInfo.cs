@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 [assembly: AssemblyTitle("RAMvader")]
-[assembly: AssemblyDescription("A C# library which provides access to other processes' memory space.")]
+[assembly: AssemblyDescription("A .NET library which provides access to other processes' memory spaces.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Vinicius.RAS")]
 [assembly: AssemblyProduct("RAMvader")]
@@ -53,3 +53,5 @@ using System.Runtime.InteropServices;
 // [assembly: AssemblyVersion("1.0.*")]
 [assembly: AssemblyVersion("1.4.0.0")]
 [assembly: AssemblyFileVersion("1.4.0.0")]
+[assembly: NeutralResourcesLanguage("en")]
+
