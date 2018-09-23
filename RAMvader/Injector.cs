@@ -308,13 +308,14 @@ namespace RAMvader.CodeInjection
                 relativeOffsetBytes = Target.GetValueAsBytesArray(relativeOffset32, EEndianness.evEndiannessLittle);
             }
 
-            // Copy the bytes to the result and return it
-            byte[] result = new byte[totalRequiredBytes],
+            // Copy the bytes to the result, fill any remaining bytes with NOP opcodes, and return the resulting array
+            byte[] result = new byte[instructionSize],
                 mainOpcodeBytes = instructionMetadata.MainOpcodeBytes;
 
             Array.Copy(mainOpcodeBytes, result, mainOpcodeBytes.Length);
             Array.Copy(relativeOffsetBytes, 0, result, mainOpcodeBytes.Length, relativeOffsetBytes.Length);
-
+            for (int i = mainOpcodeBytes.Length + relativeOffsetBytes.Length; i < instructionSize; i++)
+                result[i] = X86Constants.OPCODE_NOP;
             return result;
         }
         #endregion
